@@ -61,11 +61,12 @@
                             <th>Registration Status</th>
                             <th>Pre-Registration / Finalized Fee</th>
                             <th>Fee Payments History</th>
+                            <th>Practice Performance</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="student-table-body">
-                        <tr><td colspan="5" style="text-align:center;">Loading records...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">Loading records...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -123,11 +124,14 @@
                     } else { feeHistoryHtml = "<small>No course installments submitted yet.</small>"; }
 
                     const tr = document.createElement('tr');
+                    const attempts = s.testAttempts || [];
+                    const latestAttempt = attempts[attempts.length - 1];
                     tr.innerHTML = `
                         <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
                         <td>${statusHtml}<br><small>${s.course}</small></td>
                         <td style="font-weight:bold; color:#0d4a5d;">Pre: ₹${s.preRegistrationAmount || 100}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small>${s.regUtr ? `<br><small>UTR: ${s.regUtr}</small>` : ''}<br><label style="font-weight:normal;">Finalized fee<br><input id="final-fee-${docId}" type="number" min="100" step="100" value="${s.finalizedFee || 30000}" style="width:90px; padding:4px;"></label><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="saveFinalizedFee('${docId}')">Save Fee</button></td>
                         <td>${feeHistoryHtml}</td>
+                        <td>${latestAttempt ? `<strong>${latestAttempt.score}%</strong><br><small>${attempts.length} test${attempts.length === 1 ? '' : 's'}</small>` : '<small>No tests yet</small>'}</td>
                         <td>
                             ${approveBtn}
                             <button class="remove-btn" onclick="removeStudent('${docId}')">Delete Record</button>

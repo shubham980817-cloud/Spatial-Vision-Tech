@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Student Performance</title>
+    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background: #f4f7f8; color: #333; line-height: 1.6; }
+        .top-bar { background: #fff; padding: 12px 20px; box-shadow: 0 2px 5px rgba(0,0,0,.1); display: flex; justify-content: space-between; align-items: center; }
+        .top-bar a { color: #0d4a5d; text-decoration: none; font-weight: bold; }
+        .top-bar-logo { width: 86px; height: 36px; object-fit: contain; }
+        .page-shell { max-width: 1100px; margin: 0 auto; padding: 50px 20px; }
+        .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 30px; }
+        h1, h2, h3 { color: #0d4a5d; }
+        h1 { margin: 0; font-size: 2.5em; }
+        .eyebrow { color: #1ba0a8; font-weight: bold; text-transform: uppercase; letter-spacing: .08em; }
+        .panel { background: #fff; padding: 28px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,.06); margin-bottom: 24px; }
+        .login-panel { max-width: 460px; margin: 70px auto; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; color: #0d4a5d; font-weight: bold; margin-bottom: 6px; }
+        input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ccd8dc; border-radius: 4px; font: inherit; }
+        button { background: #0d4a5d; color: #fff; border: 0; border-radius: 4px; padding: 13px 20px; font: inherit; font-weight: bold; cursor: pointer; }
+        button:hover { background: #1ba0a8; }
+        button.secondary { background: #eef5f7; color: #0d4a5d; }
+        .message { margin-top: 15px; font-weight: bold; }
+        .overview-grid, .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+        .metric { border-left: 4px solid #1ba0a8; background: #f8fbfb; padding: 18px; }
+        .metric strong { display: block; color: #0d4a5d; font-size: 1.8em; }
+        .resource { border: 1px solid #dce6e8; padding: 18px; border-radius: 6px; }
+        .resource h3 { margin-top: 0; }
+        .resource a { color: #0d8d98; font-weight: bold; }
+        .question { border-top: 1px solid #e2eaec; padding: 18px 0; }
+        .question:first-child { border-top: 0; }
+        .question label { color: #333; font-weight: normal; }
+        .question input { width: auto; margin-right: 8px; }
+        .history-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e2eaec; padding: 10px 0; }
+        .hidden { display: none; }
+        @media (max-width: 680px) { .page-heading { display: block; } h1 { font-size: 2em; } .page-shell { padding-top: 30px; } }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html">&larr; Home</a>
+        <a href="index.html" title="Go to Homepage"><img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Homepage" class="top-bar-logo"></a>
+    </div>
+
+    <main class="page-shell">
+        <section id="login-screen" class="panel login-panel">
+            <div class="eyebrow">Student Practice</div>
+            <h1>Performance Portal</h1>
+            <p>Sign in to take practice tests, review your scores, and build your BIM knowledge.</p>
+            <form id="performance-login-form">
+                <div class="form-group"><label for="performance-email">Email Address</label><input type="email" id="performance-email" required></div>
+                <div class="form-group"><label for="performance-password">Password</label><input type="password" id="performance-password" required></div>
+                <button type="submit">Open Performance Portal</button>
+                <div id="login-message" class="message"></div>
+            </form>
+        </section>
+
+        <section id="portal-screen" class="hidden">
+            <div class="page-heading">
+                <div><div class="eyebrow">Student Performance</div><h1>Practice and Progress</h1><p>Welcome, <strong id="student-name"></strong>. Keep your learning active between studios.</p></div>
+                <button id="logout-button" class="secondary">Sign Out</button>
+            </div>
+
+            <div class="overview-grid panel">
+                <div class="metric"><span>Latest Score</span><strong id="latest-score">0%</strong></div>
+                <div class="metric"><span>Tests Completed</span><strong id="test-count">0</strong></div>
+                <div class="metric"><span>Best Score</span><strong id="best-score">0%</strong></div>
+            </div>
+
+            <section class="panel">
+                <h2>Practice Data</h2>
+                <div class="resource-grid">
+                    <article class="resource"><h3>Revit Fundamentals</h3><p>Practice levels, grids, views, families, and basic model setup.</p><a href="https://help.autodesk.com/view/RVT/2025/ENU/" target="_blank" rel="noopener">Open Revit Help</a></article>
+                    <article class="resource"><h3>BIM Coordination</h3><p>Review federated models, clash workflows, information exchange, and coordination checks.</p><a href="https://www.buildingsmart.org/standards/bsi-standards/" target="_blank" rel="noopener">Explore open standards</a></article>
+                    <article class="resource"><h3>Quantity and Delivery</h3><p>Work through documentation, schedules, BOQs, naming conventions, and delivery review.</p><a href="services.html">Review SVT services</a></article>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>BIM Foundations Test</h2>
+                <p>Choose one answer for each question. Your score is saved to your student record after submission.</p>
+                <form id="practice-test-form">
+                    <div class="question"><strong>1. What does BIM primarily manage?</strong><label><input type="radio" name="q1" value="a" required> Only 2D drawings</label><label><input type="radio" name="q1" value="b"> Information connected to a digital building model</label><label><input type="radio" name="q1" value="c"> Site attendance only</label></div>
+                    <div class="question"><strong>2. Which workflow is most associated with Navisworks?</strong><label><input type="radio" name="q2" value="a" required> Clash detection and coordination</label><label><input type="radio" name="q2" value="b"> Payroll processing</label><label><input type="radio" name="q2" value="c"> Email marketing</label></div>
+                    <div class="question"><strong>3. What is a Revit family?</strong><label><input type="radio" name="q3" value="a" required> A project invoice</label><label><input type="radio" name="q3" value="b"> A reusable parametric component</label><label><input type="radio" name="q3" value="c"> A site safety report</label></div>
+                    <div class="question"><strong>4. What does a federated model combine?</strong><label><input type="radio" name="q4" value="a" required> Separate discipline models for coordination</label><label><input type="radio" name="q4" value="b"> Student passwords</label><label><input type="radio" name="q4" value="c"> Payment receipts only</label></div>
+                    <div class="question"><strong>5. ISO 19650 is focused on:</strong><label><input type="radio" name="q5" value="a" required> Managing information over an asset lifecycle</label><label><input type="radio" name="q5" value="b"> Rendering only</label><label><input type="radio" name="q5" value="c"> Computer hardware repair</label></div>
+                    <button type="submit">Submit Test</button>
+                    <div id="test-message" class="message"></div>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>Attempt History</h2>
+                <div id="attempt-history"><p>No completed tests yet.</p></div>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+            authDomain: "spatial-vision-tech.firebaseapp.com",
+            projectId: "spatial-vision-tech",
+            storageBucket: "spatial-vision-tech.firebasestorage.app",
+            messagingSenderId: "455311542009",
+            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let activeStudentId = null;
+        let activeStudent = null;
+
+        function showMessage(element, text, color) {
+            element.textContent = text;
+            element.style.color = color;
+        }
+
+        function renderPerformance(student) {
+            const attempts = student.testAttempts || [];
+            const scores = attempts.map(attempt => Number(attempt.score) || 0);
+            document.getElementById('student-name').textContent = student.name || student.email;
+            document.getElementById('latest-score').textContent = `${scores.length ? scores[scores.length - 1] : 0}%`;
+            document.getElementById('test-count').textContent = scores.length;
+            document.getElementById('best-score').textContent = `${scores.length ? Math.max(...scores) : 0}%`;
+            const history = document.getElementById('attempt-history');
+            history.innerHTML = attempts.length ? attempts.slice().reverse().map(attempt => `<div class="history-row"><span>${new Date(attempt.date).toLocaleDateString('en-IN')}</span><strong>${attempt.score}% (${attempt.correct}/${attempt.total})</strong></div>`).join('') : '<p>No completed tests yet.</p>';
+        }
+
+        document.getElementById('performance-login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const message = document.getElementById('login-message');
+            auth.signInWithEmailAndPassword(document.getElementById('performance-email').value, document.getElementById('performance-password').value)
+                .then(() => db.collection('students').doc(auth.currentUser.uid).get())
+                .then(snapshot => snapshot.exists ? snapshot : db.collection('students').where('email', '==', auth.currentUser.email).limit(1).get().then(results => {
+                    if (results.empty) throw new Error('Student record not found.');
+                    return results.docs[0];
+                }))
+                .then(snapshot => {
+                    activeStudentId = snapshot.id;
+                    activeStudent = snapshot.data();
+                    renderPerformance(activeStudent);
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('portal-screen').classList.remove('hidden');
+                })
+                .catch(error => showMessage(message, error.message, '#c62828'));
+        });
+
+        document.getElementById('practice-test-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const answers = Object.fromEntries(new FormData(event.target).entries());
+            const correctAnswers = { q1: 'b', q2: 'a', q3: 'b', q4: 'a', q5: 'a' };
+            const correct = Object.keys(correctAnswers).filter(question => answers[question] === correctAnswers[question]).length;
+            const attempt = { score: Math.round((correct / 5) * 100), correct, total: 5, date: new Date().toISOString() };
+            db.collection('students').doc(activeStudentId).update({ testAttempts: firebase.firestore.FieldValue.arrayUnion(attempt) })
+                .then(() => {
+                    activeStudent.testAttempts = [...(activeStudent.testAttempts || []), attempt];
+                    renderPerformance(activeStudent);
+                    showMessage(document.getElementById('test-message'), `Test submitted: ${attempt.score}%. Your result is saved.`, '#2e7d32');
+                    event.target.reset();
+                })
+                .catch(error => showMessage(document.getElementById('test-message'), error.message, '#c62828'));
+        });
+
+        document.getElementById('logout-button').addEventListener('click', () => auth.signOut().then(() => location.reload()));
+    </script>
+</body>
+</html>
