@@ -59,7 +59,7 @@
                         <tr>
                             <th>Student Identity</th>
                             <th>Registration Status</th>
-                            <th>Reg Fee (₹100) UTR</th>
+                            <th>Registration Fee (₹5,000)</th>
                             <th>Fee Payments History</th>
                             <th>Actions</th>
                         </tr>
@@ -108,14 +108,16 @@
                         ? `<span class="status-badge status-pending">Pending Approval</span>`
                         : `<span class="status-badge status-approved">Approved Active</span>`;
                         
-                    let approveBtn = s.approvalStatus === "Pending" 
-                        ? `<button class="approve-btn" onclick="approveStudent('${docId}')">Verify & Approve Registration</button>` 
+                    let approveBtn = s.approvalStatus === "Pending" && s.regPaymentStatus === "Paid"
+                        ? `<button class="approve-btn" onclick="approveStudent('${docId}')">Approve Registration</button>`
+                        : s.approvalStatus === "Pending"
+                            ? `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Awaiting verified payment</span>`
                         : `<span style="display:block; text-align:center; color:#28a745; font-weight:bold; margin-bottom:5px;">Approved</span>`;
 
                     let feeHistoryHtml = "";
                     if(s.feeHistory && s.feeHistory.length > 0) {
                         s.feeHistory.forEach(fee => {
-                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount} <br><small>UTR: ${fee.utr}</small></div>`;
+                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount}<br><small>Status: ${fee.status || 'Recorded'}</small></div>`;
                         });
                     } else { feeHistoryHtml = "<small>No course installments paid yet.</small>"; }
 
@@ -123,7 +125,7 @@
                     tr.innerHTML = `
                         <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
                         <td>${statusHtml}<br><small>${s.course}</small></td>
-                        <td style="font-family:monospace; font-weight:bold; font-size:1.1em; color:#0d4a5d;">${s.regUtr || 'N/A'}</td>
+                        <td style="font-weight:bold; color:#0d4a5d;">₹${s.registrationFee || 5000}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small></td>
                         <td>${feeHistoryHtml}</td>
                         <td>
                             ${approveBtn}
@@ -136,7 +138,7 @@
         }
 
         window.approveStudent = function(docId) {
-            if(confirm("Have you verified the ₹100 payment UTR in your bank? Approving will unlock the student's fee payment portal.")) {
+            if(confirm("Approve this student? The ₹5,000 Cashfree payment has been verified. This will unlock the student's fee payment portal.")) {
                 db.collection("students").doc(docId).update({ approvalStatus: "Approved" })
                 .then(() => loadStudentsData());
             }

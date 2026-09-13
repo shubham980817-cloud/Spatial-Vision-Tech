@@ -6,6 +6,7 @@
     <title>Spatial Vision Tech | Student Portal</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -99,7 +100,7 @@
                 
                 <div class="payment-section">
                     <h3 style="color:#0d4a5d; margin-top:0; border-bottom:2px solid #1ba0a8; padding-bottom:5px;">Pay Course Fees</h3>
-                    <p style="color:#555; margin-bottom:20px;">Submit your course installments below. Payments are instantly logged to your academic record.</p>
+                    <p style="color:#555; margin-bottom:20px;">Pay each ₹10,000 installment securely through Cashfree. Payments are recorded after Cashfree confirms them.</p>
                     
                     <form id="feePaymentForm">
                         <div style="display:flex; gap:20px; flex-wrap:wrap;">
@@ -110,18 +111,10 @@
                                     <option value="1st Installment (₹10,000)">1st Installment (₹10,000)</option>
                                     <option value="2nd Installment (₹10,000)">2nd Installment (₹10,000)</option>
                                     <option value="3rd Installment (₹10,000)">3rd Installment (₹10,000)</option>
-                                    <option value="Full Course Fee (₹30,000)">Full Course Fee (₹30,000)</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="flex:1;">
-                                <label>Payment UTR / Transaction ID</label>
-                                <input type="text" id="fee-utr" required placeholder="12-Digit UTR" pattern="\d{12}">
-                            </div>
                         </div>
-                        <div style="background:#eef5f7; padding:15px; border-radius:4px; margin-bottom:20px; font-weight:bold; color:#0d4a5d; border:1px solid #bce0ea;">
-                            Scan/Pay to UPI ID: <span style="font-family:monospace; font-size:1.2em; margin-left:10px;">spatialvisiontech@rbl</span>
-                        </div>
-                        <button type="submit" id="feeSubmitBtn" class="btn">Record Payment & Download Receipt</button>
+                        <button type="submit" id="feeSubmitBtn" class="btn">Pay ₹10,000 Installment</button>
                     </form>
                 </div>
 
@@ -161,7 +154,7 @@
                             </div>
                             <div>
                                 <p><strong>Course:</strong> <span id="r-course"></span></p>
-                                <p><strong>UTR:</strong> <span id="r-utr"></span></p>
+                                <p><strong>Status:</strong> <span id="r-payment-status"></span></p>
                             </div>
                         </div>
                         <table class="receipt-table">
@@ -194,6 +187,13 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const createOrderEndpoint = "https://us-central1-spatial-vision-tech.cloudfunctions.net/createCashfreeOrder";
+        const cashfree = Cashfree({ mode: "sandbox" });
+        const paymentStatus = new URLSearchParams(window.location.search).get('payment_status');
+        if (paymentStatus && paymentStatus.toLowerCase() === 'success') {
+            document.getElementById('login-msg').style.color = '#2e7d32';
+            document.getElementById('login-msg').innerText = 'Payment response received. Your payment is being verified by Cashfree.';
+        }
 
         function showScreen(id) {
             ['login-screen', 'forgot-password-screen', 'pending-approval-screen', 'student-dashboard'].forEach(s => document.getElementById(s).style.display = 'none');
@@ -244,41 +244,27 @@
         document.getElementById('feePaymentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('feeSubmitBtn');
-            btn.innerText = "Saving Payment..."; btn.disabled = true;
+            btn.innerText = "Starting Secure Payment..."; btn.disabled = true;
 
             const feeType = document.getElementById('fee-type').value;
-            const feeUtr = document.getElementById('fee-utr').value;
-            
-            // Extract numeric amount for receipt
-            const amountStr = feeType.includes('30,000') ? '₹30,000.00' : '₹10,000.00';
-            const dateStr = new Date().toLocaleDateString('en-IN');
-            const receiptNo = `FEE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-            const newFeeRecord = {
-                type: feeType,
-                amount: amountStr.replace('₹','').replace(',',''),
-                utr: feeUtr,
-                date: new Date().toISOString()
-            };
-
-            // Push to Firebase Array
-            db.collection("students").doc(activeDocId).update({
-                feeHistory: firebase.firestore.FieldValue.arrayUnion(newFeeRecord)
-            }).then(() => {
-                // Populate Receipt UI
-                document.getElementById('r-receipt-no').innerText = receiptNo;
-                document.getElementById('r-date').innerText = dateStr;
-                document.getElementById('r-name').innerText = activeStudent.name;
-                document.getElementById('r-student-id').innerText = activeStudent.studentId;
-                document.getElementById('r-course').innerText = activeStudent.course;
-                document.getElementById('r-utr').innerText = feeUtr;
-                document.getElementById('r-fee-desc').innerText = feeType;
-                document.getElementById('r-fee-amount').innerText = amountStr;
-                document.getElementById('r-fee-total').innerText = amountStr;
-
-                document.getElementById('receiptModal').style.display = 'block';
-                btn.innerText = "Record Payment & Download Receipt"; btn.disabled = false;
-                document.getElementById('feePaymentForm').reset();
+            auth.currentUser.getIdToken().then(token => fetch(createOrderEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    name: activeStudent.name,
+                    email: activeStudent.email,
+                    course: activeStudent.course,
+                    paymentType: 'installment',
+                    installmentType: feeType
+                })
+            })).then(response => response.json().then(order => ({ response, order })))
+            .then(({ response, order }) => {
+                if (!response.ok) throw new Error(order.error || 'Unable to start Cashfree payment.');
+                return cashfree.checkout({ paymentSessionId: order.paymentSessionId, redirectTarget: '_self' });
+            }).catch(error => {
+                document.getElementById('login-msg').innerText = error.message;
+                btn.innerText = "Pay ₹10,000 Installment";
+                btn.disabled = false;
             });
         });
 
