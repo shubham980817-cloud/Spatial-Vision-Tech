@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spatial Vision Tech | Student Performance</title>
+    <link rel="stylesheet" href="bim-theme.css">
     <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
@@ -38,6 +39,13 @@
         .question label { color: #333; font-weight: normal; }
         .question input { width: auto; margin-right: 8px; }
         .history-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e2eaec; padding: 10px 0; }
+        .admin-panel { border-left: 4px solid #ef6c00; }
+        .question-editor { border-top: 1px solid #e2eaec; padding: 18px 0; }
+        .question-editor:first-child { border-top: 0; }
+        .question-editor-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .question-editor-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .danger-button { background: #c62828; }
+        @media (max-width: 680px) { .question-editor-grid { grid-template-columns: 1fr; } }
         .hidden { display: none; }
         @media (max-width: 680px) { .page-heading { display: block; } h1 { font-size: 2em; } .page-shell { padding-top: 30px; } }
     </style>
@@ -67,6 +75,17 @@
                 <button id="logout-button" class="secondary">Sign Out</button>
             </div>
 
+            <section id="admin-practice-panel" class="panel admin-panel hidden">
+                <h2>Admin: Manage MCQ Test</h2>
+                <p>Add, edit, or remove the questions shown in the practice test. Changes are saved for every student.</p>
+                <div id="question-editor-list"></div>
+                <div class="question-editor-actions">
+                    <button type="button" id="add-question-button" class="secondary">Add Question</button>
+                    <button type="button" id="save-questions-button">Save MCQ Test</button>
+                </div>
+                <div id="admin-practice-message" class="message"></div>
+            </section>
+
             <div class="overview-grid panel">
                 <div class="metric"><span>Latest Score</span><strong id="latest-score">0%</strong></div>
                 <div class="metric"><span>Tests Completed</span><strong id="test-count">0</strong></div>
@@ -86,11 +105,7 @@
                 <h2>BIM Foundations Test</h2>
                 <p>Choose one answer for each question. Your score is saved to your student record after submission.</p>
                 <form id="practice-test-form">
-                    <div class="question"><strong>1. What does BIM primarily manage?</strong><label><input type="radio" name="q1" value="a" required> Only 2D drawings</label><label><input type="radio" name="q1" value="b"> Information connected to a digital building model</label><label><input type="radio" name="q1" value="c"> Site attendance only</label></div>
-                    <div class="question"><strong>2. Which workflow is most associated with Navisworks?</strong><label><input type="radio" name="q2" value="a" required> Clash detection and coordination</label><label><input type="radio" name="q2" value="b"> Payroll processing</label><label><input type="radio" name="q2" value="c"> Email marketing</label></div>
-                    <div class="question"><strong>3. What is a Revit family?</strong><label><input type="radio" name="q3" value="a" required> A project invoice</label><label><input type="radio" name="q3" value="b"> A reusable parametric component</label><label><input type="radio" name="q3" value="c"> A site safety report</label></div>
-                    <div class="question"><strong>4. What does a federated model combine?</strong><label><input type="radio" name="q4" value="a" required> Separate discipline models for coordination</label><label><input type="radio" name="q4" value="b"> Student passwords</label><label><input type="radio" name="q4" value="c"> Payment receipts only</label></div>
-                    <div class="question"><strong>5. ISO 19650 is focused on:</strong><label><input type="radio" name="q5" value="a" required> Managing information over an asset lifecycle</label><label><input type="radio" name="q5" value="b"> Rendering only</label><label><input type="radio" name="q5" value="c"> Computer hardware repair</label></div>
+                    <div id="question-list"><p>Loading questions...</p></div>
                     <button type="submit">Submit Test</button>
                     <div id="test-message" class="message"></div>
                 </form>
@@ -115,8 +130,18 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
+        const defaultQuestions = [
+            { id: 'q1', text: 'What does BIM primarily manage?', options: { a: 'Only 2D drawings', b: 'Information connected to a digital building model', c: 'Site attendance only' }, correct: 'b' },
+            { id: 'q2', text: 'Which workflow is most associated with Navisworks?', options: { a: 'Clash detection and coordination', b: 'Payroll processing', c: 'Email marketing' }, correct: 'a' },
+            { id: 'q3', text: 'What is a Revit family?', options: { a: 'A project invoice', b: 'A reusable parametric component', c: 'A site safety report' }, correct: 'b' },
+            { id: 'q4', text: 'What does a federated model combine?', options: { a: 'Separate discipline models for coordination', b: 'Student passwords', c: 'Payment receipts only' }, correct: 'a' },
+            { id: 'q5', text: 'ISO 19650 is focused on:', options: { a: 'Managing information over an asset lifecycle', b: 'Rendering only', c: 'Computer hardware repair' }, correct: 'a' }
+        ];
         let activeStudentId = null;
         let activeStudent = null;
+        let practiceQuestions = [];
+        let isAdmin = false;
 
         function showMessage(element, text, color) {
             element.textContent = text;
@@ -134,11 +159,72 @@
             history.innerHTML = attempts.length ? attempts.slice().reverse().map(attempt => `<div class="history-row"><span>${new Date(attempt.date).toLocaleDateString('en-IN')}</span><strong>${attempt.score}% (${attempt.correct}/${attempt.total})</strong></div>`).join('') : '<p>No completed tests yet.</p>';
         }
 
+        function renderQuestions() {
+            const questionList = document.getElementById('question-list');
+            questionList.innerHTML = practiceQuestions.length ? practiceQuestions.map((question, index) => `<div class="question"><strong>${index + 1}. ${question.text}</strong>${['a', 'b', 'c'].map(option => `<label><input type="radio" name="${question.id}" value="${option}"${option === 'a' ? ' required' : ''}> ${question.options[option]}</label>`).join('')}</div>`).join('') : '<p>No questions have been added yet.</p>';
+        }
+
+        function renderQuestionEditor() {
+            document.getElementById('question-editor-list').innerHTML = practiceQuestions.map((question, index) => `<div class="question-editor" data-question-index="${index}">
+                <div class="form-group"><label>Question ${index + 1}</label><input class="editor-text" value="${question.text.replace(/"/g, '&quot;')}" required></div>
+                <div class="question-editor-grid">
+                    <div class="form-group"><label>Option A</label><input class="editor-option-a" value="${question.options.a.replace(/"/g, '&quot;')}" required></div>
+                    <div class="form-group"><label>Option B</label><input class="editor-option-b" value="${question.options.b.replace(/"/g, '&quot;')}" required></div>
+                    <div class="form-group"><label>Option C</label><input class="editor-option-c" value="${question.options.c.replace(/"/g, '&quot;')}" required></div>
+                </div>
+                <label>Correct answer</label><select class="editor-correct"><option value="a"${question.correct === 'a' ? ' selected' : ''}>Option A</option><option value="b"${question.correct === 'b' ? ' selected' : ''}>Option B</option><option value="c"${question.correct === 'c' ? ' selected' : ''}>Option C</option></select>
+                <div class="question-editor-actions"><button type="button" class="danger-button" onclick="removeQuestion(${index})">Remove Question</button></div>
+            </div>`).join('');
+        }
+
+        function loadPracticeQuestions() {
+            return db.collection('practiceTests').doc('bim-foundations').get().then(snapshot => {
+                practiceQuestions = snapshot.exists && snapshot.data().questions ? snapshot.data().questions : defaultQuestions;
+                renderQuestions();
+                if (isAdmin) renderQuestionEditor();
+            });
+        }
+
+        window.removeQuestion = function(index) {
+            practiceQuestions.splice(index, 1);
+            renderQuestionEditor();
+        };
+
+        document.getElementById('add-question-button').addEventListener('click', () => {
+            practiceQuestions.push({ id: `q${Date.now()}`, text: '', options: { a: '', b: '', c: '' }, correct: 'a' });
+            renderQuestionEditor();
+        });
+
+        document.getElementById('save-questions-button').addEventListener('click', () => {
+            const editors = [...document.querySelectorAll('.question-editor')];
+            const questions = editors.map((editor, index) => ({
+                id: practiceQuestions[index].id,
+                text: editor.querySelector('.editor-text').value.trim(),
+                options: {
+                    a: editor.querySelector('.editor-option-a').value.trim(),
+                    b: editor.querySelector('.editor-option-b').value.trim(),
+                    c: editor.querySelector('.editor-option-c').value.trim()
+                },
+                correct: editor.querySelector('.editor-correct').value
+            }));
+            if (!questions.length || questions.some(question => !question.text || Object.values(question.options).some(option => !option))) {
+                showMessage(document.getElementById('admin-practice-message'), 'Complete every question and option before saving.', '#c62828');
+                return;
+            }
+            db.collection('practiceTests').doc('bim-foundations').set({ title: 'BIM Foundations Test', questions, updatedAt: new Date().toISOString() })
+                .then(() => { practiceQuestions = questions; renderQuestions(); renderQuestionEditor(); showMessage(document.getElementById('admin-practice-message'), 'MCQ test saved for students.', '#2e7d32'); })
+                .catch(error => showMessage(document.getElementById('admin-practice-message'), error.message, '#c62828'));
+        });
+
         document.getElementById('performance-login-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const message = document.getElementById('login-message');
             auth.signInWithEmailAndPassword(document.getElementById('performance-email').value, document.getElementById('performance-password').value)
-                .then(() => db.collection('students').doc(auth.currentUser.uid).get())
+                .then(() => {
+                    isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
+                    if (isAdmin) return { id: auth.currentUser.uid, exists: true, data: () => ({ name: 'Administrator', email: auth.currentUser.email, testAttempts: [] }) };
+                    return db.collection('students').doc(auth.currentUser.uid).get();
+                })
                 .then(snapshot => snapshot.exists ? snapshot : db.collection('students').where('email', '==', auth.currentUser.email).limit(1).get().then(results => {
                     if (results.empty) throw new Error('Student record not found.');
                     return results.docs[0];
@@ -147,6 +233,10 @@
                     activeStudentId = snapshot.id;
                     activeStudent = snapshot.data();
                     renderPerformance(activeStudent);
+                    document.getElementById('admin-practice-panel').classList.toggle('hidden', !isAdmin);
+                    return loadPracticeQuestions();
+                })
+                .then(() => {
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('portal-screen').classList.remove('hidden');
                 })
@@ -156,9 +246,12 @@
         document.getElementById('practice-test-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const answers = Object.fromEntries(new FormData(event.target).entries());
-            const correctAnswers = { q1: 'b', q2: 'a', q3: 'b', q4: 'a', q5: 'a' };
-            const correct = Object.keys(correctAnswers).filter(question => answers[question] === correctAnswers[question]).length;
-            const attempt = { score: Math.round((correct / 5) * 100), correct, total: 5, date: new Date().toISOString() };
+            const correct = practiceQuestions.filter(question => answers[question.id] === question.correct).length;
+            const attempt = { score: Math.round((correct / practiceQuestions.length) * 100), correct, total: practiceQuestions.length, date: new Date().toISOString() };
+            if (isAdmin) {
+                showMessage(document.getElementById('test-message'), 'Admin preview submitted. Student records were not changed.', '#2e7d32');
+                return;
+            }
             db.collection('students').doc(activeStudentId).update({ testAttempts: firebase.firestore.FieldValue.arrayUnion(attempt) })
                 .then(() => {
                     activeStudent.testAttempts = [...(activeStudent.testAttempts || []), attempt];

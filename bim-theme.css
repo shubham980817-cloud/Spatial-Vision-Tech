@@ -1,0 +1,119 @@
+:root {
+    --bim-navy: #0d4a5d;
+    --bim-deep: #062a35;
+    --bim-teal: #1ba0a8;
+    --bim-ice: #dae8ed;
+    --bim-line: rgba(27, 160, 168, 0.13);
+}
+
+body {
+    background-color: #f7fbfc;
+    background-image: linear-gradient(var(--bim-line) 1px, transparent 1px), linear-gradient(90deg, var(--bim-line) 1px, transparent 1px);
+    background-size: 44px 44px;
+}
+
+.sidenav {
+    background-color: var(--bim-navy);
+    background-image: linear-gradient(rgba(27, 160, 168, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(27, 160, 168, 0.12) 1px, transparent 1px);
+    background-size: 34px 34px;
+    box-shadow: 8px 0 28px rgba(6, 42, 53, 0.28);
+}
+
+.sidenav::after {
+    content: "BIM";
+    position: absolute;
+    left: -36px;
+    bottom: 70px;
+    color: rgba(218, 232, 237, 0.07);
+    font-size: 8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    transform: rotate(-90deg);
+    pointer-events: none;
+}
+
+.sidenav .sidebar-logo {
+    position: relative;
+    z-index: 1;
+    margin: 0 22px 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(218, 232, 237, 0.22);
+}
+
+.sidenav .sidebar-logo::after {
+    content: "AEC DIGITAL STUDIO";
+    display: block;
+    margin-top: 9px;
+    color: var(--bim-ice);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.sidenav .sidebar-logo img {
+    width: 74px;
+    box-shadow: 0 0 0 5px rgba(27, 160, 168, 0.16);
+}
+
+.sidenav a:not(.closebtn) {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 3px solid transparent;
+    letter-spacing: 0.01em;
+}
+
+.sidenav a:not(.closebtn)::before {
+    width: 24px;
+    color: var(--bim-teal);
+    font-size: 1.15em;
+    line-height: 1;
+    text-align: center;
+}
+
+.sidenav a[href="index.html"]::before { content: "⌂"; }
+.sidenav a[href="services.html"]::before { content: "◈"; }
+.sidenav a[href="certifications.html"]::before { content: "◇"; }
+.sidenav a[href="register.html"]::before { content: "▣"; }
+.sidenav a[href="student.html"]::before { content: "▤"; }
+.sidenav a[href="performance.html"]::before { content: "◫"; }
+.sidenav a[href="contact.html"]::before { content: "✦"; }
+
+.sidenav a:not(.closebtn):hover {
+    border-left-color: var(--bim-teal);
+    background-color: rgba(27, 160, 168, 0.82);
+}
+
+.hero,
+.cta-section,
+.value-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after,
+.cta-section::after,
+.value-section::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(218, 232, 237, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(218, 232, 237, 0.08) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.8), transparent 72%);
+    pointer-events: none;
+}
+
+.hero > *,
+.cta-section > *,
+.value-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 680px) {
+    .sidenav::after { font-size: 6rem; left: -28px; }
+    .sidenav a:not(.closebtn) { padding-left: 24px; }
+}

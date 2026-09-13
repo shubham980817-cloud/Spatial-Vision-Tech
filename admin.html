@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spatial Vision Tech | Admin Portal</title>
+    <link rel="stylesheet" href="bim-theme.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
@@ -50,7 +51,10 @@
         <div id="dashboard-screen" class="content-wrapper">
             <div class="header-bar">
                 <h2 style="margin:0; color:#0d4a5d;">Student Registrations & Fee Approvals</h2>
-                <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="firebase.auth().signOut().then(()=>location.reload())">Sign Out</button>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="performance.html" class="btn" style="width:auto; padding: 8px 20px; text-decoration:none; background:#1ba0a8;">Performance & Practice</a>
+                    <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="firebase.auth().signOut().then(()=>location.reload())">Sign Out</button>
+                </div>
             </div>
             
             <div style="overflow-x: auto;">
