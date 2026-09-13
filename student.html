@@ -93,9 +93,9 @@
             <!-- PENDING REGISTRATION SCREEN -->
             <div id="pending-approval-screen">
                 <div class="pending-box">
-                    <h3>Registration Under Review</h3>
-                    <p style="font-size:1.2em; color:#555;">Your ₹5,000 registration payment is currently being verified by the administration team.</p>
-                    <p>Once approved, your full dashboard and fee payment portal will unlock automatically.</p>
+                    <h3>Portal Access Pending</h3>
+                    <p style="font-size:1.2em; color:#555;">Your Student Portal access is waiting for administration approval after payment review.</p>
+                    <p>Once an admin grants access, your dashboard and course fee payment portal will unlock.</p>
                 </div>
                 <button onclick="logout()" class="btn" style="background:#555; margin-top:30px; width:auto; padding:10px 30px;">Sign Out</button>
             </div>
@@ -223,8 +223,8 @@
                     if (snapshot.empty) throw new Error("Database record not found.");
                     snapshot.forEach(doc => { activeStudent = doc.data(); activeDocId = doc.id; });
                     
-                    // Route based on approval status
-                    if(activeStudent.approvalStatus === "Pending") {
+                    // Portal access is granted separately by an admin after payment review.
+                    if(activeStudent.grantedAccess !== true) {
                         showScreen('pending-approval-screen');
                     } else {
                         document.getElementById('d-name').innerText = activeStudent.name;

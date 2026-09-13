@@ -30,6 +30,8 @@
         .status-approved { background: #e8f5e9; color: #2e7d32; }
         
         .approve-btn { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 5px; width: 100%; }
+        .access-btn { background: #1ba0a8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 5px; width: 100%; }
+        .revoke-btn { background: #ef6c00; }
         .remove-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
         
         .header-bar { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #1ba0a8; padding-bottom: 10px; }
@@ -56,6 +58,7 @@
                     <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="firebase.auth().signOut().then(()=>location.reload())">Sign Out</button>
                 </div>
             </div>
+            <p style="margin:0 0 15px; color:#555;">Use the portal access control for students after pre-registration or final registration. It can also be granted or revoked for existing student records.</p>
             
             <div style="overflow-x: auto;">
                 <table>
@@ -130,6 +133,10 @@
                     const tr = document.createElement('tr');
                     const attempts = s.testAttempts || [];
                     const latestAttempt = attempts[attempts.length - 1];
+                    const hasPortalAccess = s.grantedAccess === true;
+                    const accessButton = hasPortalAccess
+                        ? `<span style="display:block; text-align:center; color:#2e7d32; font-weight:bold; margin-bottom:5px;">Portal access granted</span><button class="access-btn revoke-btn" onclick="togglePortalAccess('${docId}', false)">Revoke Portal Access</button>`
+                        : `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Portal access not granted</span><button class="access-btn" onclick="togglePortalAccess('${docId}', true)">Grant Portal Access</button>`;
                     tr.innerHTML = `
                         <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
                         <td>${statusHtml}<br><small>${s.course}</small></td>
@@ -138,6 +145,7 @@
                         <td>${latestAttempt ? `<strong>${latestAttempt.score}%</strong><br><small>${attempts.length} test${attempts.length === 1 ? '' : 's'}</small>` : '<small>No tests yet</small>'}</td>
                         <td>
                             ${approveBtn}
+                            ${accessButton}
                             <button class="remove-btn" onclick="removeStudent('${docId}')">Delete Record</button>
                         </td>
                     `;
@@ -160,6 +168,16 @@
             }
             db.collection("students").doc(docId).update({ finalizedFee: amount })
                 .then(() => loadStudentsData());
+        }
+        window.togglePortalAccess = function(docId, grantAccess) {
+            const action = grantAccess ? "grant" : "revoke";
+            const confirmation = grantAccess
+                ? "Grant this student access to the Student Portal? This also applies to existing student records."
+                : "Revoke this student's Student Portal access?";
+            if (!confirm(confirmation)) return;
+            db.collection("students").doc(docId).update({ grantedAccess: grantAccess, accessUpdatedAt: new Date().toISOString() })
+                .then(() => loadStudentsData())
+                .catch(error => alert(`Unable to ${action} portal access: ${error.message}`));
         }
         window.markFeePaid = function(docId, feeIndex) {
             if (!confirm("Have you verified this payment in the PhonePe or bank account?")) return;
