@@ -7,7 +7,6 @@
     <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -33,7 +32,9 @@
         .form-row { display: flex; gap: 20px; }
         .form-row .form-group { flex: 1; }
         
-        .payment-box { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; }
+        .payment-box { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .payment-qr { width: 220px; height: 220px; display: block; margin: 15px auto; border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .upi-id { font-family: monospace; font-size: 1.15em; color: #0d4a5d; font-weight: bold; }
         .payment-status { display: none; margin-top: 20px; padding: 15px; border-radius: 4px; background: #fff3e0; color: #8a4b08; font-weight: bold; }
         
         .submit-btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: bold; transition: 0.2s; }
@@ -112,10 +113,16 @@
 
                     <div class="payment-box">
                         <label style="font-weight:bold; color:#0d4a5d; font-size: 1.2em;">Registration Fee: ₹5,000.00</label>
-                        <p style="margin-top: 5px; color: #555; font-size: 0.9em;">Pay securely through Cashfree. Your student account will remain pending until payment is confirmed and approved by the admin.</p>
+                        <p style="margin-top: 5px; color: #555; font-size: 0.9em;">Scan this QR using PhonePe or any UPI app, then enter the transaction ID below. Admin verification is required.</p>
+                        <img class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D5000%26cu%3DINR" alt="Scan to pay ₹5,000 registration fee">
+                        <div class="upi-id">UPI ID: spatialvisiontech@rbl</div>
+                        <div class="form-group" style="margin-top: 15px; margin-bottom: 0; text-align:left;">
+                            <label for="reg-utr">UPI Transaction ID / UTR</label>
+                            <input type="text" id="reg-utr" required placeholder="Enter the transaction ID after payment">
+                        </div>
                     </div>
                     
-                    <button type="submit" id="submitBtn" class="submit-btn">Create Account & Pay ₹5,000</button>
+                    <button type="submit" id="submitBtn" class="submit-btn">Submit Registration Payment</button>
                     <div id="payment-status" class="payment-status"></div>
                 </form>
             </div>
@@ -183,16 +190,6 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const createOrderEndpoint = "https://us-central1-spatial-vision-tech.cloudfunctions.net/createCashfreeOrder";
-        const cashfree = Cashfree({ mode: "sandbox" });
-
-        const paymentStatus = new URLSearchParams(window.location.search).get('payment_status');
-        if (paymentStatus && paymentStatus.toLowerCase() === 'success') {
-            const status = document.getElementById('payment-status');
-            status.innerText = "Payment response received. Your payment is awaiting admin verification. You can sign in through the Student Portal after approval.";
-            status.style.display = 'block';
-        }
-
         function openNav() { document.getElementById("mySidenav").style.width = "250px"; }
         function closeNav() { document.getElementById("mySidenav").style.width = "0"; }
 
@@ -207,34 +204,47 @@
             const phone = document.getElementById('reg-phone').value;
             const password = document.getElementById('reg-pass').value;
             const course = document.getElementById('course').value;
+            const regUtr = document.getElementById('reg-utr').value.trim();
             const dateObj = new Date();
             const displayDateStr = dateObj.toLocaleDateString('en-IN');
 
-            auth.createUserWithEmailAndPassword(email, password).then(async (userCredential) => {
-                const token = await userCredential.user.getIdToken();
-                const response = await fetch(createOrderEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ name, email, phone, course, paymentType: 'registration' })
-                });
-                const order = await response.json();
-                if (!response.ok) throw new Error(order.error || 'Unable to start Cashfree payment.');
-
+            auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
                 const generatedStudentId = `SVT/${dateObj.getFullYear()}/${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
                 const generatedReceiptNo = `REG-${dateObj.getFullYear()}-${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
-                document.getElementById('r-receipt-no').innerText = generatedReceiptNo;
-                document.getElementById('r-student-id').innerText = generatedStudentId;
-                document.getElementById('r-date').innerText = displayDateStr;
-                document.getElementById('r-name').innerText = name;
-                document.getElementById('r-email').innerText = email;
-                document.getElementById('r-course').innerText = course;
-                document.getElementById('receiptModal').style.display = 'block';
-                localStorage.setItem('svtRegistrationEmail', email);
-                await auth.signOut();
-                await cashfree.checkout({ paymentSessionId: order.paymentSessionId, redirectTarget: '_self' });
+                return db.collection("students").doc(userCredential.user.uid).set({
+                    uid: userCredential.user.uid,
+                    studentId: generatedStudentId,
+                    regYear: dateObj.getFullYear(),
+                    name,
+                    email,
+                    phone,
+                    course,
+                    regDate: dateObj.toISOString(),
+                    approvalStatus: "Pending",
+                    regFeePaid: false,
+                    regPaymentStatus: "Submitted",
+                    registrationFee: 5000,
+                    regUtr,
+                    grantedAccess: false,
+                    feeHistory: []
+                }).then(() => {
+                    document.getElementById('r-receipt-no').innerText = generatedReceiptNo;
+                    document.getElementById('r-student-id').innerText = generatedStudentId;
+                    document.getElementById('r-date').innerText = displayDateStr;
+                    document.getElementById('r-name').innerText = name;
+                    document.getElementById('r-email').innerText = email;
+                    document.getElementById('r-course').innerText = course;
+                    document.getElementById('receiptModal').style.display = 'block';
+                    document.getElementById('payment-status').innerText = "Payment submitted. Admin verification is pending.";
+                    document.getElementById('payment-status').style.display = 'block';
+                    submitBtn.innerText = "Submitted";
+                    document.getElementById('registrationForm').reset();
+                    localStorage.setItem('svtRegistrationEmail', email);
+                    return auth.signOut();
+                });
             }).catch(error => {
                 alert("Registration Error: " + error.message);
-                submitBtn.innerText = "Create Account & Pay ₹5,000";
+                submitBtn.innerText = "Submit Registration Payment";
                 submitBtn.disabled = false;
             });
         });
