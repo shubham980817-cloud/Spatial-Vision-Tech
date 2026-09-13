@@ -1,0 +1,5 @@
+.git/
+functions/
+node_modules/
+.wrangler/
+wrangler.jsonc
