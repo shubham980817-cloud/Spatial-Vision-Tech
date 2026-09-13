@@ -38,6 +38,17 @@
         .payment-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 25px; border-radius: 6px; margin-top: 30px; }
         .payment-qr { width: 200px; height: 200px; display: block; margin: 15px auto; border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
         .upi-id { font-family: monospace; font-weight: bold; color: #0d4a5d; }
+        .student-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 30px; }
+        .student-action { display: block; padding: 15px; border: 1px solid #d6e1e4; border-radius: 5px; background: #f8fbfc; color: #0d4a5d; text-align: center; text-decoration: none; font-weight: bold; cursor: pointer; font: inherit; }
+        .student-action:hover { border-color: #1ba0a8; background: #eefafa; }
+        .receipt-history { margin-top: 30px; padding: 25px; border: 1px solid #e0e0e0; border-radius: 6px; }
+        .receipt-history h3 { color: #0d4a5d; margin-top: 0; border-bottom: 2px solid #1ba0a8; padding-bottom: 5px; }
+        .receipt-history-list { display: grid; gap: 10px; }
+        .receipt-history-item { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; }
+        .receipt-history-item:last-child { border-bottom: 0; }
+        .receipt-history-item small { color: #666; }
+        .receipt-download { width: auto; padding: 8px 14px; font-size: 0.9em; }
+        @media (max-width: 600px) { .receipt-history-item { align-items: flex-start; flex-direction: column; } }
         
         /* Receipt CSS */
         .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); overflow: auto; padding-top: 20px; }
@@ -131,6 +142,18 @@
                         </div>
                         <button type="submit" id="feeSubmitBtn" class="btn">Pay ₹10,000 Installment</button>
                     </form>
+                </div>
+
+                <div class="student-actions">
+                    <a class="student-action" href="certifications.html">Download Result Certificate</a>
+                    <button class="student-action" type="button" onclick="document.getElementById('receipt-history').scrollIntoView({ behavior: 'smooth' });">View Old Receipts</button>
+                </div>
+
+                <div id="receipt-history" class="receipt-history">
+                    <h3>Previous Receipts</h3>
+                    <div id="receipt-history-list" class="receipt-history-list">
+                        <p style="color:#666; margin-bottom:0;">No previous receipts available.</p>
+                    </div>
                 </div>
 
                 <div style="margin-top:40px; padding-top:20px; border-top:1px solid #eee; text-align:center;">
@@ -230,6 +253,7 @@
                         document.getElementById('d-name').innerText = activeStudent.name;
                         document.getElementById('d-student-id').innerText = activeStudent.studentId;
                         showScreen('student-dashboard');
+                        renderReceiptHistory();
                     }
                 })
                 .catch(error => {
@@ -261,6 +285,7 @@
             const dateStr = new Date().toLocaleDateString('en-IN');
             const receiptNo = `FEE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
             const newFeeRecord = {
+                receiptNo,
                 type: feeType,
                 amount: String(amount),
                 utr: feeUtr,
@@ -271,6 +296,7 @@
             db.collection("students").doc(activeDocId).update({
                 feeHistory: firebase.firestore.FieldValue.arrayUnion(newFeeRecord)
             }).then(() => {
+                activeStudent.feeHistory = [...(activeStudent.feeHistory || []), newFeeRecord];
                 document.getElementById('r-receipt-no').innerText = receiptNo;
                 document.getElementById('r-date').innerText = dateStr;
                 document.getElementById('r-name').innerText = activeStudent.name;
@@ -281,6 +307,7 @@
                 document.getElementById('r-fee-amount').innerText = amountStr;
                 document.getElementById('r-fee-total').innerText = amountStr;
                 document.getElementById('receiptModal').style.display = 'block';
+                renderReceiptHistory();
                 btn.innerText = "Pay Selected Installment";
                 btn.disabled = false;
                 document.getElementById('feePaymentForm').reset();
@@ -301,6 +328,51 @@
         function downloadPDF() {
             html2pdf().set({ margin: 0.4, filename: 'Course_Fee_Receipt.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } })
             .from(document.getElementById('receipt-content')).save();
+        }
+
+        function showReceipt(record, index) {
+            const receiptDate = record.date ? new Date(record.date) : new Date();
+            const amount = Number(record.amount || 0);
+            document.getElementById('r-receipt-no').innerText = record.receiptNo || `FEE-${receiptDate.getFullYear()}-${String(index + 1).padStart(4, '0')}`;
+            document.getElementById('r-date').innerText = receiptDate.toLocaleDateString('en-IN');
+            document.getElementById('r-name').innerText = activeStudent.name || '';
+            document.getElementById('r-student-id').innerText = activeStudent.studentId || '';
+            document.getElementById('r-course').innerText = activeStudent.course || '';
+            document.getElementById('r-payment-status').innerText = record.status || 'Recorded';
+            document.getElementById('r-fee-desc').innerText = record.type || 'Course Fee';
+            document.getElementById('r-fee-amount').innerText = `₹${amount.toLocaleString('en-IN')}.00`;
+            document.getElementById('r-fee-total').innerText = `₹${amount.toLocaleString('en-IN')}.00`;
+            document.getElementById('receiptModal').style.display = 'block';
+        }
+
+        function renderReceiptHistory() {
+            const list = document.getElementById('receipt-history-list');
+            const history = activeStudent && activeStudent.feeHistory ? activeStudent.feeHistory : [];
+            list.innerHTML = '';
+
+            if (!history.length) {
+                list.innerHTML = '<p style="color:#666; margin-bottom:0;">No previous receipts available.</p>';
+                return;
+            }
+
+            history.slice().reverse().forEach((record, reverseIndex) => {
+                const index = history.length - reverseIndex - 1;
+                const item = document.createElement('div');
+                item.className = 'receipt-history-item';
+                const details = document.createElement('div');
+                const date = record.date ? new Date(record.date).toLocaleDateString('en-IN') : 'Date unavailable';
+                details.innerHTML = `<strong>${record.type || 'Course Fee'}</strong><br><small>${date} | ${record.status || 'Recorded'}</small>`;
+                const button = document.createElement('button');
+                button.className = 'btn receipt-download';
+                button.type = 'button';
+                button.innerText = 'Download Receipt';
+                button.addEventListener('click', () => {
+                    showReceipt(record, index);
+                    downloadPDF();
+                });
+                item.append(details, button);
+                list.appendChild(item);
+            });
         }
 
         function logout() { auth.signOut().then(() => location.reload()); }
