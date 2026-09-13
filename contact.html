@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="bim-theme.css">
     <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
     
-    <!-- EmailJS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <style>
         body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
         .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
@@ -116,7 +113,7 @@
                     </div>
                 </div>
                 
-                <!-- EmailJS Contact Form -->
+                <!-- Contact Form -->
                 <div class="form-container">
                     <form id="contactForm">
                         <div class="form-group">
@@ -140,7 +137,7 @@
                             <textarea id="message" name="message" required placeholder="How can we help you?"></textarea>
                         </div>
                         
-                        <button type="submit" id="submitBtn" class="submit-btn">Send Message</button>
+                        <button type="submit" id="submitBtn" class="submit-btn">Open Email App</button>
                         <div id="status-msg" class="msg-box"></div>
                     </form>
                 </div>
@@ -151,46 +148,20 @@
     <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
     
     <script>
-        // Initialize EmailJS with your New Public Key
-        emailjs.init("geiOFpTcqK6kG8dPb");
-
         function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
         function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
 
-        // Handle Form Submission securely via EmailJS
         document.getElementById('contactForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const msgBox = document.getElementById('status-msg');
-            
-            btn.innerText = "Sending Message...";
-            btn.disabled = true;
-            msgBox.style.display = "none";
 
-            // emailjs.sendForm("YOUR_SERVICE_ID", "YOUR_NEW_CONTACT_TEMPLATE_ID", this_form)
-            // Replace "YOUR_CONTACT_TEMPLATE_ID" with the new template ID you create for contacts.
-            emailjs.sendForm('service_pv1xzki', 'YOUR_CONTACT_TEMPLATE_ID', this)
-                .then(function() {
-                    btn.innerText = "Send Message";
-                    btn.disabled = false;
-                    
-                    msgBox.style.display = "block";
-                    msgBox.style.backgroundColor = "#e8f5e9";
-                    msgBox.style.color = "#2e7d32";
-                    msgBox.innerText = "Message sent successfully! We will get back to you soon.";
-                    
-                    document.getElementById('contactForm').reset();
-                }, function(error) {
-                    btn.innerText = "Send Message";
-                    btn.disabled = false;
-                    
-                    msgBox.style.display = "block";
-                    msgBox.style.backgroundColor = "#ffebee";
-                    msgBox.style.color = "#c62828";
-                    msgBox.innerText = "Failed to send message. Please ensure your Contact Template ID is correct.";
-                    console.error("EmailJS Error:", error);
-                });
+            const name = document.getElementById('from_name').value.trim();
+            const email = document.getElementById('reply_to').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const subject = `Website enquiry from ${name}`;
+            const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\n\n${message}`;
+
+            window.location.href = `mailto:admin@spatialvisiontech.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         });
     </script>
 </body>

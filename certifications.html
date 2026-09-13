@@ -126,10 +126,6 @@
                         <label for="c-email">Registered Email Address</label>
                         <input type="email" id="c-email" required placeholder="e.g. student@gmail.com">
                     </div>
-                    <div class="form-group">
-                        <label for="c-utr">Transaction ID (12-Digit UTR)</label>
-                        <input type="text" id="c-utr" required placeholder="Enter the 12-digit UTR from your receipt">
-                    </div>
                     <button type="submit" id="certBtn" class="submit-btn">Check Eligibility & Download</button>
                     
                     <div id="cert-msg" class="msg-box" style="display:none;"></div>
@@ -191,7 +187,6 @@
             e.preventDefault();
             
             const emailInput = document.getElementById('c-email').value.trim();
-            const utrInput = document.getElementById('c-utr').value.trim();
             const msgBox = document.getElementById('cert-msg');
             const btn = document.getElementById('certBtn');
             
@@ -213,21 +208,7 @@
                         return;
                     }
 
-                    // Extract student data
-                    let student = null;
-                    querySnapshot.forEach((doc) => {
-                        const candidate = doc.data();
-                        const matchingPayment = candidate.regUtr === utrInput || (candidate.feeHistory || []).some(fee => fee.utr === utrInput && fee.status === 'Paid');
-                        if (matchingPayment) student = candidate;
-                    });
-
-                    if (!student) {
-                        msgBox.style.backgroundColor = '#ffebee';
-                        msgBox.style.color = '#c62828';
-                        msgBox.innerHTML = `No verified payment found for these details.`;
-                        btn.disabled = false;
-                        return;
-                    }
+                    const student = querySnapshot.docs[0].data();
 
                     const verifiedTotal = (student.preRegistrationPaid ? Number(student.preRegistrationAmount || 100) : 0) + (student.feeHistory || [])
                         .filter(fee => fee.status === 'Paid')
