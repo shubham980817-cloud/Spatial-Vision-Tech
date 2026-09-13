@@ -59,7 +59,7 @@
                         <tr>
                             <th>Student Identity</th>
                             <th>Registration Status</th>
-                            <th>Registration Fee (₹5,000)</th>
+                            <th>Pre-Registration / Finalized Fee</th>
                             <th>Fee Payments History</th>
                             <th>Actions</th>
                         </tr>
@@ -116,8 +116,9 @@
 
                     let feeHistoryHtml = "";
                     if(s.feeHistory && s.feeHistory.length > 0) {
-                        s.feeHistory.forEach(fee => {
-                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount}<br><small>Status: ${fee.status || 'Recorded'}</small></div>`;
+                        s.feeHistory.forEach((fee, index) => {
+                            const paid = fee.status === 'Paid';
+                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount}<br><small>Status: ${fee.status || 'Recorded'}</small>${fee.utr ? `<br><small>UTR: ${fee.utr}</small>` : ''}${!paid ? `<br><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="markFeePaid('${docId}', ${index})">Verify Payment</button>` : ''}</div>`;
                         });
                     } else { feeHistoryHtml = "<small>No course installments submitted yet.</small>"; }
 
@@ -125,7 +126,7 @@
                     tr.innerHTML = `
                         <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
                         <td>${statusHtml}<br><small>${s.course}</small></td>
-                        <td style="font-weight:bold; color:#0d4a5d;">₹${s.registrationFee || 5000}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small>${s.regUtr ? `<br><small>UTR: ${s.regUtr}</small>` : ''}</td>
+                        <td style="font-weight:bold; color:#0d4a5d;">Pre: ₹${s.preRegistrationAmount || 100}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small>${s.regUtr ? `<br><small>UTR: ${s.regUtr}</small>` : ''}<br><label style="font-weight:normal;">Finalized fee<br><input id="final-fee-${docId}" type="number" min="100" step="100" value="${s.finalizedFee || 30000}" style="width:90px; padding:4px;"></label><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="saveFinalizedFee('${docId}')">Save Fee</button></td>
                         <td>${feeHistoryHtml}</td>
                         <td>
                             ${approveBtn}
@@ -138,10 +139,29 @@
         }
 
         window.approveStudent = function(docId) {
-            if(confirm("Have you verified the ₹5,000 PhonePe/UPI payment? This will unlock the student's fee payment portal.")) {
-                db.collection("students").doc(docId).update({ approvalStatus: "Approved", regFeePaid: true, regPaymentStatus: "Paid" })
+            if(confirm("Have you verified the ₹100 PhonePe/UPI pre-registration payment? This will unlock the ₹4,900 final registration payment.")) {
+                db.collection("students").doc(docId).update({ approvalStatus: "Approved", preRegistrationPaid: true, regPaymentStatus: "Pre-registration Paid" })
                 .then(() => loadStudentsData());
             }
+        }
+        window.saveFinalizedFee = function(docId) {
+            const amount = Number(document.getElementById(`final-fee-${docId}`).value);
+            if (!Number.isFinite(amount) || amount < 100) {
+                alert("Enter a valid finalized fee.");
+                return;
+            }
+            db.collection("students").doc(docId).update({ finalizedFee: amount })
+                .then(() => loadStudentsData());
+        }
+        window.markFeePaid = function(docId, feeIndex) {
+            if (!confirm("Have you verified this payment in the PhonePe or bank account?")) return;
+            db.collection("students").doc(docId).get().then((doc) => {
+                const student = doc.data();
+                const feeHistory = [...(student.feeHistory || [])];
+                if (!feeHistory[feeIndex]) return;
+                feeHistory[feeIndex] = { ...feeHistory[feeIndex], status: "Paid", verifiedAt: new Date().toISOString() };
+                return db.collection("students").doc(docId).update({ feeHistory });
+            }).then(() => loadStudentsData());
         }
         window.removeStudent = function(docId) {
             if(confirm("Delete this student permanently?")) {

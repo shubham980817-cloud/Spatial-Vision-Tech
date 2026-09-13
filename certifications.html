@@ -115,7 +115,7 @@
         <div class="content-wrapper">
             <h2 style="margin-bottom: 20px;">Student Certificate Portal</h2>
             <p style="margin-bottom: 30px; font-size: 1.1em;">
-                Certificates of Completion are unlocked exactly <strong>3 months (90 days)</strong> after your initial course registration. Enter your details below to query the database.
+                Certificates of Completion are unlocked after the 90-day course period and once your admin-finalized fee is fully paid. Enter your email and a verified transaction ID below.
             </p>
             
             <div class="form-container">
@@ -201,7 +201,6 @@
             // Search Live Firestore Database
             db.collection("students")
                 .where("email", "==", emailInput)
-                .where("utr", "==", utrInput)
                 .get()
                 .then((querySnapshot) => {
                     if (querySnapshot.empty) {
@@ -214,7 +213,31 @@
 
                     // Extract student data
                     let student = null;
-                    querySnapshot.forEach((doc) => { student = doc.data(); });
+                    querySnapshot.forEach((doc) => {
+                        const candidate = doc.data();
+                        const matchingPayment = candidate.regUtr === utrInput || (candidate.feeHistory || []).some(fee => fee.utr === utrInput && fee.status === 'Paid');
+                        if (matchingPayment) student = candidate;
+                    });
+
+                    if (!student) {
+                        msgBox.style.backgroundColor = '#ffebee';
+                        msgBox.style.color = '#c62828';
+                        msgBox.innerHTML = `No verified payment found for these details.`;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    const verifiedTotal = (student.preRegistrationPaid ? Number(student.preRegistrationAmount || 100) : 0) + (student.feeHistory || [])
+                        .filter(fee => fee.status === 'Paid')
+                        .reduce((total, fee) => total + Number(fee.amount || 0), 0);
+                    const finalizedFee = Number(student.finalizedFee || 30000);
+                    if (verifiedTotal < finalizedFee) {
+                        msgBox.style.backgroundColor = '#fff3e0';
+                        msgBox.style.color = '#ef6c00';
+                        msgBox.innerHTML = `Verified payments: ₹${verifiedTotal.toLocaleString('en-IN')} of ₹${finalizedFee.toLocaleString('en-IN')}. Complete the finalized fee before requesting your certificate.`;
+                        btn.disabled = false;
+                        return;
+                    }
 
                     const regDate = new Date(student.regDate);
                     const today = new Date();

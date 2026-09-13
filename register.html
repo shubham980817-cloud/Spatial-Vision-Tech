@@ -112,9 +112,9 @@
                     </div>
 
                     <div class="payment-box">
-                        <label style="font-weight:bold; color:#0d4a5d; font-size: 1.2em;">Registration Fee: ₹5,000.00</label>
-                        <p style="margin-top: 5px; color: #555; font-size: 0.9em;">Scan this QR using PhonePe or any UPI app, then enter the transaction ID below. Admin verification is required.</p>
-                        <img class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D5000%26cu%3DINR" alt="Scan to pay ₹5,000 registration fee">
+                        <label style="font-weight:bold; color:#0d4a5d; font-size: 1.2em;">Pre-Registration Fee: ₹100.00</label>
+                        <p style="margin-top: 5px; color: #555; font-size: 0.9em;">Scan this QR using PhonePe or any UPI app, then enter the transaction ID below. Admin approval is required before the final ₹4,900 registration payment.</p>
+                        <img class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="Scan to pay ₹100 pre-registration fee">
                         <div class="upi-id">UPI ID: spatialvisiontech@rbl</div>
                         <div class="form-group" style="margin-top: 15px; margin-bottom: 0; text-align:left;">
                             <label for="reg-utr">UPI Transaction ID / UTR</label>
@@ -165,12 +165,12 @@
                             <tbody>
                                 <tr>
                                     <td><strong id="r-course"></strong><br><small>Initial Registration Fee</small></td>
-                                    <td style="text-align:right;">₹5,000.00</td>
+                                    <td style="text-align:right;">₹100.00</td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="receipt-total">
-                            <span>Registration Amount</span><span style="font-weight:bold; color:#0d4a5d; font-size:14pt;">₹5,000.00</span>
+                            <span>Pre-Registration Amount</span><span style="font-weight:bold; color:#0d4a5d; font-size:14pt;">₹100.00</span>
                         </div>
                     </div>
                 </div>
@@ -224,6 +224,8 @@
                     regFeePaid: false,
                     regPaymentStatus: "Submitted",
                     registrationFee: 5000,
+                    preRegistrationAmount: 100,
+                    preRegistrationPaid: false,
                     regUtr,
                     grantedAccess: false,
                     feeHistory: []

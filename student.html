@@ -113,6 +113,7 @@
                                 <label>Select Installment</label>
                                 <select id="fee-type" required>
                                     <option value="" disabled selected>Choose fee type...</option>
+                                    <option value="Final Registration Fee (₹4,900)">Final Registration Fee (₹4,900)</option>
                                     <option value="1st Installment (₹10,000)">1st Installment (₹10,000)</option>
                                     <option value="2nd Installment (₹10,000)">2nd Installment (₹10,000)</option>
                                     <option value="3rd Installment (₹10,000)">3rd Installment (₹10,000)</option>
@@ -120,7 +121,7 @@
                                 </select>
                             </div>
                         </div>
-                        <img id="fee-qr" class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D10000%26cu%3DINR" alt="Scan to pay course installment">
+                        <img id="fee-qr" class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D4900%26cu%3DINR" alt="Scan to pay course installment">
                         <p class="upi-id">UPI ID: spatialvisiontech@rbl</p>
                         <div class="form-group">
                             <label for="fee-utr">UPI Transaction ID / UTR</label>
@@ -253,7 +254,7 @@
 
             const feeType = document.getElementById('fee-type').value;
             const feeUtr = document.getElementById('fee-utr').value.trim();
-            const amount = feeType.includes('₹5,000') ? 5000 : 10000;
+            const amount = feeType.includes('₹4,900') ? 4900 : feeType.includes('₹5,000') ? 5000 : 10000;
             const amountStr = `₹${amount.toLocaleString('en-IN')}.00`;
             const dateStr = new Date().toLocaleDateString('en-IN');
             const receiptNo = `FEE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -289,7 +290,7 @@
         });
 
         document.getElementById('fee-type').addEventListener('change', function() {
-            const amount = this.value.includes('₹5,000') ? 5000 : 10000;
+            const amount = this.value.includes('₹4,900') ? 4900 : this.value.includes('₹5,000') ? 5000 : 10000;
             const upiUrl = `upi://pay?pa=spatialvisiontech@rbl&pn=Spatial Vision Tech&am=${amount}&cu=INR`;
             document.getElementById('fee-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
             document.getElementById('fee-qr').alt = `Scan to pay ₹${amount.toLocaleString('en-IN')} course installment`;
