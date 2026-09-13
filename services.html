@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Corporate Services</title>
+    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
+    <style>
+        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
+        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
+        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
+        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
+        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
+        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
+        .menu-btn:hover { color: #1ba0a8; }
+        .top-bar-right { display: flex; align-items: center; gap: 20px; }
+        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
+        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
+        .admin-icon-link { font-size: 1.2em; text-decoration: none; padding: 5px 10px; background: #f4f7f8; border-radius: 4px; border: 1px solid #ddd; transition: 0.2s; }
+        .admin-icon-link:hover { background: #eef5f7; border-color: #1ba0a8; }
+        
+        /* Logo Quick Link Styling */
+        header { background: #ffffff; padding: 40px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        header a { display: inline-block; transition: opacity 0.2s; }
+        header a:hover { opacity: 0.8; }
+        .logo { max-width: 380px; height: auto; display: block; margin: 0 auto; }
+        
+        .hero { background: linear-gradient(135deg, #0d4a5d 0%, #062a35 100%); color: white; padding: 100px 20px; text-align: center; }
+        .hero h1 { font-size: 3em; margin: 0 0 20px 0; color: #ffffff; line-height: 1.2; }
+        .hero p { font-size: 1.2em; max-width: 800px; margin: 0 auto; color: #dae8ed; }
+
+        .section-title { font-size: 2.5em; color: #0d4a5d; text-align: center; margin-bottom: 50px; font-weight: bold; margin-top: 80px;}
+        .section-title span { border-bottom: 4px solid #1ba0a8; padding-bottom: 10px; display: inline-block; }
+        
+        .services-section { padding: 40px 20px 80px 20px; background: #f4f7f8; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1100px; margin: auto; }
+        .service-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #0d4a5d; transition: 0.3s; }
+        .service-card:hover { transform: translateY(-5px); border-top-color: #1ba0a8; }
+        .service-card h3 { color: #1ba0a8; font-size: 1.6em; margin-top: 0; }
+        .service-card p { color: #555; font-size: 1.05em; margin-bottom: 0; }
+        
+        /* Advanced Software Grid Using Local Icons */
+        .tools-section { padding: 80px 20px; background: #fff; text-align: center; }
+        .tools-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; max-width: 900px; margin: auto; }
+        .tool-badge { display: flex; flex-direction: column; align-items: center; gap: 15px; font-size: 1.1em; font-weight: bold; color: #0d4a5d; background: #fcfcfc; padding: 30px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 150px; transition: 0.3s; }
+        .tool-badge:hover { transform: translateY(-5px); border-color: #1ba0a8; }
+        .tool-badge img { width: 70px; height: 70px; object-fit: contain; }
+        
+        .cta-section { background: #0d4a5d; padding: 60px 20px; text-align: center; color: white; margin-top: 60px;}
+        .cta-section h2 { margin-top: 0; color: white; }
+        .cta-btn { background: #1ba0a8; color: white; padding: 15px 40px; font-size: 1.2em; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; display: inline-block; margin-top: 20px; }
+        .cta-btn:hover { background: #137c82; }
+        
+        footer { background: #111; color: #bbb; text-align: center; padding: 40px 20px; font-size: 0.9em; margin-top: 0; }
+        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
+        @media (max-width: 768px) { .contact-info { display: none; } .hero h1 { font-size: 2.2em; } }
+    </style>
+</head>
+<body>
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
+        <a href="index.html">Course Overview</a>
+        <a href="services.html">Our Services</a>
+        <a href="certifications.html">Certifications</a>
+        <a href="register.html">Register & Pay</a>
+        <a href="student.html">Student Portal</a>
+        <a href="contact.html">Contact Us</a>
+    </div>
+    <div id="overlay" onclick="closeNav()"></div>
+
+    <div class="top-bar">
+        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
+        <div class="top-bar-right">
+            <div class="contact-info">
+                <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
+                <a href="tel:+919579995749">📞 9579995749</a>
+            </div>
+            <a href="admin.html" class="admin-icon-link" title="Admin Portal">⚙️ Admin</a>
+        </div>
+    </div>
+
+    <!-- Quick Link Header Logo -->
+    <header>
+        <a href="index.html" title="Go to Homepage">
+            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
+        </a>
+    </header>
+
+    <section class="hero">
+        <h1>Advanced BIM Solutions & Corporate Services</h1>
+        <p>Beyond our educational masterclasses, Spatial Vision Tech provides industry-leading structural modeling, coordination, and drafting services for the AEC industry.</p>
+    </section>
+
+    <section class="services-section">
+        <div class="section-title" style="margin-top: 40px;"><span>Our Core Capabilities</span></div>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>3D Structural Modeling</h3>
+                <p>High-LOD Revit structural modeling. We specialize in converting 2D structural plans into intelligent, parameter-rich 3D BIM models ready for fabrication and analysis.</p>
+            </div>
+            <div class="service-card">
+                <h3>Clash Detection & Coordination</h3>
+                <p>Navisworks-driven coordination to identify and resolve MEP, Architectural, and Structural clashes in the pre-construction phase, saving project time and costs.</p>
+            </div>
+            <div class="service-card">
+                <h3>2D Drafting & Detailing</h3>
+                <p>Precision AutoCAD drafting services. We generate detailed structural working drawings, standard details, rebar schedules, and shop drawings adhering to global standards.</p>
+            </div>
+            <div class="service-card">
+                <h3>Conceptual & Site Planning</h3>
+                <p>Utilizing Autodesk Forma and advanced conceptual tools to analyze site constraints, optimize designs, and deliver robust early-stage planning models.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Updated Software Icons Section -->
+    <section class="tools-section">
+        <div class="section-title" style="margin-top: 0;"><span>Our Technology Stack</span></div>
+        <p style="text-align: center; color: #555; margin-bottom: 40px; font-size: 1.1em;">We utilize industry-standard Autodesk tools to deliver reliable project data.</p>
+        <div class="tools-grid">
+            <div class="tool-badge">
+                <img src="autodesk-revit-seeklogo.png" alt="Autodesk Revit">
+                Autodesk Revit
+            </div>
+            <div class="tool-badge">
+                <img src="autocad-seeklogo.png" alt="AutoCAD">
+                AutoCAD
+            </div>
+            <div class="tool-badge">
+                <img src="navisworks-seeklogo.png" alt="Navisworks">
+                Navisworks
+            </div>
+            <div class="tool-badge">
+                <img src="Forma-logo.svg" alt="Autodesk Forma">
+                Autodesk Forma
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Require BIM Consulting for Your Next Project?</h2>
+        <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto; color: #dae8ed;">Contact our team to discuss project requirements, obtain a quote, or schedule a consultation.</p>
+        <a href="contact.html" class="cta-btn">Contact Us Today</a>
+    </section>
+
+    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
+    
+    <script>
+        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
+        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
+    </script>
+</body>
+</html>

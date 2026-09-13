@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Certifications</title>
+    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
+    
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
+        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
+        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
+        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
+        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
+        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
+        .menu-btn:hover { color: #1ba0a8; }
+        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
+        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
+        header { background: #ffffff; padding: 50px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .logo { max-width: 380px; height: auto; margin-bottom: 10px; }
+        
+        section { padding: 80px 20px; max-width: 1050px; margin: auto; }
+        .content-wrapper { max-width: 1050px; margin: auto; text-align: center; }
+        h2 { font-size: 2.4em; color: #0d4a5d; margin-bottom: 50px; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
+        .bim-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; text-align: left; }
+        .bim-list li { background: #fff; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; gap: 10px; }
+        .bim-list li strong { display: block; color: #0d4a5d; font-size: 1.2em; margin-bottom: 5px; }
+        
+        .portal-section { background-color: #f4f7f8; margin-top: 50px; border-radius: 8px; padding: 50px 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+        .form-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 500px; margin: auto; text-align: left; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #0d4a5d; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 1em; }
+        .submit-btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: bold; transition: background 0.2s; font-family: inherit; }
+        .submit-btn:hover { background: #1ba0a8; }
+        .msg-box { margin-top: 20px; font-weight: bold; text-align: center; padding: 15px; border-radius: 4px; }
+        
+        #cert-blueprint { display: none; }
+        .cert-container { width: 1050px; height: 750px; background: #fff; padding: 20px; box-sizing: border-box; position: relative; font-family: 'Aptos', sans-serif; text-align: center; color: #0d4a5d; }
+        .cert-inner { border: 15px solid #0d4a5d; padding: 10px; height: 100%; box-sizing: border-box; }
+        .cert-inner-thin { border: 2px solid #1ba0a8; height: 100%; box-sizing: border-box; padding: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .cert-logo { width: 100px; margin-bottom: 20px; }
+        .cert-title { font-size: 3.5em; letter-spacing: 5px; margin: 0; color: #0d4a5d; text-transform: uppercase; }
+        .cert-subtitle { font-size: 1.5em; letter-spacing: 2px; color: #555; margin-top: 10px; margin-bottom: 40px; }
+        .cert-awarded { font-size: 1.2em; color: #333; margin-bottom: 10px; }
+        .cert-name { font-size: 3.5em; font-weight: bold; color: #1ba0a8; border-bottom: 2px solid #ccc; padding-bottom: 10px; width: 80%; margin: 0 auto 20px auto; font-family: 'Georgia', serif; font-style: italic; }
+        .cert-course-txt { font-size: 1.2em; color: #333; margin-bottom: 10px; }
+        .cert-course-val { font-size: 1.8em; font-weight: bold; color: #0d4a5d; margin-bottom: 50px; }
+        .cert-footer { display: flex; justify-content: space-between; width: 80%; margin-top: 30px; }
+        .cert-sign-block { width: 250px; text-align: center; }
+        .cert-sign-line { border-top: 2px solid #0d4a5d; padding-top: 10px; margin-top: 50px; font-weight: bold; font-size: 1.1em; }
+        .cert-date { font-weight: bold; font-size: 1.2em; color: #555; }
+
+        footer { background: #111; color: #bbb; text-align: center; padding: 30px 20px; font-size: 0.9em; margin-top: 50px; }
+        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
+        @media (max-width: 768px) { .contact-info { display: none; } }
+    </style>
+</head>
+<body>
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
+        <a href="index.html">Course Overview</a>
+        <a href="services.html">Our Services</a>
+        <a href="certifications.html">Certifications</a>
+        <a href="register.html">Register & Pay</a>
+        <a href="contact.html">Contact Us</a>
+    </div>
+    <div id="overlay" onclick="closeNav()"></div>
+
+    <div class="top-bar">
+        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
+        <div class="contact-info">
+            <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
+            <a href="tel:+919579995749">📞 9579995749</a>
+        </div>
+    </div>
+
+    <header>
+        <a href="index.html" title="Go to Homepage">
+            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
+        </a>
+    </header>
+
+    <section>
+        <div class="content-wrapper">
+            <h2>Our Certifications & Standards</h2>
+            <p style="text-align: center; font-size: 1.1em; max-width: 800px; margin: auto; margin-bottom: 40px;">
+                Our team operates at the highest industry standards, ensuring compliance, safety, and efficiency in every model we build and every student we train.
+            </p>
+            <div class="bim-list" style="justify-content: center; max-width: 800px; margin: auto;">
+                <li style="border-top: 4px solid #0d4a5d; border-radius: 5px;">
+                    <strong>Autodesk Proficiency</strong>
+                    <span style="font-size: 0.95em;">Advanced competency and certified expertise in Autodesk Revit for specialized structural design.</span>
+                </li>
+                <li style="border-top: 4px solid #1ba0a8; border-radius: 5px;">
+                    <strong>ISO 19650 Aligned</strong>
+                    <span style="font-size: 0.95em;">Workflows structured according to international standards for managing information over the whole life cycle of a built asset.</span>
+                </li>
+            </div>
+        </div>
+    </section>
+
+    <section class="portal-section">
+        <div class="content-wrapper">
+            <h2 style="margin-bottom: 20px;">Student Certificate Portal</h2>
+            <p style="margin-bottom: 30px; font-size: 1.1em;">
+                Certificates of Completion are unlocked exactly <strong>3 months (90 days)</strong> after your initial course registration. Enter your details below to query the database.
+            </p>
+            
+            <div class="form-container">
+                <form id="certForm">
+                    <div class="form-group">
+                        <label for="c-email">Registered Email Address</label>
+                        <input type="email" id="c-email" required placeholder="e.g. student@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="c-utr">Transaction ID (12-Digit UTR)</label>
+                        <input type="text" id="c-utr" required placeholder="Enter the 12-digit UTR from your receipt">
+                    </div>
+                    <button type="submit" id="certBtn" class="submit-btn">Check Eligibility & Download</button>
+                    
+                    <div id="cert-msg" class="msg-box" style="display:none;"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hidden Certificate Blueprint -->
+    <div id="cert-blueprint">
+        <div id="print-cert" class="cert-container">
+            <div class="cert-inner">
+                <div class="cert-inner-thin">
+                    <img src="Gemini_Generated_Image_.png" alt="SVT Logo" class="cert-logo">
+                    <h1 class="cert-title">Certificate of Completion</h1>
+                    <h3 class="cert-subtitle">SPATIAL VISION TECH</h3>
+                    
+                    <p class="cert-awarded">This certificate is proudly awarded to</p>
+                    <div id="pdf-name" class="cert-name">Student Name</div>
+                    
+                    <p class="cert-course-txt">for successfully completing the rigorous technical masterclass:</p>
+                    <div id="pdf-course" class="cert-course-val">Course Name Goes Here</div>
+                    
+                    <div class="cert-footer">
+                        <div class="cert-sign-block">
+                            <div class="cert-date" id="pdf-date">01/01/2026</div>
+                            <div class="cert-sign-line">Date of Issue</div>
+                        </div>
+                        <div class="cert-sign-block">
+                            <div style="font-family: 'Brush Script MT', cursive; font-size: 2em; color: #0d4a5d; margin-bottom: -15px;">S. Salunke</div>
+                            <div class="cert-sign-line">Lead Instructor / Director</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
+    
+    <script>
+        // Exact Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+            authDomain: "spatial-vision-tech.firebaseapp.com",
+            projectId: "spatial-vision-tech",
+            storageBucket: "spatial-vision-tech.firebasestorage.app",
+            messagingSenderId: "455311542009",
+            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428",
+            measurementId: "G-BC4TJGZ19B"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
+        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
+        
+        document.getElementById('certForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('c-email').value.trim();
+            const utrInput = document.getElementById('c-utr').value.trim();
+            const msgBox = document.getElementById('cert-msg');
+            const btn = document.getElementById('certBtn');
+            
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = 'transparent';
+            msgBox.innerHTML = "Querying database...";
+            btn.disabled = true;
+
+            // Search Live Firestore Database
+            db.collection("students")
+                .where("email", "==", emailInput)
+                .where("utr", "==", utrInput)
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        msgBox.style.backgroundColor = '#ffebee';
+                        msgBox.style.color = '#c62828';
+                        msgBox.innerHTML = `No registration found matching these details.`;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    // Extract student data
+                    let student = null;
+                    querySnapshot.forEach((doc) => { student = doc.data(); });
+
+                    const regDate = new Date(student.regDate);
+                    const today = new Date();
+                    
+                    const diffTime = Math.abs(today - regDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays < 90) {
+                        let eligibleDate = new Date(regDate);
+                        eligibleDate.setDate(eligibleDate.getDate() + 90);
+                        
+                        msgBox.style.backgroundColor = '#fff3e0';
+                        msgBox.style.color = '#ef6c00';
+                        msgBox.innerHTML = `Your course is currently in progress. <br>Your certificate will unlock on: <strong>${eligibleDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>`;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    msgBox.style.backgroundColor = '#e8f5e9';
+                    msgBox.style.color = '#2e7d32';
+                    msgBox.innerHTML = `Verification Successful! Generating your certificate...`;
+                    btn.innerText = "Generating PDF...";
+
+                    generateCertificate(student, msgBox, btn);
+                })
+                .catch(error => {
+                    msgBox.style.backgroundColor = '#ffebee';
+                    msgBox.style.color = '#c62828';
+                    msgBox.innerHTML = `Database error: ${error.message}`;
+                    btn.disabled = false;
+                });
+        });
+
+        function generateCertificate(student, msgBox, btn) {
+            document.getElementById('pdf-name').innerText = student.name;
+            document.getElementById('pdf-course').innerText = student.course;
+            
+            const issueDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            document.getElementById('pdf-date').innerText = issueDate;
+
+            const originalCert = document.getElementById('print-cert');
+            const clone = originalCert.cloneNode(true);
+            
+            clone.style.position = 'absolute';
+            clone.style.top = '0';
+            clone.style.left = '0';
+            clone.style.zIndex = '-9999';
+            document.body.appendChild(clone);
+
+            const opt = {
+                margin:       0,
+                filename:     `${student.name.replace(/\s+/g, '_')}_Certificate.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            
+            html2pdf().set(opt).from(clone).save().then(() => {
+                document.body.removeChild(clone); 
+                btn.innerText = "Check Eligibility & Download"; 
+                btn.disabled = false;
+                msgBox.innerHTML = `Certificate downloaded successfully!`;
+            });
+        }
+    </script>
+</body>
+</html>

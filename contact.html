@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Contact Us</title>
+    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
+    
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
+        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
+        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
+        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
+        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
+        
+        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
+        .menu-btn:hover { color: #1ba0a8; }
+        .top-bar-right { display: flex; align-items: center; gap: 20px; }
+        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
+        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
+        .admin-icon-link { font-size: 1.2em; text-decoration: none; padding: 5px 10px; background: #f4f7f8; border-radius: 4px; border: 1px solid #ddd; transition: 0.2s; }
+        .admin-icon-link:hover { background: #eef5f7; border-color: #1ba0a8; }
+        
+        header { background: #ffffff; padding: 50px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .logo { max-width: 380px; height: auto; margin-bottom: 10px; }
+        
+        section { padding: 80px 20px; max-width: 1050px; margin: auto; }
+        .content-wrapper { max-width: 1050px; margin: auto; text-align: center; }
+        h2 { font-size: 2.4em; color: #0d4a5d; margin-bottom: 50px; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
+        
+        .contact-container { display: flex; gap: 40px; flex-wrap: wrap; text-align: left; }
+        .contact-details { flex: 1; min-width: 300px; background: #0d4a5d; color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .contact-details h3 { color: #1ba0a8; font-size: 1.8em; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .contact-details p { font-size: 1.1em; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .contact-details a { color: white; text-decoration: none; transition: color 0.2s; }
+        .contact-details a:hover { color: #1ba0a8; }
+        
+        .form-container { flex: 2; min-width: 300px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #0d4a5d; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 1em; }
+        .form-group textarea { height: 150px; resize: vertical; }
+        
+        .submit-btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: bold; transition: background 0.2s; font-family: inherit; }
+        .submit-btn:hover { background: #1ba0a8; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .msg-box { margin-top: 20px; font-weight: bold; text-align: center; padding: 15px; border-radius: 4px; display: none; }
+        
+        footer { background: #111; color: #bbb; text-align: center; padding: 40px 20px; font-size: 0.9em; margin-top: 50px; }
+        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
+        
+        @media (max-width: 768px) { .contact-info { display: none; } .contact-container { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <!-- Side Navigation -->
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
+        <a href="index.html">Course Overview</a>
+        <a href="services.html">Our Services</a>
+        <a href="certifications.html">Certifications</a>
+        <a href="register.html">Register & Pay</a>
+        <a href="student.html">Student Portal</a>
+        <a href="contact.html">Contact Us</a>
+    </div>
+    <div id="overlay" onclick="closeNav()"></div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
+        <div class="top-bar-right">
+            <div class="contact-info">
+                <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
+                <a href="tel:+919579995749">📞 9579995749</a>
+            </div>
+            <a href="admin.html" class="admin-icon-link" title="Admin Portal">⚙️ Admin</a>
+        </div>
+    </div>
+
+    <header>
+        <a href="index.html" title="Go to Homepage">
+            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
+        </a>
+    </header>
+
+    <section>
+        <div class="content-wrapper">
+            <h2>Get In Touch</h2>
+            <p style="margin-bottom: 40px; font-size: 1.1em; color: #555;">Have questions about our BIM masterclass or certification process? Drop us a message.</p>
+            
+            <div class="contact-container">
+                <!-- Direct Contact Details -->
+                <div class="contact-details">
+                    <h3>Contact Information</h3>
+                    <p>✉️ <a href="mailto:admin@spatialvisiontech.in">admin@spatialvisiontech.in</a></p>
+                    <p>📞 <a href="tel:+919579995749">+91 9579995749</a></p>
+                    <p>🕒 Mon - Sat: 9:00 AM - 6:00 PM</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <h4 style="color: #1ba0a8; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Headquarters</h4>
+                        <p style="font-size: 1em; line-height: 1.8;">
+                            Spatial Vision Tech<br>
+                            Advanced BIM Training Division<br>
+                            Pune, Maharashtra, India
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- EmailJS Contact Form -->
+                <div class="form-container">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="from_name">Full Name</label>
+                            <input type="text" id="from_name" name="from_name" required placeholder="Enter your name">
+                        </div>
+                        
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="reply_to">Email Address</label>
+                                <input type="email" id="reply_to" name="reply_to" required placeholder="your.email@example.com">
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="Optional">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" required placeholder="How can we help you?"></textarea>
+                        </div>
+                        
+                        <button type="submit" id="submitBtn" class="submit-btn">Send Message</button>
+                        <div id="status-msg" class="msg-box"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
+    
+    <script>
+        // Initialize EmailJS with your New Public Key
+        emailjs.init("geiOFpTcqK6kG8dPb");
+
+        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
+        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
+
+        // Handle Form Submission securely via EmailJS
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const msgBox = document.getElementById('status-msg');
+            
+            btn.innerText = "Sending Message...";
+            btn.disabled = true;
+            msgBox.style.display = "none";
+
+            // emailjs.sendForm("YOUR_SERVICE_ID", "YOUR_NEW_CONTACT_TEMPLATE_ID", this_form)
+            // Replace "YOUR_CONTACT_TEMPLATE_ID" with the new template ID you create for contacts.
+            emailjs.sendForm('service_pv1xzki', 'YOUR_CONTACT_TEMPLATE_ID', this)
+                .then(function() {
+                    btn.innerText = "Send Message";
+                    btn.disabled = false;
+                    
+                    msgBox.style.display = "block";
+                    msgBox.style.backgroundColor = "#e8f5e9";
+                    msgBox.style.color = "#2e7d32";
+                    msgBox.innerText = "Message sent successfully! We will get back to you soon.";
+                    
+                    document.getElementById('contactForm').reset();
+                }, function(error) {
+                    btn.innerText = "Send Message";
+                    btn.disabled = false;
+                    
+                    msgBox.style.display = "block";
+                    msgBox.style.backgroundColor = "#ffebee";
+                    msgBox.style.color = "#c62828";
+                    msgBox.innerText = "Failed to send message. Please ensure your Contact Template ID is correct.";
+                    console.error("EmailJS Error:", error);
+                });
+        });
+    </script>
+</body>
+</html>

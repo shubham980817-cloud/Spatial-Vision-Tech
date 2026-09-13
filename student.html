@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Student Portal</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background-color: #f4f7f8; color: #333; line-height: 1.6; }
+        .top-bar { background: #ffffff; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; }
+        .logo { max-width: 380px; display: block; margin: 40px auto 10px auto; }
+        
+        .portal-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 900px; margin: 20px auto; }
+        h2 { font-size: 2.2em; color: #0d4a5d; margin-top: 0; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-weight: bold; color: #0d4a5d; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
+        .btn:hover { background: #1ba0a8; }
+        
+        /* Screens */
+        #student-dashboard, #pending-approval-screen, #forgot-password-screen { display: none; }
+        
+        /* Pending Screen Styling */
+        .pending-box { background: #fff3e0; border: 1px solid #ffcc80; padding: 30px; border-radius: 8px; text-align: center; }
+        .pending-box h3 { color: #ef6c00; margin-top: 0; font-size: 1.8em; }
+
+        /* Dashboard Payment Box */
+        .payment-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 25px; border-radius: 6px; margin-top: 30px; }
+        
+        /* Receipt CSS */
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); overflow: auto; padding-top: 20px; }
+        .modal-content { margin: auto; width: 95%; max-width: 840px; }
+        .receipt-container { background: white; padding: 10px; border: 3px solid #0d4a5d; width: 100%; max-width: 700px; margin: 0 auto; font-family: 'Aptos', sans-serif; }
+        .receipt-inner { border: 1px solid #1ba0a8; padding: 30px; }
+        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #0d4a5d; }
+        .receipt-table th { background: #0d4a5d; color: white; padding: 12px; text-align: left; }
+        .receipt-table td { padding: 12px; border-bottom: 1px solid #ccc; }
+        .receipt-total { display: flex; justify-content: flex-end; gap: 40px; padding: 15px; background: #f4f7f8; border: 1px solid #0d4a5d; margin-top: -25px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" style="text-decoration:none; color:#0d4a5d; font-weight:bold;">← Home</a>
+    </div>
+    <header>
+        <a href="index.html" title="Go to Homepage">
+            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
+        </a>
+    </header>
+
+    <section>
+        <div class="portal-card">
+            
+            <!-- LOGIN SCREEN -->
+            <div id="login-screen">
+                <h2>Student Sign In</h2>
+                <form id="loginForm">
+                    <div class="form-group"><label>Email Address</label><input type="email" id="s-email" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="s-password" required></div>
+                    <a href="#" onclick="showScreen('forgot-password-screen')" style="display:block; text-align:right; color:#1ba0a8; margin-bottom:20px;">Forgot Password?</a>
+                    <button type="submit" id="loginBtn" class="btn">Login</button>
+                    <div id="login-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
+                </form>
+            </div>
+
+            <!-- FORGOT PASSWORD -->
+            <div id="forgot-password-screen">
+                <h2>Reset Password</h2>
+                <form id="resetForm">
+                    <div class="form-group"><label>Email Address</label><input type="email" id="reset-email" required></div>
+                    <button type="submit" class="btn">Send Secure Reset Link</button>
+                    <div id="reset-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
+                </form>
+                <div style="text-align:center; margin-top:20px;"><a href="#" onclick="showScreen('login-screen')">← Back</a></div>
+            </div>
+
+            <!-- PENDING REGISTRATION SCREEN -->
+            <div id="pending-approval-screen">
+                <div class="pending-box">
+                    <h3>Registration Under Review</h3>
+                    <p style="font-size:1.2em; color:#555;">Your ₹100 registration fee is currently being verified by the administration team.</p>
+                    <p>Once approved, your full dashboard and fee payment portal will unlock automatically.</p>
+                </div>
+                <button onclick="logout()" class="btn" style="background:#555; margin-top:30px; width:auto; padding:10px 30px;">Sign Out</button>
+            </div>
+
+            <!-- APPROVED DASHBOARD & FEE PAYMENT -->
+            <div id="student-dashboard">
+                <h2>Welcome, <span id="d-name"></span></h2>
+                <p style="color:#1ba0a8; font-weight:bold; margin-top:-15px;">Student ID: <span id="d-student-id"></span></p>
+                
+                <div class="payment-section">
+                    <h3 style="color:#0d4a5d; margin-top:0; border-bottom:2px solid #1ba0a8; padding-bottom:5px;">Pay Course Fees</h3>
+                    <p style="color:#555; margin-bottom:20px;">Submit your course installments below. Payments are instantly logged to your academic record.</p>
+                    
+                    <form id="feePaymentForm">
+                        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                            <div class="form-group" style="flex:1;">
+                                <label>Select Installment</label>
+                                <select id="fee-type" required>
+                                    <option value="" disabled selected>Choose fee type...</option>
+                                    <option value="1st Installment (₹10,000)">1st Installment (₹10,000)</option>
+                                    <option value="2nd Installment (₹10,000)">2nd Installment (₹10,000)</option>
+                                    <option value="3rd Installment (₹10,000)">3rd Installment (₹10,000)</option>
+                                    <option value="Full Course Fee (₹30,000)">Full Course Fee (₹30,000)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label>Payment UTR / Transaction ID</label>
+                                <input type="text" id="fee-utr" required placeholder="12-Digit UTR" pattern="\d{12}">
+                            </div>
+                        </div>
+                        <div style="background:#eef5f7; padding:15px; border-radius:4px; margin-bottom:20px; font-weight:bold; color:#0d4a5d; border:1px solid #bce0ea;">
+                            Scan/Pay to UPI ID: <span style="font-family:monospace; font-size:1.2em; margin-left:10px;">spatialvisiontech@rbl</span>
+                        </div>
+                        <button type="submit" id="feeSubmitBtn" class="btn">Record Payment & Download Receipt</button>
+                    </form>
+                </div>
+
+                <div style="margin-top:40px; padding-top:20px; border-top:1px solid #eee; text-align:center;">
+                    <button onclick="logout()" class="btn" style="background:#555; width:auto; padding:10px 30px;">Sign Out</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div style="text-align:center; margin-bottom:20px;">
+                <button class="btn" style="background:#28a745; width:auto;" onclick="downloadPDF()">Download PDF Receipt</button>
+                <button class="btn" style="background:#555; width:auto;" onclick="document.getElementById('receiptModal').style.display='none'">Close</button>
+            </div>
+            <div style="display:flex; justify-content:center;">
+                <div id="receipt-content" class="receipt-container">
+                    <div class="receipt-inner">
+                        <div style="display:flex; justify-content:space-between; border-bottom:2px solid #0d4a5d; padding-bottom:15px; margin-bottom:20px;">
+                            <div>
+                                <h2 style="margin:0; color:#0d4a5d; font-size:14pt;">Spatial Vision Tech</h2>
+                                <p style="margin:0; font-size:10pt;">Course Fee Collection</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <h3 style="color:#28a745; margin:0; font-size:14pt;">FEE RECEIPT</h3>
+                                <p style="margin:0; font-size:10pt; font-family:monospace; font-weight:bold;" id="r-receipt-no"></p>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:10pt;">
+                            <div>
+                                <p><strong>Date:</strong> <span id="r-date"></span></p>
+                                <p><strong>Name:</strong> <span id="r-name"></span></p>
+                                <p><strong>Student ID:</strong> <span id="r-student-id" style="color:#1ba0a8; font-weight:bold;"></span></p>
+                            </div>
+                            <div>
+                                <p><strong>Course:</strong> <span id="r-course"></span></p>
+                                <p><strong>UTR:</strong> <span id="r-utr"></span></p>
+                            </div>
+                        </div>
+                        <table class="receipt-table">
+                            <thead><tr><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong id="r-fee-desc" style="color:#0d4a5d; font-size:12pt;"></strong></td>
+                                    <td style="text-align:right;" id="r-fee-amount"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="receipt-total">
+                            <span>Total Paid</span><span style="font-weight:bold; color:#0d4a5d; font-size:14pt;" id="r-fee-total"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+            authDomain: "spatial-vision-tech.firebaseapp.com",
+            projectId: "spatial-vision-tech",
+            storageBucket: "spatial-vision-tech.firebasestorage.app",
+            messagingSenderId: "455311542009",
+            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function showScreen(id) {
+            ['login-screen', 'forgot-password-screen', 'pending-approval-screen', 'student-dashboard'].forEach(s => document.getElementById(s).style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        let activeStudent = null;
+        let activeDocId = null;
+
+        // Login Flow
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Loading..."; btn.disabled = true;
+
+            auth.signInWithEmailAndPassword(document.getElementById('s-email').value, document.getElementById('s-password').value)
+                .then(() => db.collection("students").where("email", "==", document.getElementById('s-email').value).get())
+                .then((snapshot) => {
+                    if (snapshot.empty) throw new Error("Database record not found.");
+                    snapshot.forEach(doc => { activeStudent = doc.data(); activeDocId = doc.id; });
+                    
+                    // Route based on approval status
+                    if(activeStudent.approvalStatus === "Pending") {
+                        showScreen('pending-approval-screen');
+                    } else {
+                        document.getElementById('d-name').innerText = activeStudent.name;
+                        document.getElementById('d-student-id').innerText = activeStudent.studentId;
+                        showScreen('student-dashboard');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('login-msg').style.color = 'red';
+                    document.getElementById('login-msg').innerText = error.message;
+                    btn.innerText = "Login"; btn.disabled = false;
+                });
+        });
+
+        // Forgot Password (Firebase built-in)
+        document.getElementById('resetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            auth.sendPasswordResetEmail(document.getElementById('reset-email').value).then(() => {
+                document.getElementById('reset-msg').style.color = 'green';
+                document.getElementById('reset-msg').innerText = "Reset link sent! Check your inbox.";
+            });
+        });
+
+        // Submit Course Fee Installment
+        document.getElementById('feePaymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('feeSubmitBtn');
+            btn.innerText = "Saving Payment..."; btn.disabled = true;
+
+            const feeType = document.getElementById('fee-type').value;
+            const feeUtr = document.getElementById('fee-utr').value;
+            
+            // Extract numeric amount for receipt
+            const amountStr = feeType.includes('30,000') ? '₹30,000.00' : '₹10,000.00';
+            const dateStr = new Date().toLocaleDateString('en-IN');
+            const receiptNo = `FEE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+            const newFeeRecord = {
+                type: feeType,
+                amount: amountStr.replace('₹','').replace(',',''),
+                utr: feeUtr,
+                date: new Date().toISOString()
+            };
+
+            // Push to Firebase Array
+            db.collection("students").doc(activeDocId).update({
+                feeHistory: firebase.firestore.FieldValue.arrayUnion(newFeeRecord)
+            }).then(() => {
+                // Populate Receipt UI
+                document.getElementById('r-receipt-no').innerText = receiptNo;
+                document.getElementById('r-date').innerText = dateStr;
+                document.getElementById('r-name').innerText = activeStudent.name;
+                document.getElementById('r-student-id').innerText = activeStudent.studentId;
+                document.getElementById('r-course').innerText = activeStudent.course;
+                document.getElementById('r-utr').innerText = feeUtr;
+                document.getElementById('r-fee-desc').innerText = feeType;
+                document.getElementById('r-fee-amount').innerText = amountStr;
+                document.getElementById('r-fee-total').innerText = amountStr;
+
+                document.getElementById('receiptModal').style.display = 'block';
+                btn.innerText = "Record Payment & Download Receipt"; btn.disabled = false;
+                document.getElementById('feePaymentForm').reset();
+            });
+        });
+
+        function downloadPDF() {
+            html2pdf().set({ margin: 0.4, filename: 'Course_Fee_Receipt.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } })
+            .from(document.getElementById('receipt-content')).save();
+        }
+
+        function logout() { auth.signOut().then(() => location.reload()); }
+    </script>
+</body>
+</html>
