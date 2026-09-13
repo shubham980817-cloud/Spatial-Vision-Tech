@@ -6,6 +6,9 @@
     <title>Spatial Vision Tech | Contact Us</title>
     <link rel="stylesheet" href="bim-theme.css">
     <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     
     <style>
         body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
@@ -148,6 +151,17 @@
     <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
     
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+            authDomain: "spatial-vision-tech.firebaseapp.com",
+            projectId: "spatial-vision-tech",
+            storageBucket: "spatial-vision-tech.firebasestorage.app",
+            messagingSenderId: "455311542009",
+            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
         function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
 
@@ -161,7 +175,24 @@
             const subject = `Website enquiry from ${name}`;
             const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\n\n${message}`;
 
-            window.location.href = `mailto:admin@spatialvisiontech.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            db.collection('enquiries').add({
+                name,
+                email,
+                phone,
+                message,
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                window.location.href = `mailto:admin@spatialvisiontech.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            }).catch(error => {
+                submitBtn.disabled = false;
+                const msgBox = document.getElementById('status-msg');
+                msgBox.style.display = 'block';
+                msgBox.style.backgroundColor = '#ffebee';
+                msgBox.style.color = '#c62828';
+                msgBox.innerText = `Unable to save your enquiry: ${error.message}`;
+            });
         });
     </script>
 </body>
