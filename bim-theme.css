@@ -1,19 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 :root {
-    --bim-navy: #0d4a5d;
-    --bim-deep: #062a35;
-    --bim-teal: #1ba0a8;
-    --bim-ice: #dae8ed;
-    --bim-line: rgba(27, 160, 168, 0.13);
+    --bim-navy: #102f38;
+    --bim-deep: #071c24;
+    --bim-teal: #00a7a5;
+    --bim-ice: #e5f2f0;
+    --bim-ink: #172d32;
+    --bim-paper: #f4f8f6;
+    --bim-amber: #f2b84b;
+    --bim-line: rgba(0, 167, 165, 0.12);
+    --bim-shadow: 0 18px 45px rgba(16, 47, 56, 0.12);
 }
+
+html { scroll-behavior: smooth; }
 
 body {
-    background-color: #f7fbfc;
-    background-image: linear-gradient(var(--bim-line) 1px, transparent 1px), linear-gradient(90deg, var(--bim-line) 1px, transparent 1px);
-    background-size: 44px 44px;
+    background-color: var(--bim-paper) !important;
+    background-image: linear-gradient(var(--bim-line) 1px, transparent 1px), linear-gradient(90deg, var(--bim-line) 1px, transparent 1px) !important;
+    background-size: 44px 44px !important;
+    color: var(--bim-ink) !important;
+    font-family: 'DM Sans', 'Aptos', sans-serif !important;
 }
 
+h1, h2, h3, h4, .section-title, .menu-btn, .stat-number, button { font-family: 'Space Grotesk', 'DM Sans', sans-serif; }
+
+header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid rgba(16, 47, 56, 0.12) !important;
+    padding: 32px 20px !important;
+    backdrop-filter: blur(14px);
+}
+
+.logo { max-width: 300px !important; }
+
 .sidenav {
-    background-color: var(--bim-navy);
+    background-color: var(--bim-navy) !important;
     background-image: linear-gradient(rgba(27, 160, 168, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(27, 160, 168, 0.12) 1px, transparent 1px);
     background-size: 34px 34px;
     box-shadow: 8px 0 28px rgba(6, 42, 53, 0.28);
@@ -87,6 +108,67 @@ body {
     background-color: rgba(27, 160, 168, 0.82);
 }
 
+.top-bar {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border-bottom: 1px solid rgba(16, 47, 56, 0.1);
+    box-shadow: 0 8px 24px rgba(16, 47, 56, 0.08) !important;
+    backdrop-filter: blur(16px);
+}
+
+.menu-btn { color: var(--bim-navy) !important; letter-spacing: 0.02em; }
+.menu-btn:hover { color: var(--bim-teal) !important; }
+.contact-info, .contact-info a { color: var(--bim-navy) !important; }
+.admin-icon-link { border-color: rgba(0, 167, 165, 0.28) !important; color: var(--bim-navy); }
+
+.hero {
+    background: linear-gradient(115deg, rgba(7, 28, 36, 0.98), rgba(16, 47, 56, 0.94)) !important;
+    padding: clamp(78px, 11vw, 140px) 20px !important;
+    text-align: left !important;
+}
+
+.hero > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+.hero-logo { max-width: 1080px !important; width: 100% !important; height: min(42vw, 360px) !important; object-fit: cover; opacity: 0.82; filter: saturate(0.8) contrast(1.08); }
+.hero h1 { font-size: clamp(2.5rem, 5vw, 5rem) !important; letter-spacing: -0.04em; max-width: 900px !important; }
+.hero p { max-width: 720px !important; margin-left: 0 !important; font-size: clamp(1rem, 1.8vw, 1.3rem) !important; }
+.hero-badges { justify-content: flex-start !important; gap: 10px !important; }
+.hero-badge { border-radius: 3px !important; border-color: rgba(242, 184, 75, 0.7) !important; background: rgba(242, 184, 75, 0.1) !important; padding: 9px 14px !important; font-size: 0.82rem; letter-spacing: 0.04em; }
+
+.cta-btn, .submit-btn, .btn {
+    background: var(--bim-teal) !important;
+    border-radius: 3px !important;
+    box-shadow: 0 10px 24px rgba(0, 167, 165, 0.24);
+}
+.cta-btn:hover, .submit-btn:hover, .btn:hover { background: #078482 !important; }
+
+.section-title { color: var(--bim-navy) !important; letter-spacing: -0.03em; }
+.section-title span { border-bottom-color: var(--bim-amber) !important; }
+.stats-section, .tools-section { background: rgba(255, 255, 255, 0.78) !important; }
+.curriculum-section, .services-section { background: rgba(229, 242, 240, 0.58) !important; }
+.stat-card, .timeline-item, .service-card, .tool-badge, .form-container, .portal-card, .content-wrapper, #login-screen {
+    border-radius: 4px !important;
+    border: 1px solid rgba(16, 47, 56, 0.1);
+    box-shadow: var(--bim-shadow) !important;
+}
+.stat-card { border-top: 4px solid var(--bim-teal) !important; }
+.stat-number { color: var(--bim-navy) !important; }
+.timeline-item { border-left: 4px solid var(--bim-amber) !important; }
+.timeline-item h3, .service-card h3, .value-item h4 { color: var(--bim-teal) !important; }
+.tool-badge:hover, .service-card:hover { border-color: var(--bim-teal) !important; }
+.value-section, .cta-section, .contact-details { background: var(--bim-navy) !important; }
+.value-section { text-align: left !important; }
+.value-section .section-title { color: var(--bim-ice) !important; }
+.value-item { border-radius: 4px !important; border-color: rgba(229, 242, 240, 0.18) !important; }
+footer { background: var(--bim-deep) !important; }
+
+input, select, textarea {
+    border: 1px solid rgba(16, 47, 56, 0.2) !important;
+    border-radius: 3px !important;
+    background: rgba(255, 255, 255, 0.86) !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid rgba(0, 167, 165, 0.25); border-color: var(--bim-teal) !important; }
+.form-group label { color: var(--bim-navy) !important; }
+
 .hero,
 .cta-section,
 .value-section {
@@ -116,4 +198,9 @@ body {
 @media (max-width: 680px) {
     .sidenav::after { font-size: 6rem; left: -28px; }
     .sidenav a:not(.closebtn) { padding-left: 24px; }
+    .hero { text-align: left !important; }
+    .hero-logo { height: 220px !important; }
+    .hero-badges { align-items: flex-start; flex-direction: column; }
+    .hero-badge { width: fit-content; }
+    header { padding: 24px 16px !important; }
 }
