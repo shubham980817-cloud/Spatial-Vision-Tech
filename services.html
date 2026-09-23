@@ -1,159 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Vision Tech | Corporate Services</title>
-    <link rel="stylesheet" href="bim-theme.css">
-    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
-    <style>
-        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
-        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
-        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
-        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
-        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
-        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
-        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
-        .menu-btn:hover { color: #1ba0a8; }
-        .top-bar-right { display: flex; align-items: center; gap: 20px; }
-        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
-        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
-        .admin-icon-link { font-size: 1.2em; text-decoration: none; padding: 5px 10px; background: #f4f7f8; border-radius: 4px; border: 1px solid #ddd; transition: 0.2s; }
-        .admin-icon-link:hover { background: #eef5f7; border-color: #1ba0a8; }
-        
-        /* Logo Quick Link Styling */
-        header { background: #ffffff; padding: 40px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        header a { display: inline-block; transition: opacity 0.2s; }
-        header a:hover { opacity: 0.8; }
-        .logo { max-width: 380px; height: auto; display: block; margin: 0 auto; }
-        
-        .hero { background: linear-gradient(135deg, #0d4a5d 0%, #062a35 100%); color: white; padding: 100px 20px; text-align: center; }
-        .hero h1 { font-size: 3em; margin: 0 0 20px 0; color: #ffffff; line-height: 1.2; }
-        .hero p { font-size: 1.2em; max-width: 800px; margin: 0 auto; color: #dae8ed; }
-
-        .section-title { font-size: 2.5em; color: #0d4a5d; text-align: center; margin-bottom: 50px; font-weight: bold; margin-top: 80px;}
-        .section-title span { border-bottom: 4px solid #1ba0a8; padding-bottom: 10px; display: inline-block; }
-        
-        .services-section { padding: 40px 20px 80px 20px; background: #f4f7f8; }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1100px; margin: auto; }
-        .service-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #0d4a5d; transition: 0.3s; }
-        .service-card:hover { transform: translateY(-5px); border-top-color: #1ba0a8; }
-        .service-card h3 { color: #1ba0a8; font-size: 1.6em; margin-top: 0; }
-        .service-card p { color: #555; font-size: 1.05em; margin-bottom: 0; }
-        
-        /* Advanced Software Grid Using Local Icons */
-        .tools-section { padding: 80px 20px; background: #fff; text-align: center; }
-        .tools-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; max-width: 900px; margin: auto; }
-        .tool-badge { display: flex; flex-direction: column; align-items: center; gap: 15px; font-size: 1.1em; font-weight: bold; color: #0d4a5d; background: #fcfcfc; padding: 30px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 150px; transition: 0.3s; }
-        .tool-badge:hover { transform: translateY(-5px); border-color: #1ba0a8; }
-        .tool-badge img { width: 70px; height: 70px; object-fit: contain; }
-        
-        .cta-section { background: #0d4a5d; padding: 60px 20px; text-align: center; color: white; margin-top: 60px;}
-        .cta-section h2 { margin-top: 0; color: white; }
-        .cta-btn { background: #1ba0a8; color: white; padding: 15px 40px; font-size: 1.2em; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; display: inline-block; margin-top: 20px; }
-        .cta-btn:hover { background: #137c82; }
-        
-        footer { background: #111; color: #bbb; text-align: center; padding: 40px 20px; font-size: 0.9em; margin-top: 0; }
-        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
-        @media (max-width: 768px) { .contact-info { display: none; } .hero h1 { font-size: 2.2em; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Services</title>
+  <link rel="stylesheet" href="bim-theme.css" />
+  <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
+  <style>
+    body { background: #f5faf8; }
+    .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.72), rgba(0,0,0,0.45)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 120px 0 90px; }
+    .page-shell { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+    .section-heading { margin: 72px auto 38px; }
+    .section-heading h2 { font-size: clamp(2.2rem, 4vw, 3.4rem); }
+    .service-grid { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 26px; }
+    .service-card { background: #fff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 18px 40px rgba(0,0,0,0.08); padding: 28px 24px; }
+    .service-card .num { display: inline-block; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(45deg, #00b482 0%, #64cdcd 100%); color: #000; font-weight: 800; display: grid; place-items: center; margin-bottom: 18px; }
+    .service-card h3 { margin: 0 0 14px; font-size: 1.55rem; }
+    .service-card p { margin: 0; color: #4a4a4a; }
+    .tool-strip { display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; margin-top: 12px; }
+    .tool-badge { width: 160px; min-height: 164px; background: #fff; border: 1px solid rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; box-shadow: 0 12px 24px rgba(0,0,0,0.05); }
+    .tool-badge img { width: 62px; height: 62px; object-fit: contain; }
+    .cta-box { background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 30px; margin: 90px 0 110px; padding: 54px 48px; }
+    .cta-box h2 { margin: 0; font-size: clamp(2rem, 3vw, 3rem); }
+    @media (max-width: 980px) { .service-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); } .cta-box { flex-direction: column; align-items: flex-start; } }
+    @media (max-width: 640px) { .page-hero { padding-top: 90px; } .service-grid { grid-template-columns: 1fr; } .cta-box { padding: 36px 24px; } }
+  </style>
 </head>
 <body>
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
-        <a href="index.html">Course Overview</a>
-        <a href="services.html">Our Services</a>
-        <a href="certifications.html">Certifications</a>
-        <a href="register.html">Register & Pay</a>
-        <a href="student.html">Student Portal</a>
-        <a href="performance.html">Performance & Practice</a>
-        <a href="contact.html">Contact Us</a>
+  <header class="site-header">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Company</a>
+        <a href="services.html">Services</a>
+        <a href="certifications.html">ESG</a>
+        <a href="register.html">Projects</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <nav class="meta-nav" aria-label="Secondary navigation">
+        <div class="utility-nav">
+          <a href="student.html">News</a>
+          <a href="performance.html">Jobs</a>
+          <a href="admin.html">Photo Blog</a>
+        </div>
+        <a href="#" class="lang-link">Deutsch</a>
+      </nav>
     </div>
-    <div id="overlay" onclick="closeNav()"></div>
+  </header>
 
-    <div class="top-bar">
-        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
-        <div class="top-bar-right">
-            <div class="contact-info">
-                <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
-                <a href="tel:+917498121719">📞 7498121719</a>
-            </div>
-            <a href="admin.html" class="admin-icon-link" title="Admin Portal">⚙️ Admin</a>
+  <main>
+    <section class="page-hero">
+      <div class="page-shell">
+        <p class="eyebrow">Our services</p>
+        <h1>Advanced BIM solutions for project certainty.</h1>
+        <p class="hero-copy">We help owners, consultants, and contractors turn complex project information into coordinated, actionable delivery systems.</p>
+      </div>
+    </section>
+
+    <section class="page-shell">
+      <div class="section-heading">
+        <span class="kicker">Capabilities</span>
+        <h2>Core services designed for demanding build environments.</h2>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card">
+          <span class="num">01</span>
+          <h3>3D Structural Modeling</h3>
+          <p>Data-rich structural models created in Revit for clear coordination, engineering review, and fabrication-ready information.</p>
+        </article>
+
+        <article class="service-card">
+          <span class="num">02</span>
+          <h3>Clash Detection</h3>
+          <p>Navisworks-based coordination to isolate conflicts early, reduce site disruption, and improve project sequencing.</p>
+        </article>
+
+        <article class="service-card">
+          <span class="num">03</span>
+          <h3>2D Drafting & Detailing</h3>
+          <p>Accurate AutoCAD drawings, reinforcement details, and coordinated documentation built to project and standards requirements.</p>
+        </article>
+
+        <article class="service-card">
+          <span class="num">04</span>
+          <h3>Concept Design</h3>
+          <p>Early-stage planning and conceptual modelling used to test feasibility, site logic, and project performance before full delivery.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page-shell">
+      <div class="section-heading">
+        <span class="kicker">Technology stack</span>
+        <h2>Built with the tools the industry trusts most.</h2>
+      </div>
+      <div class="tool-strip">
+        <div class="tool-badge"><img src="autodesk-revit-seeklogo.png" alt="Autodesk Revit" /><span>Revit</span></div>
+        <div class="tool-badge"><img src="autocad-seeklogo.png" alt="AutoCAD" /><span>AutoCAD</span></div>
+        <div class="tool-badge"><img src="navisworks-seeklogo.png" alt="Navisworks" /><span>Navisworks</span></div>
+        <div class="tool-badge"><img src="Forma-logo.svg" alt="Autodesk Forma" /><span>Forma</span></div>
+      </div>
+    </section>
+
+    <section class="page-shell">
+      <div class="cta-box">
+        <h2>Need BIM consulting for your next project?</h2>
+        <a class="btn btn-primary" href="contact.html">Speak with our team</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://gp-con.de/wp-content/uploads/2024/07/GP-CON-Logo-1.svg" alt="Spatial Vision Tech logo" />
+        <p>Spatial Vision Tech is a digital construction consultancy focused on practical BIM delivery and project coordination.</p>
+      </div>
+      <div>
+        <p class="footer-title">Company</p>
+        <div class="footer-links">
+          <a href="index.html">Company</a>
+          <a href="services.html">Services</a>
+          <a href="certifications.html">ESG</a>
+          <a href="register.html">Projects</a>
         </div>
+      </div>
+      <div>
+        <p class="footer-title">Contact</p>
+        <div class="footer-contact">
+          <p>Frankfurt am Main</p>
+          <a href="tel:+4969360095303">+49 (69) 36 00 95-303</a>
+          <a href="mailto:info@spatialvisiontech.in">info@spatialvisiontech.in</a>
+        </div>
+      </div>
     </div>
-
-    <!-- Quick Link Header Logo -->
-    <header>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
-        </a>
-    </header>
-
-    <section class="hero">
-        <h1>Advanced BIM Solutions & Corporate Services</h1>
-        <p>Beyond our educational masterclasses, Spatial Vision Tech provides industry-leading structural modeling, coordination, and drafting services for the AEC industry.</p>
-    </section>
-
-    <section class="services-section">
-        <div class="section-title" style="margin-top: 40px;"><span>Our Core Capabilities</span></div>
-        <div class="services-grid">
-            <div class="service-card">
-                <h3>3D Structural Modeling</h3>
-                <p>High-LOD Revit structural modeling. We specialize in converting 2D structural plans into intelligent, parameter-rich 3D BIM models ready for fabrication and analysis.</p>
-            </div>
-            <div class="service-card">
-                <h3>Clash Detection & Coordination</h3>
-                <p>Navisworks-driven coordination to identify and resolve MEP, Architectural, and Structural clashes in the pre-construction phase, saving project time and costs.</p>
-            </div>
-            <div class="service-card">
-                <h3>2D Drafting & Detailing</h3>
-                <p>Precision AutoCAD drafting services. We generate detailed structural working drawings, standard details, rebar schedules, and shop drawings adhering to global standards.</p>
-            </div>
-            <div class="service-card">
-                <h3>Conceptual & Site Planning</h3>
-                <p>Utilizing Autodesk Forma and advanced conceptual tools to analyze site constraints, optimize designs, and deliver robust early-stage planning models.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Updated Software Icons Section -->
-    <section class="tools-section">
-        <div class="section-title" style="margin-top: 0;"><span>Our Technology Stack</span></div>
-        <p style="text-align: center; color: #555; margin-bottom: 40px; font-size: 1.1em;">We utilize industry-standard Autodesk tools to deliver reliable project data.</p>
-        <div class="tools-grid">
-            <div class="tool-badge">
-                <img src="autodesk-revit-seeklogo.png" alt="Autodesk Revit">
-                Autodesk Revit
-            </div>
-            <div class="tool-badge">
-                <img src="autocad-seeklogo.png" alt="AutoCAD">
-                AutoCAD
-            </div>
-            <div class="tool-badge">
-                <img src="navisworks-seeklogo.png" alt="Navisworks">
-                Navisworks
-            </div>
-            <div class="tool-badge">
-                <img src="Forma-logo.svg" alt="Autodesk Forma">
-                Autodesk Forma
-            </div>
-        </div>
-    </section>
-
-    <section class="cta-section">
-        <h2>Require BIM Consulting for Your Next Project?</h2>
-        <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto; color: #dae8ed;">Contact our team to discuss project requirements, obtain a quote, or schedule a consultation.</p>
-        <a href="contact.html" class="cta-btn">Contact Us Today</a>
-    </section>
-
-    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
-    
-    <script>
-        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
-        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
-    </script>
+    <div class="footer-bottom"><span>© 2026 Spatial Vision Tech</span><span>Privacy Policy • Imprint • Cookie Settings</span></div>
+  </footer>
 </body>
 </html>

@@ -1,199 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Vision Tech | Contact Us</title>
-    <link rel="stylesheet" href="bim-theme.css">
-    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
-
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    
-    <style>
-        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
-        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
-        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
-        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
-        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
-        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
-        
-        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
-        .menu-btn:hover { color: #1ba0a8; }
-        .top-bar-right { display: flex; align-items: center; gap: 20px; }
-        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
-        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
-        .admin-icon-link { font-size: 1.2em; text-decoration: none; padding: 5px 10px; background: #f4f7f8; border-radius: 4px; border: 1px solid #ddd; transition: 0.2s; }
-        .admin-icon-link:hover { background: #eef5f7; border-color: #1ba0a8; }
-        
-        header { background: #ffffff; padding: 50px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        .logo { max-width: 380px; height: auto; margin-bottom: 10px; }
-        
-        section { padding: 80px 20px; max-width: 1050px; margin: auto; }
-        .content-wrapper { max-width: 1050px; margin: auto; text-align: center; }
-        h2 { font-size: 2.4em; color: #0d4a5d; margin-bottom: 50px; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
-        
-        .contact-container { display: flex; gap: 40px; flex-wrap: wrap; text-align: left; }
-        .contact-details { flex: 1; min-width: 300px; background: #0d4a5d; color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .contact-details h3 { color: #1ba0a8; font-size: 1.8em; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
-        .contact-details p { font-size: 1.1em; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .contact-details a { color: white; text-decoration: none; transition: color 0.2s; }
-        .contact-details a:hover { color: #1ba0a8; }
-        
-        .form-container { flex: 2; min-width: 300px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #0d4a5d; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 1em; }
-        .form-group textarea { height: 150px; resize: vertical; }
-        
-        .submit-btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: bold; transition: background 0.2s; font-family: inherit; }
-        .submit-btn:hover { background: #1ba0a8; }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        .msg-box { margin-top: 20px; font-weight: bold; text-align: center; padding: 15px; border-radius: 4px; display: none; }
-        
-        footer { background: #111; color: #bbb; text-align: center; padding: 40px 20px; font-size: 0.9em; margin-top: 50px; }
-        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
-        
-        @media (max-width: 768px) { .contact-info { display: none; } .contact-container { flex-direction: column; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Contact</title>
+  <link rel="stylesheet" href="bim-theme.css" />
+  <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <style>
+    body { background: #f5faf8; }
+    .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.75), rgba(0,0,0,0.42)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 110px 0 84px; }
+    .page-shell { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+    .contact-grid { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 28px; margin: 80px auto 110px; }
+    .panel { background: #fff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 18px 45px rgba(0,0,0,0.07); }
+    .contact-panel { background: #000; color: #fff; padding: 40px 32px; }
+    .contact-panel h3 { margin-top: 0; font-size: 2rem; color: #64cdcd; }
+    .contact-panel p, .contact-panel a { color: rgba(255,255,255,0.8); }
+    .contact-panel .meta { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; }
+    .contact-panel .meta div { border-top: 1px solid rgba(255,255,255,0.14); padding-top: 18px; }
+    .form-panel { padding: 34px 30px; }
+    .form-panel h3 { margin: 0 0 22px; font-size: 2rem; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; margin-bottom: 8px; font-weight: 700; color: #0b1f25; }
+    .field input, .field textarea { width: 100%; padding: 13px 14px; border: 1px solid rgba(0,0,0,0.12); background: #fff; }
+    .field textarea { min-height: 160px; resize: vertical; }
+    .submit-btn { width: 100%; margin-top: 10px; }
+    .msg-box { display: none; margin-top: 14px; padding: 12px 14px; font-weight: 700; }
+    @media (max-width: 920px) { .contact-grid { grid-template-columns: 1fr; } .field-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <!-- Side Navigation -->
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
-        <a href="index.html">Course Overview</a>
-        <a href="services.html">Our Services</a>
-        <a href="certifications.html">Certifications</a>
-        <a href="register.html">Register & Pay</a>
-        <a href="student.html">Student Portal</a>
-        <a href="performance.html">Performance & Practice</a>
-        <a href="contact.html">Contact Us</a>
-    </div>
-    <div id="overlay" onclick="closeNav()"></div>
-
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
-        <div class="top-bar-right">
-            <div class="contact-info">
-                <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
-                <a href="tel:+917498121719">📞 7498121719</a>
-            </div>
-            <a href="admin.html" class="admin-icon-link" title="Admin Portal">⚙️ Admin</a>
+  <header class="site-header">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Company</a>
+        <a href="services.html">Services</a>
+        <a href="certifications.html">ESG</a>
+        <a href="register.html">Projects</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <nav class="meta-nav" aria-label="Secondary navigation">
+        <div class="utility-nav">
+          <a href="student.html">News</a>
+          <a href="performance.html">Jobs</a>
+          <a href="admin.html">Photo Blog</a>
         </div>
+        <a href="#" class="lang-link">Deutsch</a>
+      </nav>
     </div>
+  </header>
 
-    <header>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
-        </a>
-    </header>
-
-    <section>
-        <div class="content-wrapper">
-            <h2>Get In Touch</h2>
-            <p style="margin-bottom: 40px; font-size: 1.1em; color: #555;">Have questions about our BIM masterclass or certification process? Drop us a message.</p>
-            
-            <div class="contact-container">
-                <!-- Direct Contact Details -->
-                <div class="contact-details">
-                    <h3>Contact Information</h3>
-                    <p>✉️ <a href="mailto:admin@spatialvisiontech.in">admin@spatialvisiontech.in</a></p>
-                    <p>📞 <a href="tel:+917498121719">+91 7498121719</a></p>
-                    <p>🕒 Mon - Sat: 9:00 AM - 6:00 PM</p>
-                    
-                    <div style="margin-top: 40px;">
-                        <h4 style="color: #1ba0a8; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Headquarters</h4>
-                        <p style="font-size: 1em; line-height: 1.8;">
-                            Spatial Vision Tech<br>
-                            Advanced BIM Training Division<br>
-                            Pune, Maharashtra, India
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Contact Form -->
-                <div class="form-container">
-                    <form id="contactForm">
-                        <div class="form-group">
-                            <label for="from_name">Full Name</label>
-                            <input type="text" id="from_name" name="from_name" required placeholder="Enter your name">
-                        </div>
-                        
-                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                            <div class="form-group" style="flex: 1; min-width: 200px;">
-                                <label for="reply_to">Email Address</label>
-                                <input type="email" id="reply_to" name="reply_to" required placeholder="your.email@example.com">
-                            </div>
-                            <div class="form-group" style="flex: 1; min-width: 200px;">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" placeholder="Optional">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="message">Your Message</label>
-                            <textarea id="message" name="message" required placeholder="How can we help you?"></textarea>
-                        </div>
-                        
-                        <button type="submit" id="submitBtn" class="submit-btn">Open Email App</button>
-                        <div id="status-msg" class="msg-box"></div>
-                    </form>
-                </div>
-            </div>
-        </div>
+  <main>
+    <section class="page-hero">
+      <div class="page-shell">
+        <p class="eyebrow">Contact</p>
+        <h1>Let us build your vision together.</h1>
+        <p class="hero-copy">Tell us about your project, learning goals, or BIM support needs and we’ll help shape the right next step.</p>
+      </div>
     </section>
 
-    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
-    
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    <section class="page-shell">
+      <div class="contact-grid">
+        <aside class="panel contact-panel">
+          <h3>Contact information</h3>
+          <div class="meta">
+            <div><strong>Email</strong><br><a href="mailto:admin@spatialvisiontech.in">admin@spatialvisiontech.in</a></div>
+            <div><strong>Phone</strong><br><a href="tel:+917498121719">+91 7498121719</a></div>
+            <div><strong>Hours</strong><br>Mon – Sat: 9:00 AM – 6:00 PM</div>
+            <div><strong>Headquarters</strong><br>Spatial Vision Tech<br>Pune, Maharashtra, India</div>
+          </div>
+        </aside>
 
-        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
-        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
+        <div class="panel form-panel">
+          <h3>Send us a message</h3>
+          <form id="contactForm">
+            <div class="field-grid">
+              <div class="field">
+                <label for="from_name">Full name</label>
+                <input type="text" id="from_name" name="from_name" required />
+              </div>
+              <div class="field">
+                <label for="reply_to">Email address</label>
+                <input type="email" id="reply_to" name="reply_to" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="phone">Phone number</label>
+              <input type="tel" id="phone" name="phone" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="message">How can we help?</label>
+              <textarea id="message" name="message" required></textarea>
+            </div>
+            <button class="btn btn-primary submit-btn" id="submitBtn" type="submit">Open email app</button>
+            <div id="status-msg" class="msg-box"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        document.getElementById('contactForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://gp-con.de/wp-content/uploads/2024/07/GP-CON-Logo-1.svg" alt="Spatial Vision Tech logo" />
+        <p>Spatial Vision Tech delivers digital construction and BIM services for modern building and infrastructure teams.</p>
+      </div>
+      <div>
+        <p class="footer-title">Company</p>
+        <div class="footer-links">
+          <a href="index.html">Company</a>
+          <a href="services.html">Services</a>
+          <a href="certifications.html">ESG</a>
+          <a href="register.html">Projects</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-title">Contact</p>
+        <div class="footer-contact">
+          <p>Frankfurt am Main</p>
+          <a href="tel:+4969360095303">+49 (69) 36 00 95-303</a>
+          <a href="mailto:info@spatialvisiontech.in">info@spatialvisiontech.in</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Spatial Vision Tech</span><span>Privacy Policy • Imprint • Cookie Settings</span></div>
+  </footer>
 
-            const name = document.getElementById('from_name').value.trim();
-            const email = document.getElementById('reply_to').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const message = document.getElementById('message').value.trim();
-            const subject = `Website enquiry from ${name}`;
-            const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\n\n${message}`;
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+      authDomain: "spatial-vision-tech.firebaseapp.com",
+      projectId: "spatial-vision-tech",
+      storageBucket: "spatial-vision-tech.firebasestorage.app",
+      messagingSenderId: "455311542009",
+      appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            db.collection('enquiries').add({
-                name,
-                email,
-                phone,
-                message,
-                createdAt: new Date().toISOString()
-            }).then(() => {
-                window.location.href = `mailto:admin@spatialvisiontech.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            }).catch(error => {
-                submitBtn.disabled = false;
-                const msgBox = document.getElementById('status-msg');
-                msgBox.style.display = 'block';
-                msgBox.style.backgroundColor = '#ffebee';
-                msgBox.style.color = '#c62828';
-                msgBox.innerText = `Unable to save your enquiry: ${error.message}`;
-            });
-        });
-    </script>
+    document.getElementById('contactForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const name = document.getElementById('from_name').value.trim();
+      const email = document.getElementById('reply_to').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      db.collection('enquiries').add({
+        name, email, phone, message, createdAt: new Date().toISOString()
+      }).then(() => {
+        const subject = encodeURIComponent('Website enquiry from ' + name);
+        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\n\n${message}`);
+        window.location.href = `mailto:admin@spatialvisiontech.in?subject=${subject}&body=${body}`;
+      }).catch((error) => {
+        const msgBox = document.getElementById('status-msg');
+        msgBox.style.display = 'block';
+        msgBox.style.background = '#ffebee';
+        msgBox.style.color = '#c62828';
+        msgBox.textContent = `Unable to save your enquiry: ${error.message}`;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Open email app';
+      });
+    });
+  </script>
 </body>
 </html>

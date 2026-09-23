@@ -1,233 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Vision Tech | Full-Stack BIM Professional Course</title>
-    <link rel="stylesheet" href="bim-theme.css">
-    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
-    <style>
-        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #fcfcfc; }
-        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
-        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
-        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
-        .sidenav .sidebar-logo { text-align: center; margin-bottom: 20px; }
-        .sidenav .sidebar-logo img { width: 80px; border-radius: 5px; }
-        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; display: flex; align-items: center; gap: 10px; font-family: inherit; }
-        .menu-btn:hover { color: #1ba0a8; }
-        .top-bar-right { display: flex; align-items: center; gap: 20px; }
-        .contact-info { font-size: 0.9em; color: #0d4a5d; font-weight: 500; }
-        .contact-info a { color: #0d4a5d; text-decoration: none; margin-left: 15px; }
-        .admin-icon-link { font-size: 1.2em; text-decoration: none; padding: 5px 10px; background: #f4f7f8; border-radius: 4px; border: 1px solid #ddd; transition: 0.2s; }
-        .admin-icon-link:hover { background: #eef5f7; border-color: #1ba0a8; }
-        
-        /* Logo Quick Link Styling */
-        header { background: #ffffff; padding: 40px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        header a { display: inline-block; transition: opacity 0.2s; }
-        header a:hover { opacity: 0.8; }
-        .logo { max-width: 380px; height: auto; display: block; margin: 0 auto; }
-        
-        .hero { background: linear-gradient(135deg, #0d4a5d 0%, #062a35 100%); color: white; padding: 120px 20px; text-align: center; }
-        .hero-logo { width: min(410px, 90vw); height: 240px; object-fit: cover; margin: 0 auto 30px; display: block; border-radius: 2px; }
-        .hero h1 { font-size: 3.5em; margin: 0 0 20px 0; color: #ffffff; line-height: 1.2; }
-        .hero h1 span { color: #1ba0a8; }
-        .hero p { font-size: 1.3em; max-width: 800px; margin: 0 auto 40px auto; color: #dae8ed; }
-        .hero-badges { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
-        .hero-badge { background: rgba(27, 160, 168, 0.2); border: 1px solid #1ba0a8; padding: 10px 25px; border-radius: 50px; font-weight: bold; color: #fff; }
-        .cta-btn { background: #1ba0a8; color: white; padding: 18px 45px; font-size: 1.2em; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; display: inline-block; box-shadow: 0 4px 15px rgba(27, 160, 168, 0.4); }
-        .cta-btn:hover { background: #137c82; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27, 160, 168, 0.6); }
-
-        .section-title { font-size: 2.5em; color: #0d4a5d; text-align: center; margin-bottom: 50px; font-weight: bold; }
-        .section-title span { border-bottom: 4px solid #1ba0a8; padding-bottom: 10px; display: inline-block; }
-        
-        .stats-section { padding: 80px 20px; background: #fff; text-align: center; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1050px; margin: auto; }
-        .stat-card { padding: 40px 20px; background: #fcfcfc; border-radius: 8px; border-top: 5px solid #1ba0a8; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-number { font-size: 2.8em; font-weight: bold; color: #0d4a5d; margin-bottom: 15px; line-height: 1; }
-        
-        .curriculum-section { padding: 80px 20px; background: #f4f7f8; }
-        .timeline { max-width: 900px; margin: auto; }
-        .timeline-item { background: white; padding: 35px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-left: 6px solid #0d4a5d; }
-        .timeline-item h3 { color: #1ba0a8; margin-top: 0; font-size: 1.5em; }
-        .timeline-item ul { padding-left: 20px; color: #555; margin-bottom: 0; }
-        .timeline-item ul li { margin-bottom: 8px; }
-        
-        /* Advanced Software Grid Using Local Icons */
-        .tools-section { padding: 80px 20px; background: #fff; text-align: center; }
-        .tools-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; max-width: 900px; margin: auto; }
-        .tool-badge { display: flex; flex-direction: column; align-items: center; gap: 15px; font-size: 1.1em; font-weight: bold; color: #0d4a5d; background: #fcfcfc; padding: 30px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 150px; transition: 0.3s; }
-        .tool-badge:hover { transform: translateY(-5px); border-color: #1ba0a8; }
-        .tool-badge img { width: 70px; height: 70px; object-fit: contain; }
-        
-        .value-section { padding: 100px 20px; background: #0d4a5d; color: white; text-align: center; }
-        .value-section .section-title { color: white; }
-        .value-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1050px; margin: auto; margin-top: 50px; }
-        .value-item { background: rgba(255,255,255,0.05); padding: 40px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .value-item h4 { color: #1ba0a8; font-size: 1.5em; margin-bottom: 15px; margin-top: 0; }
-        .value-item p { color: #dae8ed; margin: 0; }
-        
-        footer { background: #111; color: #bbb; text-align: center; padding: 40px 20px; font-size: 0.9em; margin-top: 0; }
-        #overlay { position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 1500; cursor: pointer; }
-        @media (max-width: 768px) { .contact-info { display: none; } .hero h1 { font-size: 2.5em; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Construction & BIM Expertise</title>
+  <meta name="description" content="High-end construction management, BIM, and project delivery solutions." />
+  <link rel="stylesheet" href="bim-theme.css" />
+  <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
 </head>
 <body>
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <div class="sidebar-logo"><img src="Gemini_Generated_Image_.png" alt="SVT Icon"></div>
-        <a href="index.html">Course Overview</a>
-        <a href="services.html">Our Services</a>
-        <a href="certifications.html">Certifications</a>
-        <a href="register.html">Register & Pay</a>
-        <a href="student.html">Student Portal</a>
-        <a href="performance.html">Performance & Practice</a>
-        <a href="contact.html">Contact Us</a>
-    </div>
-    <div id="overlay" onclick="closeNav()"></div>
+  <header class="site-header">
+    <div class="topbar">
+      <div class="brand" aria-label="Spatial Vision Tech home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Spatial Vision Tech</span>
+      </div>
 
-    <div class="top-bar">
-        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
-        <div class="top-bar-right">
-            <div class="contact-info">
-                <a href="mailto:admin@spatialvisiontech.in">✉ admin@spatialvisiontech.in</a>
-                <a href="tel:+917498121719">📞 7498121719</a>
-            </div>
-            <a href="admin.html" class="admin-icon-link" title="Admin Portal">⚙️ Admin</a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Company</a>
+        <a href="services.html">Services</a>
+        <a href="certifications.html">ESG</a>
+        <a href="register.html">Projects</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <nav class="meta-nav" aria-label="Secondary navigation">
+        <div class="utility-nav">
+          <a href="student.html">News</a>
+          <a href="performance.html">Jobs</a>
+          <a href="admin.html">Photo Blog</a>
         </div>
+        <a href="#" class="lang-link">Deutsch</a>
+      </nav>
     </div>
+  </header>
 
-    <!-- Quick Link Header Logo -->
-    <header>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
-        </a>
-    </header>
-
+  <main>
     <section class="hero">
-        <img src="bim-model.jpg" alt="BIM building model" class="hero-logo">
-        <h1>Full-Stack BIM <span>Professional Course</span></h1>
-        <p>Learn the BIM workflows used by leading AEC firms to design and deliver complex projects.</p>
-        <div class="hero-badges">
-            <div class="hero-badge">Course Duration: 3 Months</div>
-            <div class="hero-badge">Learning Mode: Online</div>
-            <div class="hero-badge">Placement Assistance: 100%</div>
-        </div>
-        <a href="register.html" class="cta-btn">Apply Now & Reserve Your Seat</a>
-    </section>
-
-    <section class="stats-section">
-        <div class="section-title"><span>How can BIM accelerate your career?</span></div>
-        <p style="font-size: 1.2em; color: #555; margin-bottom: 50px; max-width: 800px; margin-left: auto; margin-right: auto;">
-            BIM is redefining how infrastructure megaprojects and smart cities are getting built.
+      <div class="hero-content">
+        <p class="eyebrow">Trusted partner for complex construction projects</p>
+        <h1>Full-Stack BIM <span class="accent">for construction excellence</span></h1>
+        <p class="hero-copy">
+          We combine digital planning, site coordination, and advanced BIM workflows to help teams
+          deliver complex structures with precision, clarity, and measurable project control.
         </p>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">$20 Trillion</div>
-                <p>Construction Industry Market size by 2030.</p>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">4X Growth</div>
-                <p>BIM Market Projection in India by 2035.</p>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">60% Projects</div>
-                <p>Large AEC firms prefer professionals with BIM skills.</p>
-            </div>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="register.html">Get in touch</a>
+          <a class="btn btn-secondary" href="services.html">Explore services</a>
         </div>
+
+        <ul class="hero-stats" aria-label="Key business stats">
+          <li><strong>20+</strong><span>Years</span></li>
+          <li><strong>250+</strong><span>Projects</span></li>
+          <li><strong>99%</strong><span>Delivery</span></li>
+          <li><strong>24/7</strong><span>Support</span></li>
+        </ul>
+      </div>
     </section>
 
-    <section class="curriculum-section">
-        <div class="section-title"><span>Foundation to Advanced BIM</span></div>
-        <p style="text-align: center; font-size: 1.2em; margin-bottom: 40px; color: #555;">Your Journey to a Full-Stack BIM Professional</p>
-        <div class="timeline">
-            <div class="timeline-item">
-                <h3>Pre-Course Orientation</h3>
-                <ul>
-                    <li>BIM Fundamentals Alignment</li>
-                    <li>Software & Workflow Setup</li>
-                    <li>Understanding Project Environments</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Studio 01: Revit Fundamentals</h3>
-                <ul>
-                    <li>BIM Foundations: Project Modelling in Revit</li>
-                    <li>Conceptual Modelling & Site development</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Studio 02: Advanced Modelling</h3>
-                <ul>
-                    <li>Family Customisation & Parametric Modelling</li>
-                    <li>Revit Structural Modelling</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Studio 03: Delivery & Coordination</h3>
-                <ul>
-                    <li>BIM Collaboration & Information Management</li>
-                    <li>Documentation, BOQs & Project Delivery</li>
-                    <li>Creation of Federated Model</li>
-                </ul>
-            </div>
-        </div>
+    <section class="services">
+      <div class="section-heading">
+        <span class="kicker">Our services</span>
+        <h2>Built around the demands of modern AEC delivery.</h2>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card">
+          <div class="service-icon">01</div>
+          <h3>Planning</h3>
+          <p>Feasibility analysis, project programming, and early-stage coordination for demanding builds.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">02</div>
+          <h3>Shell Construction</h3>
+          <p>Site execution, structural sequencing, and construction management for high-risk environments.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">03</div>
+          <h3>Quality Management</h3>
+          <p>Inspection workflows, compliance checks, and quality assurance from concept through handover.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">04</div>
+          <h3>BIM</h3>
+          <p>Model coordination, digital collaboration, and data-rich workflows for complex project teams.</p>
+        </article>
+      </div>
     </section>
 
-    <!-- Updated Software Icons Section -->
-    <section class="tools-section">
-        <div class="section-title"><span>Software & Tools Covered</span></div>
-        <div class="tools-grid">
-            <div class="tool-badge">
-                <img src="autodesk-revit-seeklogo.png" alt="Autodesk Revit">
-                Autodesk Revit
-            </div>
-            <div class="tool-badge">
-                <img src="autocad-seeklogo.png" alt="AutoCAD">
-                AutoCAD
-            </div>
-            <div class="tool-badge">
-                <img src="navisworks-seeklogo.png" alt="Navisworks">
-                Navisworks
-            </div>
-            <div class="tool-badge">
-                <img src="Forma-logo.svg" alt="Autodesk Forma">
-                Autodesk Forma
-            </div>
-        </div>
+    <section class="project-showcase">
+      <div class="section-heading">
+        <span class="kicker">Current references</span>
+        <h2>Building construction projects &amp; data centres are our area of expertise.</h2>
+      </div>
+
+      <div class="project-grid">
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80" alt="Project image" />
+          <div class="project-content">
+            <small>Commercial</small>
+            <h3>FOUR FRANKFURT</h3>
+            <p>High-density mixed-use development with advanced coordination and delivery strategy.</p>
+            <a class="project-link" href="services.html">Go to the project</a>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80" alt="Data center project" />
+          <div class="project-content">
+            <small>Data centre</small>
+            <h3>Datacenter FRA1-Mainz</h3>
+            <p>Mission-critical infrastructure delivered with resilient planning and operational assurance.</p>
+            <a class="project-link" href="services.html">Go to the project</a>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1200&q=80" alt="Urban project" />
+          <div class="project-content">
+            <small>Urban development</small>
+            <h3>THE SPIN</h3>
+            <p>Adaptive urban space planning built around collaborative project integration and value creation.</p>
+            <a class="project-link" href="services.html">Go to the project</a>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80" alt="Grand central project" />
+          <div class="project-content">
+            <small>Infrastructure</small>
+            <h3>GRAND CENTRAL</h3>
+            <p>Large-scale coordination model aligned to commercial, technical, and risk-driven project goals.</p>
+            <a class="project-link" href="services.html">Go to the project</a>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <section class="value-section">
-        <div class="section-title"><span style="border-color: #1ba0a8;">What You Get Out of This Program</span></div>
-        <p style="font-size: 1.2em; max-width: 800px; margin: 0 auto;">
-            A complete, hiring-ready BIM career path built to meet real industry standards.
-        </p>
-        <div class="value-grid">
-            <div class="value-item">
-                <h4>Earn up to 40% higher salary.</h4>
-                <p>Full-stack BIM professionals earn significantly higher packages.</p>
-            </div>
-            <div class="value-item">
-                <h4>Global Standards</h4>
-                <p>Portfolio project built to ISO 19650 and RIBA standards.</p>
-            </div>
-            <div class="value-item">
-                <h4>Career growth.</h4>
-                <p>Move from where you are to where top AEC firms hire from.</p>
-            </div>
-        </div>
-        <div style="margin-top: 60px;">
-            <a href="register.html" class="cta-btn" style="background: white; color: #0d4a5d;">Start Your Application Now</a>
-        </div>
+    <section class="news">
+      <div class="section-heading">
+        <span class="kicker">News</span>
+        <h2>Insights from the field.</h2>
+      </div>
+
+      <div class="news-grid">
+        <article class="news-card">
+          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80" alt="Construction team working on site" />
+          <div class="news-body">
+            <time datetime="2026-07-27">27.07.2026</time>
+            <h3>Ab in die Sommerpause? Noch nicht ganz.</h3>
+            <p>Operational planning continues as the project team prepares for a strong final stretch of activity.</p>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="Certification and quality review" />
+          <div class="news-body">
+            <time datetime="2026-07-09">09.07.2026</time>
+            <h3>GP Log and GP Con receive international ISO certifications.</h3>
+            <p>Quality assurance and operational discipline remain at the center of every project delivery model.</p>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=900&q=80" alt="Construction workers on a building site" />
+          <div class="news-body">
+            <time datetime="2026-06-26">26.06.2026</time>
+            <h3>Mission title defense succeeded — the team wins the architects football cup 2026.</h3>
+            <p>Strong collaboration, resilience, and team spirit continue to define how we work and deliver.</p>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <footer><p>&copy; 2026 Spatial Vision Tech. All rights reserved. | spatialvisiontech.in</p></footer>
-    
-    <script>
-        function openNav() { document.getElementById("mySidenav").style.width = "250px"; document.getElementById("overlay").style.display = "block"; }
-        function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("overlay").style.display = "none"; }
-    </script>
+    <section class="cta-band">
+      <div class="cta-box">
+        <h2>Let us build your vision together.</h2>
+        <a class="btn btn-primary" href="contact.html">Get in touch</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://gp-con.de/wp-content/uploads/2024/07/GP-CON-Logo-1.svg" alt="Spatial Vision Tech logo" />
+        <p>Spatial Vision Tech is a digital construction and BIM consultancy delivering strategy, coordination, and execution for complex project environments.</p>
+      </div>
+
+      <div>
+        <p class="footer-title">Company</p>
+        <div class="footer-links">
+          <a href="index.html">Company</a>
+          <a href="services.html">Services</a>
+          <a href="certifications.html">ESG</a>
+          <a href="register.html">Projects</a>
+        </div>
+      </div>
+
+      <div>
+        <p class="footer-title">Contact</p>
+        <div class="footer-contact">
+          <p>Spatial Vision Tech GmbH</p>
+          <p>Frankfurt am Main</p>
+          <a href="tel:+4969360095303">+49 (69) 36 00 95-303</a>
+          <a href="mailto:info@spatialvisiontech.in">info@spatialvisiontech.in</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Spatial Vision Tech</span>
+      <span>Privacy Policy • Imprint • Cookie Settings</span>
+    </div>
+  </footer>
 </body>
 </html>

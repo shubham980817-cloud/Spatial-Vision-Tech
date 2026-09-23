@@ -1,265 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Vision Tech | Register</title>
-    <link rel="stylesheet" href="bim-theme.css">
-    <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    
-    <style>
-        body { font-family: 'Aptos', 'Aptos Body', Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background-color: #f4f7f8; }
-        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #0d4a5d; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .sidenav a { padding: 12px 20px 12px 30px; text-decoration: none; font-size: 1.1em; color: #dae8ed; display: block; transition: 0.2s; text-transform: uppercase; font-weight: 500; }
-        .sidenav a:hover { color: #ffffff; background-color: #1ba0a8; }
-        .sidenav .closebtn { position: absolute; top: 0; right: 15px; font-size: 36px; margin-left: 50px; padding: 5px; background: transparent; }
-        .top-bar { background: #ffffff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn { font-size: 1.5em; cursor: pointer; background: none; border: none; color: #0d4a5d; font-weight: bold; font-family: inherit; }
-        header { background: #ffffff; padding: 50px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        .logo { max-width: 380px; height: auto; margin-bottom: 10px; }
-        section { padding: 80px 20px; max-width: 1050px; margin: auto; }
-        .content-wrapper { max-width: 1050px; margin: auto; text-align: center; }
-        h2 { font-size: 2.4em; color: #0d4a5d; margin-bottom: 50px; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
-        
-        .form-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 650px; margin: auto; text-align: left; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #0d4a5d; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
-        .form-row { display: flex; gap: 20px; }
-        .form-row .form-group { flex: 1; }
-        
-        .payment-box { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; text-align: center; }
-        .payment-qr { width: 220px; height: 220px; display: block; margin: 15px auto; border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .upi-id { font-family: monospace; font-size: 1.15em; color: #0d4a5d; font-weight: bold; }
-        .payment-status { display: none; margin-top: 20px; padding: 15px; border-radius: 4px; background: #fff3e0; color: #8a4b08; font-weight: bold; }
-        
-        .submit-btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; font-weight: bold; transition: 0.2s; }
-        .submit-btn:hover { background: #1ba0a8; }
-        
-        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); overflow: auto; padding-top: 20px; }
-        .modal-content { margin: auto; width: 95%; max-width: 840px; }
-        .btn-group { display: flex; gap: 15px; justify-content: center; margin-top: 20px; margin-bottom: 40px; }
-        .download-btn, .close-btn { color: white; padding: 12px 25px; border: none; border-radius: 4px; cursor: pointer; font-size: 1.1em; font-weight: bold; }
-        .download-btn { background: #28a745; }
-        .close-btn { background: #555; }
-        
-        /* Receipt */
-        .receipt-wrapper { background: #fff; padding: 20px; display: flex; justify-content: center; }
-        .receipt-container { background: white; padding: 10px; border: 3px solid #0d4a5d; color: #333; width: 100%; max-width: 700px; font-family: 'Aptos', sans-serif; }
-        .receipt-inner { border: 1px solid #1ba0a8; padding: 30px; }
-        .receipt-header { display: flex; justify-content: space-between; border-bottom: 2px solid #0d4a5d; padding-bottom: 15px; margin-bottom: 20px; }
-        .receipt-title h3 { color: #28a745; margin:0; }
-        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #0d4a5d; }
-        .receipt-table th { background: #0d4a5d; color: white; padding: 12px; text-align: left; }
-        .receipt-table td { padding: 12px; border-bottom: 1px solid #ccc; }
-        .receipt-total { display: flex; justify-content: flex-end; gap: 40px; padding: 15px; background: #f4f7f8; border: 1px solid #0d4a5d; margin-top: -25px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Register</title>
+  <link rel="stylesheet" href="bim-theme.css" />
+  <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <style>
+    body { background: #f3faf8; }
+    .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.75), rgba(0,0,0,0.40)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 110px 0 84px; }
+    .page-shell { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+    .register-wrap { max-width: 760px; margin: 80px auto 110px; background: #fff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 18px 45px rgba(0,0,0,0.07); padding: 30px; }
+    .register-wrap h2 { margin-top: 0; }
+    .field-group { margin-bottom: 20px; }
+    .field-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #0b1f25; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .field-group input, .field-group select { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.12); }
+    .payment-box { background: #f7f9fa; border: 1px solid rgba(0,0,0,0.08); padding: 22px; margin-top: 8px; }
+    .payment-box .qr { width: 220px; height: 220px; display: block; margin: 16px auto; }
+    .payment-status { display: none; margin-top: 18px; padding: 12px 14px; background: #fff3dc; color: #8f5e00; font-weight: 700; }
+    .receipt-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 50; padding: 24px; overflow: auto; }
+    .receipt-card { max-width: 860px; margin: 20px auto; background: #fff; padding: 18px; }
+    .receipt-card .actions { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; }
+    .receipt-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .receipt-table th, .receipt-table td { border: 1px solid rgba(0,0,0,0.12); padding: 10px 12px; }
+    .receipt-table th { background: #0b1f25; color: #fff; }
+    @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <a href="index.html">Course Overview</a>
-        <a href="register.html">Register & Pay</a>
-        <a href="student.html">Student Portal</a>
-        <a href="performance.html">Performance & Practice</a>
-        <a href="contact.html">Contact Us</a>
-    </div>
-    <div class="top-bar">
-        <button class="menu-btn" onclick="openNav()">&#9776; Menu</button>
-    </div>
-    <header>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="SVT Logo" class="logo">
-        </a>
-    </header>
-
-    <section>
-        <div class="content-wrapper">
-            <h2>Step 1: Student Registration</h2>
-            <p style="margin-bottom: 40px; font-size: 1.1em;">Pay the ₹100 registration fee to submit your application. Your account will be verified by the admin.</p>
-            
-            <div class="form-container">
-                <form id="registrationForm">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="reg-name" required placeholder="Enter your full name">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="reg-email" required placeholder="your.email@gmail.com">
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="reg-phone" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Create Portal Password</label>
-                            <input type="password" id="reg-pass" required placeholder="Set portal password">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Select Course Program</label>
-                        <select id="course" required>
-                            <option value="Autodesk Revit: Structural Modeling Masterclass">Autodesk Revit: Structural Modeling Masterclass</option>
-                            <option value="Advanced BIM: Coordination & Clash Detection">Advanced BIM: Coordination & Clash Detection</option>
-                        </select>
-                    </div>
-
-                    <div class="payment-box">
-                        <label style="font-weight:bold; color:#0d4a5d; font-size: 1.2em;">Pre-Registration Fee: ₹100.00</label>
-                        <p style="margin-top: 5px; color: #555; font-size: 0.9em;">Scan this QR using PhonePe or any UPI app, then enter the transaction ID below. Admin approval is required before the final ₹4,900 registration payment.</p>
-                        <img class="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="Scan to pay ₹100 pre-registration fee">
-                        <div class="upi-id">UPI ID: spatialvisiontech@rbl</div>
-                        <div class="form-group" style="margin-top: 15px; margin-bottom: 0; text-align:left;">
-                            <label for="reg-utr">UPI Transaction ID / UTR</label>
-                            <input type="text" id="reg-utr" required placeholder="Enter the transaction ID after payment">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" id="submitBtn" class="submit-btn">Submit Registration Payment</button>
-                    <div id="payment-status" class="payment-status"></div>
-                </form>
-            </div>
+  <header class="site-header">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Company</a>
+        <a href="services.html">Services</a>
+        <a href="certifications.html">ESG</a>
+        <a href="register.html">Projects</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <nav class="meta-nav" aria-label="Secondary navigation">
+        <div class="utility-nav">
+          <a href="student.html">News</a>
+          <a href="performance.html">Jobs</a>
+          <a href="admin.html">Photo Blog</a>
         </div>
+        <a href="#" class="lang-link">Deutsch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-shell">
+        <p class="eyebrow">Register</p>
+        <h1>Secure your place in the next BIM cohort.</h1>
+        <p class="hero-copy">Complete registration, transfer the pre-registration fee, and begin the onboarding process for your course access.</p>
+      </div>
     </section>
 
-    <!-- Receipt Modal -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content">
-            <div class="btn-group">
-                <button id="downloadPdfBtn" class="download-btn" onclick="downloadPDF()">Download PDF Receipt</button>
-                <button class="close-btn" onclick="closeReceipt()">Close Window</button>
+    <section class="page-shell">
+      <div class="register-wrap">
+        <h2>Step 1: Student registration</h2>
+        <p>Pay the ₹100 pre-registration fee to submit your application. Admin review is required before final access is granted.</p>
+
+        <form id="registrationForm">
+          <div class="field-group">
+            <label for="reg-name">Full name</label>
+            <input id="reg-name" type="text" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label for="reg-email">Email address</label>
+              <input id="reg-email" type="email" required />
             </div>
-            <div class="receipt-wrapper">
-                <div id="receipt-content" class="receipt-container">
-                    <div class="receipt-inner">
-                        <div class="receipt-header">
-                            <div>
-                                <h2 style="margin:0; color:#0d4a5d; font-size: 14pt;">Spatial Vision Tech</h2>
-                                <p style="margin:0; font-size: 10pt;">Registration Confirmation</p>
-                            </div>
-                            <div class="receipt-title">
-                                <h3>REGISTRATION RECEIPT</h3>
-                                <p>No: <span id="r-receipt-no"></span></p>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:10pt;">
-                            <div>
-                                <p><strong>Date:</strong> <span id="r-date"></span></p>
-                                <p><strong>Name:</strong> <span id="r-name"></span></p>
-                                <p><strong>Student ID:</strong> <span id="r-student-id" style="color:#1ba0a8; font-weight:bold;"></span></p>
-                            </div>
-                            <div>
-                                <p><strong>Email:</strong> <span id="r-email"></span></p>
-                                <p><strong>Status:</strong> <span style="color:#ef6c00; font-weight:bold;">PAYMENT PENDING - PENDING APPROVAL</span></p>
-                            </div>
-                        </div>
-                        <table class="receipt-table">
-                            <thead><tr><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong id="r-course"></strong><br><small>Initial Registration Fee</small></td>
-                                    <td style="text-align:right;">₹100.00</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="receipt-total">
-                            <span>Pre-Registration Amount</span><span style="font-weight:bold; color:#0d4a5d; font-size:14pt;">₹100.00</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="field-group">
+              <label for="reg-phone">Phone number</label>
+              <input id="reg-phone" type="tel" required />
             </div>
-        </div>
+          </div>
+
+          <div class="field-group">
+            <label for="reg-pass">Create portal password</label>
+            <input id="reg-pass" type="password" required />
+          </div>
+
+          <div class="field-group">
+            <label for="course">Select course</label>
+            <select id="course" required>
+              <option value="Autodesk Revit: Structural Modeling Masterclass">Autodesk Revit: Structural Modeling Masterclass</option>
+              <option value="Advanced BIM: Coordination & Clash Detection">Advanced BIM: Coordination & Clash Detection</option>
+            </select>
+          </div>
+
+          <div class="payment-box">
+            <p><strong>Pre-registration fee: ₹100</strong></p>
+            <p>Scan the QR using any UPI app, then enter the transaction ID below.</p>
+            <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="UPI QR for registration fee" />
+            <p><strong>UPI ID:</strong> spatialvisiontech@rbl</p>
+            <div class="field-group">
+              <label for="reg-utr">UPI transaction ID / UTR</label>
+              <input id="reg-utr" type="text" required placeholder="Enter your transaction ID" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" id="submitBtn">Submit registration payment</button>
+          <div id="payment-status" class="payment-status"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="receiptModal" class="receipt-overlay">
+    <div class="receipt-card">
+      <div class="actions">
+        <button class="btn btn-primary" type="button" id="downloadPdfBtn" onclick="downloadPDF()">Download PDF receipt</button>
+        <button class="btn" type="button" onclick="closeReceipt()" style="background:#555;">Close</button>
+      </div>
+      <div id="receipt-content">
+        <h3 style="margin-top:0; color:#0b1f25;">Spatial Vision Tech</h3>
+        <p>Registration confirmation</p>
+        <table class="receipt-table">
+          <tr><th>Description</th><th>Amount</th></tr>
+          <tr>
+            <td><strong id="r-course"></strong><br />Initial registration fee</td>
+            <td>₹100.00</td>
+          </tr>
+        </table>
+        <p><strong>Date:</strong> <span id="r-date"></span></p>
+        <p><strong>Name:</strong> <span id="r-name"></span></p>
+        <p><strong>Email:</strong> <span id="r-email"></span></p>
+        <p><strong>Student ID:</strong> <span id="r-student-id"></span></p>
+        <p><strong>Receipt no:</strong> <span id="r-receipt-no"></span></p>
+        <p><strong>Status:</strong> <span style="color:#ef6c00; font-weight:700;">Payment pending approval</span></p>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        function openNav() { document.getElementById("mySidenav").style.width = "250px"; }
-        function closeNav() { document.getElementById("mySidenav").style.width = "0"; }
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://gp-con.de/wp-content/uploads/2024/07/GP-CON-Logo-1.svg" alt="Spatial Vision Tech logo" />
+        <p>Spatial Vision Tech helps teams and students build confidence in BIM delivery and digital project control.</p>
+      </div>
+      <div>
+        <p class="footer-title">Company</p>
+        <div class="footer-links">
+          <a href="index.html">Company</a>
+          <a href="services.html">Services</a>
+          <a href="certifications.html">ESG</a>
+          <a href="register.html">Projects</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-title">Contact</p>
+        <div class="footer-contact">
+          <p>Frankfurt am Main</p>
+          <a href="tel:+4969360095303">+49 (69) 36 00 95-303</a>
+          <a href="mailto:info@spatialvisiontech.in">info@spatialvisiontech.in</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Spatial Vision Tech</span><span>Privacy Policy • Imprint • Cookie Settings</span></div>
+  </footer>
 
-        document.getElementById('registrationForm').addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerText = "Processing Registration...";
-            submitBtn.disabled = true;
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+      authDomain: "spatial-vision-tech.firebaseapp.com",
+      projectId: "spatial-vision-tech",
+      storageBucket: "spatial-vision-tech.firebasestorage.app",
+      messagingSenderId: "455311542009",
+      appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const phone = document.getElementById('reg-phone').value;
-            const password = document.getElementById('reg-pass').value;
-            const course = document.getElementById('course').value;
-            const regUtr = document.getElementById('reg-utr').value.trim();
-            const dateObj = new Date();
-            const displayDateStr = dateObj.toLocaleDateString('en-IN');
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
 
-            auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
-                const generatedStudentId = `SVT/${dateObj.getFullYear()}/${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
-                const generatedReceiptNo = `REG-${dateObj.getFullYear()}-${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
-                return db.collection("students").doc(userCredential.user.uid).set({
-                    uid: userCredential.user.uid,
-                    studentId: generatedStudentId,
-                    regYear: dateObj.getFullYear(),
-                    name,
-                    email,
-                    phone,
-                    course,
-                    regDate: dateObj.toISOString(),
-                    approvalStatus: "Pending",
-                    regFeePaid: false,
-                    regPaymentStatus: "Submitted",
-                    registrationFee: 5000,
-                    preRegistrationAmount: 100,
-                    preRegistrationPaid: false,
-                    regUtr,
-                    grantedAccess: false,
-                    feeHistory: []
-                }).then(() => {
-                    document.getElementById('r-receipt-no').innerText = generatedReceiptNo;
-                    document.getElementById('r-student-id').innerText = generatedStudentId;
-                    document.getElementById('r-date').innerText = displayDateStr;
-                    document.getElementById('r-name').innerText = name;
-                    document.getElementById('r-email').innerText = email;
-                    document.getElementById('r-course').innerText = course;
-                    document.getElementById('receiptModal').style.display = 'block';
-                    document.getElementById('payment-status').innerText = "Payment submitted. Admin verification is pending.";
-                    document.getElementById('payment-status').style.display = 'block';
-                    submitBtn.innerText = "Submitted";
-                    document.getElementById('registrationForm').reset();
-                    localStorage.setItem('svtRegistrationEmail', email);
-                    return auth.signOut();
-                });
-            }).catch(error => {
-                alert("Registration Error: " + error.message);
-                submitBtn.innerText = "Submit Registration Payment";
-                submitBtn.disabled = false;
-            });
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-pass').value;
+      const course = document.getElementById('course').value;
+      const regUtr = document.getElementById('reg-utr').value.trim();
+      const dateObj = new Date();
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const studentId = `SVT/${dateObj.getFullYear()}/${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
+          const receiptNo = `REG-${dateObj.getFullYear()}-${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
+          return db.collection('students').doc(userCredential.user.uid).set({
+            uid: userCredential.user.uid,
+            studentId,
+            name,
+            email,
+            phone,
+            course,
+            regDate: dateObj.toISOString(),
+            regUtr,
+            approvalStatus: 'Pending',
+            grantedAccess: false,
+            preRegistrationAmount: 100,
+            preRegistrationPaid: false,
+            finalizedFee: 4900,
+            feeHistory: []
+          }).then(() => {
+            document.getElementById('r-course').textContent = course;
+            document.getElementById('r-date').textContent = dateObj.toLocaleDateString('en-IN');
+            document.getElementById('r-name').textContent = name;
+            document.getElementById('r-email').textContent = email;
+            document.getElementById('r-student-id').textContent = studentId;
+            document.getElementById('r-receipt-no').textContent = receiptNo;
+            document.getElementById('receiptModal').style.display = 'block';
+            document.getElementById('payment-status').style.display = 'block';
+            document.getElementById('payment-status').textContent = 'Payment submitted. Admin verification is pending.';
+            submitBtn.textContent = 'Submitted';
+            document.getElementById('registrationForm').reset();
+            return auth.signOut();
+          });
+        })
+        .catch((error) => {
+          alert('Registration error: ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit registration payment';
         });
+    });
 
-        function downloadPDF() {
-            const btn = document.getElementById('downloadPdfBtn');
-            btn.innerText = "Generating..."; btn.disabled = true;
-            html2pdf().set({ margin: 0.4, filename: 'Registration_Receipt.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } })
-            .from(document.getElementById('receipt-content')).save().then(() => { btn.innerText = "Download PDF Receipt"; btn.disabled = false; });
-        }
-        function closeReceipt() { document.getElementById('receiptModal').style.display = 'none'; }
-    </script>
+    function downloadPDF() {
+      const btn = document.getElementById('downloadPdfBtn');
+      btn.disabled = true; btn.textContent = 'Generating...';
+      html2pdf().set({
+        margin: 0.4,
+        filename: 'registration-receipt.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      }).from(document.getElementById('receipt-content')).save().then(() => {
+        btn.disabled = false; btn.textContent = 'Download PDF receipt';
+      });
+    }
+
+    function closeReceipt() {
+      document.getElementById('receiptModal').style.display = 'none';
+    }
+  </script>
 </body>
 </html>

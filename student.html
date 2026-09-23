@@ -12,53 +12,43 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <style>
-        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background-color: #f4f7f8; color: #333; line-height: 1.6; }
-        .top-bar { background: #ffffff; padding: 8px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background: #f4f8f6; color: #1f2d2d; line-height: 1.6; }
+        .top-bar { background: #0b1f25; color: #fff; padding: 12px 22px; display: flex; justify-content: space-between; align-items: center; }
+        .top-bar a { color: #fff; text-decoration: none; font-weight: 700; }
         .top-bar-logo { width: 86px; height: 36px; object-fit: contain; display: block; }
-        .logo { max-width: 380px; display: block; margin: 40px auto 10px auto; }
-        
-        .portal-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 900px; margin: 20px auto; }
-        h2 { font-size: 2.2em; color: #0d4a5d; margin-top: 0; border-bottom: 3px solid #1ba0a8; display: inline-block; padding-bottom: 10px; }
-        
+        .logo { max-width: 360px; display: block; margin: 38px auto 16px; }
+        .portal-card { background: #fff; padding: 40px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); max-width: 920px; margin: 24px auto 80px; }
+        h2 { font-size: clamp(2rem, 4vw, 2.8rem); color: #0b1f25; margin-top: 0; border-bottom: 3px solid #00b482; display: inline-block; padding-bottom: 10px; }
         .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-weight: bold; color: #0d4a5d; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        
-        .btn { background: #0d4a5d; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
-        .btn:hover { background: #1ba0a8; }
-        
-        /* Screens */
+        .form-group label { display: block; font-weight: 700; color: #0b1f25; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.12); border-radius: 4px; box-sizing: border-box; }
+        .btn { background: #00b482; color: #071a1f; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 800; width: 100%; font-size: 1.05rem; }
+        .btn:hover { background: #66d2b0; }
         #student-dashboard, #pending-approval-screen, #forgot-password-screen { display: none; }
-        
-        /* Pending Screen Styling */
-        .pending-box { background: #fff3e0; border: 1px solid #ffcc80; padding: 30px; border-radius: 8px; text-align: center; }
-        .pending-box h3 { color: #ef6c00; margin-top: 0; font-size: 1.8em; }
-
-        /* Dashboard Payment Box */
-        .payment-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 25px; border-radius: 6px; margin-top: 30px; }
+        .pending-box { background: #fffaf0; border: 1px solid #f2d07d; padding: 30px; border-radius: 10px; text-align: center; }
+        .pending-box h3 { color: #8f5e00; margin-top: 0; font-size: 1.8em; }
+        .payment-section { background: #f7f9fa; border: 1px solid rgba(0,0,0,0.08); padding: 25px; border-radius: 10px; margin-top: 30px; }
         .payment-qr { width: 200px; height: 200px; display: block; margin: 15px auto; border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .upi-id { font-family: monospace; font-weight: bold; color: #0d4a5d; }
+        .upi-id { font-family: monospace; font-weight: bold; color: #0b1f25; }
         .student-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 30px; }
-        .student-action { display: block; padding: 15px; border: 1px solid #d6e1e4; border-radius: 5px; background: #f8fbfc; color: #0d4a5d; text-align: center; text-decoration: none; font-weight: bold; cursor: pointer; font: inherit; }
-        .student-action:hover { border-color: #1ba0a8; background: #eefafa; }
-        .receipt-history { margin-top: 30px; padding: 25px; border: 1px solid #e0e0e0; border-radius: 6px; }
-        .receipt-history h3 { color: #0d4a5d; margin-top: 0; border-bottom: 2px solid #1ba0a8; padding-bottom: 5px; }
+        .student-action { display: block; padding: 15px; border: 1px solid #dceaf0; border-radius: 5px; background: #f5faf9; color: #0b1f25; text-align: center; text-decoration: none; font-weight: 700; cursor: pointer; font: inherit; }
+        .student-action:hover { border-color: #00b482; background: #eafaf5; }
+        .receipt-history { margin-top: 30px; padding: 25px; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; }
+        .receipt-history h3 { color: #0b1f25; margin-top: 0; border-bottom: 2px solid #00b482; padding-bottom: 5px; }
         .receipt-history-list { display: grid; gap: 10px; }
         .receipt-history-item { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; }
         .receipt-history-item:last-child { border-bottom: 0; }
         .receipt-history-item small { color: #666; }
         .receipt-download { width: auto; padding: 8px 14px; font-size: 0.9em; }
-        @media (max-width: 600px) { .receipt-history-item { align-items: flex-start; flex-direction: column; } }
-        
-        /* Receipt CSS */
         .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); overflow: auto; padding-top: 20px; }
         .modal-content { margin: auto; width: 95%; max-width: 840px; }
-        .receipt-container { background: white; padding: 10px; border: 3px solid #0d4a5d; width: 100%; max-width: 700px; margin: 0 auto; font-family: 'Aptos', sans-serif; }
-        .receipt-inner { border: 1px solid #1ba0a8; padding: 30px; }
-        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #0d4a5d; }
-        .receipt-table th { background: #0d4a5d; color: white; padding: 12px; text-align: left; }
+        .receipt-container { background: white; padding: 10px; border: 3px solid #0b1f25; width: 100%; max-width: 700px; margin: 0 auto; font-family: 'Aptos', sans-serif; }
+        .receipt-inner { border: 1px solid #00b482; padding: 30px; }
+        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #0b1f25; }
+        .receipt-table th { background: #0b1f25; color: white; padding: 12px; text-align: left; }
         .receipt-table td { padding: 12px; border-bottom: 1px solid #ccc; }
-        .receipt-total { display: flex; justify-content: flex-end; gap: 40px; padding: 15px; background: #f4f7f8; border: 1px solid #0d4a5d; margin-top: -25px; }
+        .receipt-total { display: flex; justify-content: flex-end; gap: 40px; padding: 15px; background: #f4f7f8; border: 1px solid #0b1f25; margin-top: -25px; }
+        @media (max-width: 600px) { .receipt-history-item { align-items: flex-start; flex-direction: column; } }
     </style>
 </head>
 <body>
