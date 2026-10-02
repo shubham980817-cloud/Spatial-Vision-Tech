@@ -75,6 +75,13 @@ button, input, textarea, select { font: inherit; }
   text-transform: uppercase;
 }
 
+.brand-logo {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  display: block;
+}
+
 .brand-mark {
   width: 18px;
   height: 18px;
@@ -122,6 +129,61 @@ button, input, textarea, select { font: inherit; }
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.76) 0%, rgba(0, 0, 0, 0.58) 58%, rgba(0, 0, 0, 0.38) 100%),
     url('bim-model.jpg') center/cover no-repeat;
+}
+
+.hero-brand {
+  background: rgba(231, 237, 236, 0.95);
+  min-height: 760px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(13, 74, 93, 0.08);
+}
+
+.hero-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(13, 74, 93, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 74, 93, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.hero-brand-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(var(--content-width), calc(100% - 48px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding: 40px 0;
+}
+
+.hero-brand-logo {
+  width: min(46vw, 640px);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 25px 30px rgba(13, 74, 93, 0.14));
+}
+
+.hero-brand-text {
+  color: #102f3d;
+  line-height: 0.85;
+}
+
+.hero-brand-text h1 {
+  margin: 0;
+  font-size: clamp(3.2rem, 5vw, 7.2rem);
+  line-height: 0.88;
+  letter-spacing: -0.07em;
+  font-weight: 800;
+  color: #102f3d;
+}
+
+.hero-brand-text .accent {
+  color: #1ca4b2;
+  display: block;
 }
 
 .hero::after {
