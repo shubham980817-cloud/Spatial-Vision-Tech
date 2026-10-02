@@ -1,458 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Vision Tech | Student Portal</title>
-    <link rel="stylesheet" href="bim-theme.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background: #f4f8f6; color: #1f2d2d; line-height: 1.6; }
-        .top-bar { background: #0b1f25; color: #fff; padding: 12px 22px; display: flex; justify-content: space-between; align-items: center; }
-        .top-bar a { color: #fff; text-decoration: none; font-weight: 700; }
-        .top-bar-logo { width: 86px; height: 36px; object-fit: contain; display: block; }
-        .logo { max-width: 360px; display: block; margin: 38px auto 16px; }
-        .portal-card { background: #fff; padding: 40px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); max-width: 920px; margin: 24px auto 80px; }
-        h2 { font-size: clamp(2rem, 4vw, 2.8rem); color: #0b1f25; margin-top: 0; border-bottom: 3px solid #00b482; display: inline-block; padding-bottom: 10px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-weight: 700; color: #0b1f25; margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.12); border-radius: 4px; box-sizing: border-box; }
-        .btn { background: #00b482; color: #071a1f; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 800; width: 100%; font-size: 1.05rem; }
-        .btn:hover { background: #66d2b0; }
-        #student-dashboard, #pending-approval-screen, #forgot-password-screen { display: none; }
-        .pending-box { background: #fffaf0; border: 1px solid #f2d07d; padding: 30px; border-radius: 10px; text-align: center; }
-        .pending-box h3 { color: #8f5e00; margin-top: 0; font-size: 1.8em; }
-        .payment-section { background: #f7f9fa; border: 1px solid rgba(0,0,0,0.08); padding: 25px; border-radius: 10px; margin-top: 30px; }
-        .payment-qr { width: 200px; height: 200px; display: block; margin: 15px auto; border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .upi-id { font-family: monospace; font-weight: bold; color: #0b1f25; }
-        .student-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 30px; }
-        .student-action { display: block; padding: 15px; border: 1px solid #dceaf0; border-radius: 5px; background: #f5faf9; color: #0b1f25; text-align: center; text-decoration: none; font-weight: 700; cursor: pointer; font: inherit; }
-        .student-action:hover { border-color: #00b482; background: #eafaf5; }
-        .receipt-history { margin-top: 30px; padding: 25px; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; }
-        .receipt-history h3 { color: #0b1f25; margin-top: 0; border-bottom: 2px solid #00b482; padding-bottom: 5px; }
-        .receipt-history-list { display: grid; gap: 10px; }
-        .receipt-history-item { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; }
-        .receipt-history-item:last-child { border-bottom: 0; }
-        .receipt-history-item small { color: #666; }
-        .receipt-download { width: auto; padding: 8px 14px; font-size: 0.9em; }
-        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); overflow: auto; padding-top: 20px; }
-        .modal-content { margin: auto; width: 95%; max-width: 840px; }
-        .receipt-container { background: white; padding: 10px; border: 3px solid #0b1f25; width: 100%; max-width: 700px; margin: 0 auto; font-family: 'Aptos', sans-serif; }
-        .receipt-inner { border: 1px solid #00b482; padding: 30px; }
-        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #0b1f25; }
-        .receipt-table th { background: #0b1f25; color: white; padding: 12px; text-align: left; }
-        .receipt-table td { padding: 12px; border-bottom: 1px solid #ccc; }
-        .receipt-total { display: flex; justify-content: flex-end; gap: 40px; padding: 15px; background: #f4f7f8; border: 1px solid #0b1f25; margin-top: -25px; }
-        @media (max-width: 600px) { .receipt-history-item { align-items: flex-start; flex-direction: column; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Student Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4faf8; color: #1d2d2e; }
+    .wrap { max-width: 980px; margin: 60px auto; background: #fff; padding: 30px; border: 1px solid #dfeae7; box-shadow: 0 12px 28px rgba(0,0,0,.07); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    input, select { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #cddbd7; }
+    .btn { display: inline-block; background: #00b482; color: #051a1d; border: none; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+    .btn.secondary { background: #0d4a5d; color: #fff; }
+    .muted { color: #555; }
+    .box { background: #f7f9fa; border: 1px solid #dfe7eb; padding: 20px; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    th, td { border: 1px solid #dfe7eb; padding: 10px; text-align: left; }
+    th { background: #0b1f25; color: #fff; }
+    .receipt-item { margin-bottom: 12px; }
+  </style>
 </head>
 <body>
-    <div class="top-bar">
-        <a href="index.html" style="text-decoration:none; color:#0d4a5d; font-weight:bold;">← Home</a>
-        <a href="performance.html" style="text-decoration:none; color:#0d4a5d; font-weight:bold;">Performance & Practice</a>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Homepage" class="top-bar-logo">
-        </a>
-    </div>
-    <header>
-        <a href="index.html" title="Go to Homepage">
-            <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Logo" class="logo">
-        </a>
-    </header>
-
-    <section>
-        <div class="portal-card">
-            
-            <!-- LOGIN SCREEN -->
-            <div id="login-screen">
-                <h2>Student Sign In</h2>
-                <form id="loginForm">
-                    <div class="form-group"><label for="s-email">Email Address</label><input type="email" id="s-email" autocomplete="username" required></div>
-                    <div class="form-group"><label for="s-password">Password</label><input type="password" id="s-password" autocomplete="current-password" required></div>
-                    <a href="#" onclick="openPasswordReset(); return false;" style="display:block; text-align:right; color:#1ba0a8; margin-bottom:20px;">Forgot Password?</a>
-                    <button type="submit" id="loginBtn" class="btn">Login</button>
-                    <div id="login-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
-                </form>
-            </div>
-
-            <!-- FORGOT PASSWORD -->
-            <div id="forgot-password-screen">
-                <h2>Reset Password</h2>
-                <form id="resetForm">
-                    <div class="form-group"><label for="reset-email">Email used for student registration</label><input type="email" id="reset-email" autocomplete="email" required></div>
-                    <button type="submit" id="resetBtn" class="btn">Send Secure Reset Link</button>
-                    <div id="reset-msg" role="status" aria-live="polite" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
-                </form>
-                <div style="text-align:center; margin-top:20px;"><a href="#" onclick="returnToLogin(); return false;">← Back</a></div>
-            </div>
-
-            <!-- PENDING REGISTRATION SCREEN -->
-            <div id="pending-approval-screen">
-                <div class="pending-box">
-                    <h3>Portal Access Pending</h3>
-                    <p style="font-size:1.2em; color:#555;">Your Student Portal access is waiting for administration approval after payment review.</p>
-                    <p>Once an admin grants access, your dashboard and course fee payment portal will unlock.</p>
-                </div>
-                <button onclick="logout()" class="btn" style="background:#555; margin-top:30px; width:auto; padding:10px 30px;">Sign Out</button>
-            </div>
-
-            <!-- APPROVED DASHBOARD & FEE PAYMENT -->
-            <div id="student-dashboard">
-                <h2>Welcome, <span id="d-name"></span></h2>
-                <p style="color:#1ba0a8; font-weight:bold; margin-top:-15px;">Student ID: <span id="d-student-id"></span></p>
-                
-                <div class="payment-section">
-                    <h3 style="color:#0d4a5d; margin-top:0; border-bottom:2px solid #1ba0a8; padding-bottom:5px;">Pay Course Fees</h3>
-                    <p style="color:#555; margin-bottom:20px;">Scan the QR using PhonePe or any UPI app, then enter the transaction ID. Admin verification is required.</p>
-                    
-                    <form id="feePaymentForm">
-                        <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                            <div class="form-group" style="flex:1;">
-                                <label>Select Installment</label>
-                                <select id="fee-type" required>
-                                    <option value="" disabled selected>Choose fee type...</option>
-                                    <option value="Final Registration Fee (₹4,900)" data-amount="4900">Final Registration Fee (₹4,900)</option>
-                                    <option value="1st Installment (₹10,000)" data-amount="10000">1st Installment (₹10,000)</option>
-                                    <option value="2nd Installment (₹10,000)" data-amount="10000">2nd Installment (₹10,000)</option>
-                                    <option value="3rd Installment (₹10,000)" data-amount="10000">3rd Installment (₹10,000)</option>
-                                    <option value="Additional Installment (₹5,000)" data-amount="5000">Additional Installment (₹5,000)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <img id="fee-qr" class="payment-qr" style="display:none;" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D4900%26cu%3DINR" alt="Scan to pay course installment">
-                        <p class="upi-id">UPI ID: spatialvisiontech@rbl</p>
-                        <div class="form-group">
-                            <label for="fee-utr">UPI Transaction ID / UTR</label>
-                            <input type="text" id="fee-utr" required placeholder="Enter the transaction ID after payment">
-                        </div>
-                        <button type="submit" id="feeSubmitBtn" class="btn" disabled>Choose an Installment</button>
-                    </form>
-                </div>
-
-                <div class="student-actions">
-                    <a class="student-action" href="certifications.html">Download Result Certificate</a>
-                    <button class="student-action" type="button" onclick="document.getElementById('receipt-history').scrollIntoView({ behavior: 'smooth' });">View Old Receipts</button>
-                </div>
-
-                <div id="receipt-history" class="receipt-history">
-                    <h3>Previous Receipts</h3>
-                    <div id="receipt-history-list" class="receipt-history-list">
-                        <p style="color:#666; margin-bottom:0;">No previous receipts available.</p>
-                    </div>
-                </div>
-
-                <div style="margin-top:40px; padding-top:20px; border-top:1px solid #eee; text-align:center;">
-                    <button onclick="logout()" class="btn" style="background:#555; width:auto; padding:10px 30px;">Sign Out</button>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Receipt Modal -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content">
-            <div style="text-align:center; margin-bottom:20px;">
-                <button class="btn" style="background:#28a745; width:auto;" onclick="downloadPDF()">Download PDF Receipt</button>
-                <button class="btn" style="background:#555; width:auto;" onclick="document.getElementById('receiptModal').style.display='none'">Close</button>
-            </div>
-            <div style="display:flex; justify-content:center;">
-                <div id="receipt-content" class="receipt-container">
-                    <div class="receipt-inner">
-                        <div style="display:flex; justify-content:space-between; border-bottom:2px solid #0d4a5d; padding-bottom:15px; margin-bottom:20px;">
-                            <div>
-                                <h2 style="margin:0; color:#0d4a5d; font-size:14pt;">Spatial Vision Tech</h2>
-                                <p style="margin:0; font-size:10pt;">Course Fee Collection</p>
-                            </div>
-                            <div style="text-align:right;">
-                                <h3 style="color:#28a745; margin:0; font-size:14pt;">FEE RECEIPT</h3>
-                                <p style="margin:0; font-size:10pt; font-family:monospace; font-weight:bold;" id="r-receipt-no"></p>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:10pt;">
-                            <div>
-                                <p><strong>Date:</strong> <span id="r-date"></span></p>
-                                <p><strong>Name:</strong> <span id="r-name"></span></p>
-                                <p><strong>Student ID:</strong> <span id="r-student-id" style="color:#1ba0a8; font-weight:bold;"></span></p>
-                            </div>
-                            <div>
-                                <p><strong>Course:</strong> <span id="r-course"></span></p>
-                                <p><strong>Status:</strong> <span id="r-payment-status"></span></p>
-                            </div>
-                        </div>
-                        <table class="receipt-table">
-                            <thead><tr><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong id="r-fee-desc" style="color:#0d4a5d; font-size:12pt;"></strong></td>
-                                    <td style="text-align:right;" id="r-fee-amount"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="receipt-total">
-                            <span>Total Paid</span><span style="font-weight:bold; color:#0d4a5d; font-size:14pt;" id="r-fee-total"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="wrap">
+    <div id="loginScreen" class="screen active">
+      <h2>Student Sign In</h2>
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input id="email" type="email" required /></div>
+        <div class="field"><label>Password</label><input id="password" type="password" required /></div>
+        <button class="btn" type="submit">Login</button>
+        <div id="loginMsg" class="muted" style="margin-top:10px;"></div>
+      </form>
+      <p><a href="register.html">Need to register?</a> | <a href="admin.html">Admin login</a></p>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    <div id="pendingScreen" class="screen">
+      <h2>Portal access pending</h2>
+      <p class="muted">Your profile is submitted and waiting for admin approval.</p>
+      <button class="btn secondary" type="button" onclick="logout()">Sign out</button>
+    </div>
 
-        function showScreen(id) {
-            ['login-screen', 'forgot-password-screen', 'pending-approval-screen', 'student-dashboard'].forEach(s => document.getElementById(s).style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-        }
+    <div id="dashboardScreen" class="screen">
+      <h2>Welcome, <span id="d-name"></span></h2>
+      <p><strong>Student ID:</strong> <span id="d-student-id"></span></p>
 
-        function openPasswordReset() {
-            const loginEmail = document.getElementById('s-email').value.trim();
-            const resetEmail = document.getElementById('reset-email');
-            const resetMessage = document.getElementById('reset-msg');
-            if (loginEmail) resetEmail.value = loginEmail;
-            resetMessage.innerText = '';
-            showScreen('forgot-password-screen');
-            resetEmail.focus();
-        }
+      <div class="box">
+        <h3>Pay course fees</h3>
+        <form id="feeForm">
+          <div class="field">
+            <label>Select Installment</label>
+            <select id="feeType">
+              <option value="">Choose fee type...</option>
+              <option value="Final Registration Fee (₹4,900)" data-amount="4900">Final Registration Fee (₹4,900)</option>
+              <option value="1st Installment (₹10,000)" data-amount="10000">1st Installment (₹10,000)</option>
+              <option value="2nd Installment (₹10,000)" data-amount="10000">2nd Installment (₹10,000)</option>
+              <option value="3rd Installment (₹10,000)" data-amount="10000">3rd Installment (₹10,000)</option>
+              <option value="Additional Installment (₹5,000)" data-amount="5000">Additional Installment (₹5,000)</option>
+            </select>
+          </div>
+          <div class="field"><label>UPI Transaction ID / UTR</label><input id="feeUtr" required /></div>
+          <button id="feeSubmitBtn" class="btn" type="submit" disabled>Choose an Installment</button>
+        </form>
+      </div>
 
-        function returnToLogin() {
-            const resetEmail = document.getElementById('reset-email').value.trim();
-            if (resetEmail) document.getElementById('s-email').value = resetEmail;
-            showScreen('login-screen');
-            document.getElementById('s-password').focus();
-        }
+      <div class="box">
+        <h3>Previous receipts</h3>
+        <div id="receiptList"></div>
+      </div>
 
-        let activeStudent = null;
-        let activeDocId = null;
+      <div style="margin-top:20px;">
+        <button class="btn secondary" type="button" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+  </div>
 
-        // Login Flow
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            const email = document.getElementById('s-email').value.trim();
-            const password = document.getElementById('s-password').value;
-            const message = document.getElementById('login-msg');
-            message.innerText = '';
-            btn.innerText = "Loading..."; btn.disabled = true;
+  <script src="storage.js"></script>
+  <script>
+    let currentStudent = null;
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => db.collection("students").doc(userCredential.user.uid).get()
-                    .then(studentDoc => {
-                        if (studentDoc.exists) return studentDoc;
-                        return db.collection("students").where("email", "==", email).limit(1).get()
-                            .then(snapshot => {
-                                if (snapshot.empty) throw new Error('Firebase sign-in succeeded, but the student profile was not found. Contact the administrator.');
-                                return snapshot.docs[0];
-                            });
-                    }))
-                .then((studentDoc) => {
-                    activeStudent = studentDoc.data();
-                    activeDocId = studentDoc.id;
-                    
-                    // Portal access is granted separately by an admin after payment review.
-                    if(activeStudent.grantedAccess !== true) {
-                        showScreen('pending-approval-screen');
-                    } else {
-                        document.getElementById('d-name').innerText = activeStudent.name;
-                        document.getElementById('d-student-id').innerText = activeStudent.studentId;
-                        showScreen('student-dashboard');
-                        renderReceiptHistory();
-                    }
-                })
-                .catch(error => {
-                    message.style.color = 'red';
-                    if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found'].includes(error.code)) {
-                        message.innerText = 'Email or password did not match. Check both fields or use Forgot Password to reset your password. If you have not registered, submit a registration first.';
-                    } else if (error.code === 'auth/user-disabled') {
-                        message.innerText = 'This Firebase account is disabled. Contact the administrator to restore account access.';
-                    } else if (error.code === 'auth/too-many-requests') {
-                        message.innerText = 'Too many sign-in attempts. Please wait a while, then try again or reset your password.';
-                    } else if (error.code === 'auth/network-request-failed') {
-                        message.innerText = 'Network error. Check your connection and try again.';
-                    } else {
-                        message.innerText = error.message;
-                    }
-                    btn.innerText = "Login"; btn.disabled = false;
-                });
-        });
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
 
-        // Forgot Password (Firebase built-in)
-        document.getElementById('resetForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('reset-email').value.trim();
-            const button = document.getElementById('resetBtn');
-            const message = document.getElementById('reset-msg');
-            button.disabled = true;
-            button.innerText = 'Sending...';
-            message.innerText = '';
+    function saveCurrentStudent() {
+      const students = readStudents();
+      const index = students.findIndex(item => item.uid === currentStudent.uid);
+      if (index >= 0) {
+        students[index] = currentStudent;
+        writeStudents(students);
+      }
+    }
 
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    message.style.color = 'green';
-                    message.innerText = `If an account exists for ${email}, Firebase sent the reset link to that address. Check its inbox and spam folder. The link does not come from the admin inbox by default. If it does not arrive, ask the administrator to confirm the registered email or set a temporary password.`;
-                })
-                .catch(error => {
-                    message.style.color = 'red';
-                    if (error.code === 'auth/invalid-email') {
-                        message.innerText = 'Enter a valid email address.';
-                    } else if (error.code === 'auth/operation-not-allowed') {
-                        message.innerText = 'Password reset is disabled for this Firebase project. Please contact the administrator.';
-                    } else if (error.code === 'auth/too-many-requests') {
-                        message.innerText = 'Too many reset attempts. Please wait a while and try again.';
-                    } else if (error.code === 'auth/network-request-failed') {
-                        message.innerText = 'Network error. Check your connection and try again.';
-                    } else {
-                        message.innerText = 'Unable to send the reset link. Check the email address and try again, or contact support.';
-                    }
-                })
-                .finally(() => {
-                    button.disabled = false;
-                    button.innerText = 'Send Secure Reset Link';
-                });
-        });
+    function renderReceiptList() {
+      const list = document.getElementById('receiptList');
+      const history = currentStudent && currentStudent.feeHistory ? currentStudent.feeHistory : [];
+      if (!history.length) {
+        list.innerHTML = '<p class="muted">No previous receipts available.</p>';
+        return;
+      }
 
-        function getSelectedInstallmentAmount() {
-            const selectedOption = document.getElementById('fee-type').selectedOptions[0];
-            return Number(selectedOption && selectedOption.dataset.amount) || 0;
-        }
+      list.innerHTML = history.slice().reverse().map(record => `
+        <div class="receipt-item">
+          <strong>${record.type}</strong><br>
+          <span class="muted">${new Date(record.date).toLocaleDateString('en-IN')} | ${record.status}</span><br>
+          <span>₹${Number(record.amount).toLocaleString('en-IN')}</span>
+        </div>
+      `).join('');
+    }
 
-        function updateFeePaymentDetails() {
-            const amount = getSelectedInstallmentAmount();
-            const button = document.getElementById('feeSubmitBtn');
-            const qr = document.getElementById('fee-qr');
+    function updateFeeButton() {
+      const select = document.getElementById('feeType');
+      const button = document.getElementById('feeSubmitBtn');
+      const amount = Number(select.selectedOptions[0]?.dataset.amount || 0);
+      button.disabled = !amount;
+      button.textContent = amount ? `Pay ₹${amount.toLocaleString('en-IN')} Installment` : 'Choose an Installment';
+    }
 
-            button.disabled = amount === 0;
-            button.innerText = amount
-                ? `Pay ₹${amount.toLocaleString('en-IN')} Installment`
-                : 'Choose an Installment';
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const student = getStudentByEmail(email);
+      const msg = document.getElementById('loginMsg');
 
-            if (!amount) {
-                qr.style.display = 'none';
-                return;
-            }
+      if (!student || student.password !== password || student.role !== 'student') {
+        msg.textContent = 'Invalid student email or password.';
+        msg.style.color = 'red';
+        return;
+      }
 
-            const upiUrl = `upi://pay?pa=spatialvisiontech@rbl&pn=Spatial Vision Tech&am=${amount}&cu=INR`;
-            qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
-            qr.alt = `Scan to pay ₹${amount.toLocaleString('en-IN')} course installment`;
-            qr.style.display = 'block';
-        }
+      currentStudent = student;
+      if (currentStudent.grantedAccess !== true) {
+        switchScreen('pendingScreen');
+      } else {
+        document.getElementById('d-name').textContent = currentStudent.name;
+        document.getElementById('d-student-id').textContent = currentStudent.studentId;
+        renderReceiptList();
+        switchScreen('dashboardScreen');
+      }
+    });
 
-        // Submit Course Fee Installment
-        document.getElementById('feePaymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('feeSubmitBtn');
-            btn.innerText = "Submitting Payment..."; btn.disabled = true;
+    document.getElementById('feeType').addEventListener('change', updateFeeButton);
 
-            const feeType = document.getElementById('fee-type').value;
-            const feeUtr = document.getElementById('fee-utr').value.trim();
-            const amount = getSelectedInstallmentAmount();
-            const amountStr = `₹${amount.toLocaleString('en-IN')}.00`;
-            const dateStr = new Date().toLocaleDateString('en-IN');
-            const receiptNo = `FEE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-            const newFeeRecord = {
-                receiptNo,
-                type: feeType,
-                amount: String(amount),
-                utr: feeUtr,
-                status: 'Submitted - Pending Verification',
-                date: new Date().toISOString()
-            };
+    document.getElementById('feeForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const select = document.getElementById('feeType');
+      const utr = document.getElementById('feeUtr').value.trim();
+      const amount = Number(select.selectedOptions[0]?.dataset.amount || 0);
+      const type = select.value;
 
-            db.collection("students").doc(activeDocId).update({
-                feeHistory: firebase.firestore.FieldValue.arrayUnion(newFeeRecord)
-            }).then(() => {
-                activeStudent.feeHistory = [...(activeStudent.feeHistory || []), newFeeRecord];
-                document.getElementById('r-receipt-no').innerText = receiptNo;
-                document.getElementById('r-date').innerText = dateStr;
-                document.getElementById('r-name').innerText = activeStudent.name;
-                document.getElementById('r-student-id').innerText = activeStudent.studentId;
-                document.getElementById('r-course').innerText = activeStudent.course;
-                document.getElementById('r-payment-status').innerText = 'Submitted - Pending Verification';
-                document.getElementById('r-fee-desc').innerText = feeType;
-                document.getElementById('r-fee-amount').innerText = amountStr;
-                document.getElementById('r-fee-total').innerText = amountStr;
-                document.getElementById('receiptModal').style.display = 'block';
-                renderReceiptHistory();
-                document.getElementById('feePaymentForm').reset();
-                updateFeePaymentDetails();
-            }).catch(error => {
-                document.getElementById('login-msg').innerText = error.message;
-                updateFeePaymentDetails();
-            });
-        });
+      if (!type || !amount || !utr) {
+        return;
+      }
 
-        document.getElementById('fee-type').addEventListener('change', function() {
-            updateFeePaymentDetails();
-        });
-        updateFeePaymentDetails();
+      const student = getStudentByEmail(currentStudent.email);
+      if (!student) return;
 
-        function downloadPDF() {
-            html2pdf().set({ margin: 0.4, filename: 'Course_Fee_Receipt.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } })
-            .from(document.getElementById('receipt-content')).save();
-        }
+      const record = {
+        type,
+        amount: String(amount),
+        utr,
+        status: 'Submitted - Pending Verification',
+        date: new Date().toISOString()
+      };
 
-        function showReceipt(record, index) {
-            const receiptDate = record.date ? new Date(record.date) : new Date();
-            const amount = Number(record.amount || 0);
-            document.getElementById('r-receipt-no').innerText = record.receiptNo || `FEE-${receiptDate.getFullYear()}-${String(index + 1).padStart(4, '0')}`;
-            document.getElementById('r-date').innerText = receiptDate.toLocaleDateString('en-IN');
-            document.getElementById('r-name').innerText = activeStudent.name || '';
-            document.getElementById('r-student-id').innerText = activeStudent.studentId || '';
-            document.getElementById('r-course').innerText = activeStudent.course || '';
-            document.getElementById('r-payment-status').innerText = record.status || 'Recorded';
-            document.getElementById('r-fee-desc').innerText = record.type || 'Course Fee';
-            document.getElementById('r-fee-amount').innerText = `₹${amount.toLocaleString('en-IN')}.00`;
-            document.getElementById('r-fee-total').innerText = `₹${amount.toLocaleString('en-IN')}.00`;
-            document.getElementById('receiptModal').style.display = 'block';
-        }
+      student.feeHistory = [...(student.feeHistory || []), record];
+      saveStudent(student);
+      currentStudent = student;
+      document.getElementById('feeForm').reset();
+      updateFeeButton();
+      renderReceiptList();
+      alert('Payment submitted successfully.');
+    });
 
-        function renderReceiptHistory() {
-            const list = document.getElementById('receipt-history-list');
-            const history = activeStudent && activeStudent.feeHistory ? activeStudent.feeHistory : [];
-            list.innerHTML = '';
+    function logout() {
+      currentStudent = null;
+      document.getElementById('loginForm').reset();
+      document.getElementById('loginMsg').textContent = '';
+      switchScreen('loginScreen');
+    }
 
-            if (!history.length) {
-                list.innerHTML = '<p style="color:#666; margin-bottom:0;">No previous receipts available.</p>';
-                return;
-            }
-
-            history.slice().reverse().forEach((record, reverseIndex) => {
-                const index = history.length - reverseIndex - 1;
-                const item = document.createElement('div');
-                item.className = 'receipt-history-item';
-                const details = document.createElement('div');
-                const date = record.date ? new Date(record.date).toLocaleDateString('en-IN') : 'Date unavailable';
-                details.innerHTML = `<strong>${record.type || 'Course Fee'}</strong><br><small>${date} | ${record.status || 'Recorded'}</small>`;
-                const button = document.createElement('button');
-                button.className = 'btn receipt-download';
-                button.type = 'button';
-                button.innerText = 'Download Receipt';
-                button.addEventListener('click', () => {
-                    showReceipt(record, index);
-                    downloadPDF();
-                });
-                item.append(details, button);
-                list.appendChild(item);
-            });
-        }
-
-        function logout() { auth.signOut().then(() => location.reload()); }
-    </script>
+    updateFeeButton();
+  </script>
 </body>
 </html>
