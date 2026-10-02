@@ -72,8 +72,8 @@
             <div id="login-screen">
                 <h2>Student Sign In</h2>
                 <form id="loginForm">
-                    <div class="form-group"><label>Email Address</label><input type="email" id="s-email" autocomplete="email" required></div>
-                    <div class="form-group"><label>Password</label><input type="password" id="s-password" required></div>
+                    <div class="form-group"><label for="s-email">Email Address</label><input type="email" id="s-email" autocomplete="username" required></div>
+                    <div class="form-group"><label for="s-password">Password</label><input type="password" id="s-password" autocomplete="current-password" required></div>
                     <a href="#" onclick="openPasswordReset(); return false;" style="display:block; text-align:right; color:#1ba0a8; margin-bottom:20px;">Forgot Password?</a>
                     <button type="submit" id="loginBtn" class="btn">Login</button>
                     <div id="login-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
@@ -245,10 +245,14 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('loginBtn');
+            const email = document.getElementById('s-email').value.trim();
+            const password = document.getElementById('s-password').value;
+            const message = document.getElementById('login-msg');
+            message.innerText = '';
             btn.innerText = "Loading..."; btn.disabled = true;
 
-            auth.signInWithEmailAndPassword(document.getElementById('s-email').value, document.getElementById('s-password').value)
-                .then(() => db.collection("students").where("email", "==", document.getElementById('s-email').value).get())
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => db.collection("students").where("email", "==", email).get())
                 .then((snapshot) => {
                     if (snapshot.empty) throw new Error("Database record not found.");
                     snapshot.forEach(doc => { activeStudent = doc.data(); activeDocId = doc.id; });
@@ -264,8 +268,16 @@
                     }
                 })
                 .catch(error => {
-                    document.getElementById('login-msg').style.color = 'red';
-                    document.getElementById('login-msg').innerText = error.message;
+                    message.style.color = 'red';
+                    if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found'].includes(error.code)) {
+                        message.innerText = 'Email or password did not match. Check both fields or use Forgot Password to reset your password. If you have not registered, submit a registration first.';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        message.innerText = 'Too many sign-in attempts. Please wait a while, then try again or reset your password.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        message.innerText = 'Network error. Check your connection and try again.';
+                    } else {
+                        message.innerText = error.message;
+                    }
                     btn.innerText = "Login"; btn.disabled = false;
                 });
         });
