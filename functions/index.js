@@ -68,6 +68,33 @@ function json(value) {
   return JSON.stringify(value || {});
 }
 
+function createSmtpTransport() {
+  const port = Number(SMTP_PORT.value());
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('SMTP_PORT must be a valid port number.');
+  }
+
+  return nodemailer.createTransport({
+    host: SMTP_HOST.value(),
+    port,
+    secure: port === 465,
+    auth: { user: SMTP_USER.value(), pass: SMTP_PASS.value() }
+  });
+}
+
+function sendStudentEmail(student, subject, text) {
+  if (typeof student.email !== 'string' || !student.email.trim()) {
+    throw new Error('Student record has no email address for notification.');
+  }
+
+  return createSmtpTransport().sendMail({
+    from: SMTP_FROM.value(),
+    to: student.email.trim(),
+    subject,
+    text
+  });
+}
+
 exports.setStudentPassword = onCall(async request => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Sign in as an administrator to continue.');
@@ -89,13 +116,57 @@ exports.setStudentPassword = onCall(async request => {
   }
 
   const student = studentSnapshot.data();
-  const studentUser = await admin.auth().getUser(studentUid);
-  if (typeof student.email !== 'string' || studentUser.email?.toLowerCase() !== student.email.toLowerCase()) {
+  if (typeof student.email !== 'string' || !student.email.trim()) {
+    throw new HttpsError('failed-precondition', 'Student record has no registered email address.');
+  }
+
+  let studentUser;
+  try {
+    studentUser = await admin.auth().getUser(student.uid || studentUid);
+  } catch (error) {
+    if (error.code !== 'auth/user-not-found') {
+      console.error('Unable to look up student Auth account:', error.code || error.message);
+      throw new HttpsError('internal', `Unable to look up the student Auth account (${error.code || 'unknown'}).`);
+    }
+
+    try {
+      studentUser = await admin.auth().getUserByEmail(student.email.trim());
+    } catch (emailError) {
+      if (emailError.code === 'auth/user-not-found') {
+        throw new HttpsError('not-found', 'No Firebase Authentication account matches this student email.');
+      }
+      console.error('Unable to find student Auth account by email:', emailError.code || emailError.message);
+      throw new HttpsError('internal', `Unable to look up the student Auth account by email (${emailError.code || 'unknown'}).`);
+    }
+  }
+
+  if (studentUser.email?.toLowerCase() !== student.email.trim().toLowerCase()) {
     throw new HttpsError('failed-precondition', 'Student record does not match its Firebase account.');
   }
 
-  await admin.auth().updateUser(studentUid, { password });
+  try {
+    await admin.auth().updateUser(studentUser.uid, { password });
+  } catch (error) {
+    console.error('Unable to update student Auth password:', error.code || error.message);
+    if (error.code === 'auth/invalid-password') {
+      throw new HttpsError('invalid-argument', 'Firebase rejected this password. Choose a stronger password and try again.');
+    }
+    throw new HttpsError('internal', `Firebase could not update this password (${error.code || 'unknown'}).`);
+  }
   return { success: true };
+});
+
+exports.notifyStudentRegistration = onDocumentCreated({
+  document: 'students/{studentId}',
+  secrets: SMTP_SECRETS,
+  retry: true
+}, async event => {
+  const student = event.data.data();
+  await sendStudentEmail(
+    student,
+    'Spatial Vision Tech registration received',
+    `Hello ${student.name || 'Student'},\n\nWe received your registration for ${student.course || 'the BIM course'} and your ₹100 pre-registration payment submission. An administrator will verify the UPI transaction. We will email you after your registration is approved.`
+  );
 });
 
 exports.notifyStudentMilestones = onDocumentUpdated({
@@ -111,21 +182,6 @@ exports.notifyStudentMilestones = onDocumentUpdated({
   const portalAccessGranted = before.grantedAccess !== true && after.grantedAccess === true;
 
   if (!registrationApproved && !portalAccessGranted) return;
-  if (typeof after.email !== 'string' || !after.email.trim()) {
-    throw new Error(`Student ${event.params.studentId} has no email address for milestone notification.`);
-  }
-
-  const port = Number(SMTP_PORT.value());
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('SMTP_PORT must be a valid port number.');
-  }
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST.value(),
-    port,
-    secure: port === 465,
-    auth: { user: SMTP_USER.value(), pass: SMTP_PASS.value() }
-  });
   const messages = [];
 
   if (registrationApproved) {
@@ -142,12 +198,7 @@ exports.notifyStudentMilestones = onDocumentUpdated({
     });
   }
 
-  await Promise.all(messages.map(message => transporter.sendMail({
-    from: SMTP_FROM.value(),
-    to: after.email.trim(),
-    subject: message.subject,
-    text: message.text
-  })));
+  await Promise.all(messages.map(message => sendStudentEmail(after, message.subject, message.text)));
 });
 
 exports.exportRegistration = onDocumentCreated('students/{studentId}', async event => {

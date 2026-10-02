@@ -34,9 +34,9 @@ firebase deploy --only functions,hosting
 
 The backend creates `Registrations`, `Payments`, `Performance`, and `Enquiries` tabs automatically the first time data is received. Google Sheets can download the workbook as `.xlsx` at any time.
 
-## Student milestone emails
+## Student email notifications
 
-The `notifyStudentMilestones` function sends approval and portal-access emails through an SMTP provider. Choose a provider that permits sending from your verified domain, then set these Firebase Secrets (enter each value at the CLI prompt; do not commit SMTP credentials):
+`notifyStudentRegistration` sends a confirmation when the registration record is created. `notifyStudentMilestones` sends separate notices after the ₹100 payment is verified and registration approved, and when portal access is granted. These messages use SMTP. Choose a provider that permits sending from your verified sender address, then set these Firebase Secrets (enter each value at the CLI prompt; do not commit SMTP credentials):
 
 ```bash
 firebase functions:secrets:set SMTP_HOST
@@ -46,14 +46,16 @@ firebase functions:secrets:set SMTP_PASS
 firebase functions:secrets:set SMTP_FROM
 ```
 
-`SMTP_FROM` should be the sender address/name verified with that provider, for example `Spatial Vision Tech <admin@spatialvisiontech.in>`. Configure SPF/DKIM for the sender domain with the provider, then deploy:
+`SMTP_FROM` should be the sender address/name verified with that provider, for example `Spatial Vision Tech <admin@spatialvisiontech.in>`. Configure SPF/DKIM for the sender domain with the provider. Gmail addresses are valid recipients without an allowlist; `gmail.com` is not a website authorized domain and should not be added under Firebase Authentication > Authorized domains. If you use Gmail SMTP as the sender, use `smtp.gmail.com`, the Gmail account as `SMTP_USER`, and a Google App Password as `SMTP_PASS` (not the account password). Then deploy:
 
 ```bash
 cd functions
 npm install
 cd ..
-firebase deploy --only functions:notifyStudentMilestones,hosting
+firebase deploy --only functions:notifyStudentRegistration,functions:notifyStudentMilestones,hosting
 ```
+
+Password-reset emails still use Firebase Authentication's built-in `sendPasswordResetEmail` flow and its Authentication > Templates > Password reset configuration. This message is addressed to the student's registered email; Gmail recipients need no domain allowlist. The SMTP secrets above do not change Firebase's built-in password-reset sender.
 
 ## Student password resets
 

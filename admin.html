@@ -195,7 +195,7 @@
                 input.value = '';
                 alert('Password updated. Share the temporary password securely.');
             } catch (error) {
-                alert(`Unable to update the password: ${error.message}`);
+                alert(`Unable to update the password: ${error.details || error.message} (${error.code || 'unknown error'})`);
             }
         }
         window.markFeePaid = function(docId, feeIndex) {
