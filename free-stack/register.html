@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Vision Tech | Register</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4faf8; color: #1d2d2e; }
+    .wrap { max-width: 760px; margin: 60px auto; background: #fff; padding: 30px; border: 1px solid #dfeae7; box-shadow: 0 12px 28px rgba(0,0,0,.07); }
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    input, select { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #cddbd7; }
+    .btn { display: inline-block; background: #00b482; color: #051a1d; border: none; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+    .btn.secondary { background: #0d4a5d; color: #fff; }
+    .muted { color: #555; }
+    .payment-box { background: #f7f9fa; border: 1px solid #dfe7eb; padding: 18px; margin: 20px 0; }
+    .qr { display: block; width: 220px; height: 220px; margin: 12px auto; }
+    .status { margin-top: 12px; font-weight: 700; }
+    .receipt { display: none; margin-top: 18px; }
+    .receipt-card { border: 1px solid #dfe7eb; background: #fff; padding: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Register for the BIM course</h2>
+    <p class="muted">This free version uses local storage, so it works on static hosts like GitHub Pages or Cloudflare Pages.</p>
+
+    <form id="registerForm">
+      <div class="field"><label>Full name</label><input id="name" required /></div>
+      <div class="field"><label>Email address</label><input id="email" type="email" required /></div>
+      <div class="field"><label>Phone number</label><input id="phone" required /></div>
+      <div class="field"><label>Create portal password</label><input id="password" type="password" required /></div>
+      <div class="field">
+        <label>Course</label>
+        <select id="course">
+          <option value="Autodesk Revit: Structural Modeling Masterclass">Autodesk Revit: Structural Modeling Masterclass</option>
+          <option value="Advanced BIM: Coordination & Clash Detection">Advanced BIM: Coordination & Clash Detection</option>
+        </select>
+      </div>
+
+      <div class="payment-box">
+        <p><strong>Pre-registration fee: ₹100</strong></p>
+        <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="UPI QR" />
+        <p><strong>UPI ID:</strong> spatialvisiontech@rbl</p>
+        <div class="field"><label>UPI transaction ID / UTR</label><input id="utr" required placeholder="Enter transaction ID" /></div>
+      </div>
+
+      <button class="btn" type="submit">Submit registration payment</button>
+      <div id="status" class="status"></div>
+    </form>
+
+    <div id="receipt" class="receipt">
+      <div class="receipt-card">
+        <h3>Registration receipt</h3>
+        <p><strong>Name:</strong> <span id="r-name"></span></p>
+        <p><strong>Email:</strong> <span id="r-email"></span></p>
+        <p><strong>Student ID:</strong> <span id="r-student-id"></span></p>
+        <p><strong>Course:</strong> <span id="r-course"></span></p>
+        <p><strong>Fee:</strong> ₹100</p>
+        <p><strong>Status:</strong> Payment submitted, admin approval pending</p>
+      </div>
+    </div>
+
+    <p style="margin-top:20px;"><a href="student.html">Go to student login</a> | <a href="admin.html">Go to admin login</a></p>
+  </div>
+
+  <script src="storage.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const course = document.getElementById('course').value;
+      const utr = document.getElementById('utr').value.trim();
+
+      if (!name || !email || !phone || !password || !utr) {
+        return;
+      }
+
+      const student = createStudentRecord({
+        uid: `local-${Date.now()}`,
+        studentId: `SVT/${new Date().getFullYear()}/${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        name,
+        email,
+        phone,
+        password,
+        course,
+        regUtr: utr,
+        regPaymentStatus: 'Submitted',
+        approvalStatus: 'Pending',
+        grantedAccess: false,
+        preRegistrationPaid: false,
+        finalizedFee: 4900,
+        feeHistory: []
+      });
+
+      document.getElementById('status').textContent = 'Payment submitted. Admin approval is pending.';
+      document.getElementById('r-name').textContent = student.name;
+      document.getElementById('r-email').textContent = student.email;
+      document.getElementById('r-student-id').textContent = student.studentId;
+      document.getElementById('r-course').textContent = student.course;
+      document.getElementById('receipt').style.display = 'block';
+      event.target.reset();
+    });
+  </script>
+</body>
+</html>
