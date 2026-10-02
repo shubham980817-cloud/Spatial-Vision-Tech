@@ -72,9 +72,9 @@
             <div id="login-screen">
                 <h2>Student Sign In</h2>
                 <form id="loginForm">
-                    <div class="form-group"><label>Email Address</label><input type="email" id="s-email" required></div>
+                    <div class="form-group"><label>Email Address</label><input type="email" id="s-email" autocomplete="email" required></div>
                     <div class="form-group"><label>Password</label><input type="password" id="s-password" required></div>
-                    <a href="#" onclick="showScreen('forgot-password-screen')" style="display:block; text-align:right; color:#1ba0a8; margin-bottom:20px;">Forgot Password?</a>
+                    <a href="#" onclick="openPasswordReset(); return false;" style="display:block; text-align:right; color:#1ba0a8; margin-bottom:20px;">Forgot Password?</a>
                     <button type="submit" id="loginBtn" class="btn">Login</button>
                     <div id="login-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
                 </form>
@@ -84,11 +84,11 @@
             <div id="forgot-password-screen">
                 <h2>Reset Password</h2>
                 <form id="resetForm">
-                    <div class="form-group"><label>Email Address</label><input type="email" id="reset-email" required></div>
-                    <button type="submit" class="btn">Send Secure Reset Link</button>
-                    <div id="reset-msg" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
+                    <div class="form-group"><label>Email Address</label><input type="email" id="reset-email" autocomplete="email" required></div>
+                    <button type="submit" id="resetBtn" class="btn">Send Secure Reset Link</button>
+                    <div id="reset-msg" role="status" aria-live="polite" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
                 </form>
-                <div style="text-align:center; margin-top:20px;"><a href="#" onclick="showScreen('login-screen')">← Back</a></div>
+                <div style="text-align:center; margin-top:20px;"><a href="#" onclick="returnToLogin(); return false;">← Back</a></div>
             </div>
 
             <!-- PENDING REGISTRATION SCREEN -->
@@ -221,6 +221,23 @@
             document.getElementById(id).style.display = 'block';
         }
 
+        function openPasswordReset() {
+            const loginEmail = document.getElementById('s-email').value.trim();
+            const resetEmail = document.getElementById('reset-email');
+            const resetMessage = document.getElementById('reset-msg');
+            if (loginEmail) resetEmail.value = loginEmail;
+            resetMessage.innerText = '';
+            showScreen('forgot-password-screen');
+            resetEmail.focus();
+        }
+
+        function returnToLogin() {
+            const resetEmail = document.getElementById('reset-email').value.trim();
+            if (resetEmail) document.getElementById('s-email').value = resetEmail;
+            showScreen('login-screen');
+            document.getElementById('s-password').focus();
+        }
+
         let activeStudent = null;
         let activeDocId = null;
 
@@ -256,10 +273,36 @@
         // Forgot Password (Firebase built-in)
         document.getElementById('resetForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            auth.sendPasswordResetEmail(document.getElementById('reset-email').value).then(() => {
-                document.getElementById('reset-msg').style.color = 'green';
-                document.getElementById('reset-msg').innerText = "Reset link sent! Check your inbox.";
-            });
+            const email = document.getElementById('reset-email').value.trim();
+            const button = document.getElementById('resetBtn');
+            const message = document.getElementById('reset-msg');
+            button.disabled = true;
+            button.innerText = 'Sending...';
+            message.innerText = '';
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    message.style.color = 'green';
+                    message.innerText = 'If an account exists for this email, a reset link will arrive shortly. Check your inbox and spam folder.';
+                })
+                .catch(error => {
+                    message.style.color = 'red';
+                    if (error.code === 'auth/invalid-email') {
+                        message.innerText = 'Enter a valid email address.';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        message.innerText = 'Too many reset attempts. Please wait a while and try again.';
+                    } else if (error.code === 'auth/operation-not-allowed') {
+                        message.innerText = 'Password reset is currently unavailable. Please contact support.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        message.innerText = 'Network error. Check your connection and try again.';
+                    } else {
+                        message.innerText = 'Unable to send the reset link. Check the email address and try again, or contact support.';
+                    }
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.innerText = 'Send Secure Reset Link';
+                });
         });
 
         // Submit Course Fee Installment

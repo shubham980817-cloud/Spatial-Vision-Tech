@@ -31,3 +31,13 @@ firebase deploy --only functions,hosting
 ```
 
 The backend creates `Registrations`, `Payments`, `Performance`, and `Enquiries` tabs automatically the first time data is received. Google Sheets can download the workbook as `.xlsx` at any time.
+
+## Student password resets
+
+In Firebase Console for `spatial-vision-tech`, open Authentication > Sign-in method and enable Email/Password. Under Authentication > Settings > Authorized domains, allow the domains used to host the site (including `spatial-vision-tech.web.app` if using Firebase Hosting). Under Authentication > Templates, review the Password reset email sender and template. Students should check spam/junk if the reset request succeeds but the email is missing.
+
+Admins can set a temporary password from the student row in `admin.html`. The signed-in account must be the verified `admin@spatialvisiontech.in` Firebase Auth user; confirm its email is marked verified in Firebase Console > Authentication > Users. Passwords must be 12-128 characters and should be shared with the student through a secure channel. Deploy the callable function and hosting update with:
+
+```bash
+firebase deploy --only functions:setStudentPassword,hosting
+```

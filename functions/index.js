@@ -1,9 +1,11 @@
 const admin = require('firebase-admin');
 const { google } = require('googleapis');
 const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 
 admin.initializeApp();
 
+const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
 const spreadsheetId = () => process.env.GOOGLE_SHEET_ID;
 let sheetsClientPromise;
 
@@ -57,6 +59,36 @@ async function appendRow(title, headers, row) {
 function json(value) {
   return JSON.stringify(value || {});
 }
+
+exports.setStudentPassword = onCall(async request => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Sign in as an administrator to continue.');
+  }
+
+  const adminEmail = request.auth.token.email;
+  if (typeof adminEmail !== 'string' || adminEmail.toLowerCase() !== ADMIN_EMAIL || request.auth.token.email_verified !== true) {
+    throw new HttpsError('permission-denied', 'Only the verified designated administrator can set student passwords.');
+  }
+
+  const { studentUid, password } = request.data || {};
+  if (typeof studentUid !== 'string' || !studentUid || typeof password !== 'string' || password.length < 12 || password.length > 128) {
+    throw new HttpsError('invalid-argument', 'Provide a student account and a password between 12 and 128 characters.');
+  }
+
+  const studentSnapshot = await admin.firestore().collection('students').doc(studentUid).get();
+  if (!studentSnapshot.exists) {
+    throw new HttpsError('not-found', 'Student record not found.');
+  }
+
+  const student = studentSnapshot.data();
+  const studentUser = await admin.auth().getUser(studentUid);
+  if (typeof student.email !== 'string' || studentUser.email?.toLowerCase() !== student.email.toLowerCase()) {
+    throw new HttpsError('failed-precondition', 'Student record does not match its Firebase account.');
+  }
+
+  await admin.auth().updateUser(studentUid, { password });
+  return { success: true };
+});
 
 exports.exportRegistration = onDocumentCreated('students/{studentId}', async event => {
     const snapshot = event.data;
