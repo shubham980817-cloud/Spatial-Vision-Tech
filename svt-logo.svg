@@ -1,17 +1,37 @@
-<svg width="640" height="180" viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spatial Vision Tech logo">
+<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spatial Vision Tech logo">
   <defs>
-    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#0d4a5d"/>
+    <linearGradient id="deep" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0d2d38"/>
+      <stop offset="100%" stop-color="#123d4d"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#71d8d4"/>
-      <stop offset="100%" stop-color="#17a6b8"/>
+    <linearGradient id="mid" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#3e8e9a"/>
+      <stop offset="100%" stop-color="#1b9fad"/>
     </linearGradient>
+    <linearGradient id="light" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#9ae4eb"/>
+      <stop offset="100%" stop-color="#63d2d6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0c2b35" flood-opacity="0.18"/>
+    </filter>
   </defs>
-  <rect x="10" y="20" width="140" height="140" rx="28" fill="url(#panel)"/>
-  <path d="M44 120V60h30c25 0 40 12 40 31 0 19-15 31-40 31H44zm30-18c14 0 22-6 22-17 0-10-8-17-22-17H62v34h12z" fill="#f8fbff"/>
-  <path d="M98 60h27l22 60h-27l-4.5-17h-22l-4.5 17H52l22-60zm14 23-6 22h13l-7-22z" fill="url(#accent)"/>
-  <text x="182" y="104" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#122b3f">SPATIAL VISION</text>
-  <text x="184" y="141" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="5" fill="#1ba0a8">TECH</text>
+
+  <g transform="translate(20,15)" filter="url(#shadow)">
+    <g transform="rotate(-18 180 180)">
+      <path d="M90 50 L295 50 L295 98 L220 98 L220 142 L310 142 L310 196 L165 196 L165 145 L235 145 L235 98 L90 98 Z" fill="url(#deep)"/>
+      <path d="M225 50 L420 50 L420 95 L310 95 L310 116 L398 116 L398 196 L230 196 L230 145 L286 145 L286 98 L225 98 Z" fill="url(#mid)"/>
+      <path d="M110 196 L340 196 L340 236 L240 236 L240 288 L335 288 L335 336 L110 336 L110 288 L176 288 L176 236 L110 236 Z" fill="url(#deep)"/>
+      <path d="M282 155 L435 155 L435 206 L338 206 L338 240 L406 240 L406 286 L282 286 L282 240 L319 240 L319 206 L282 206 Z" fill="url(#light)"/>
+      <path d="M104 84 L180 84 L180 122 L140 122 L140 208 L104 208 Z" fill="#d9f6f8" opacity="0.78"/>
+      <path d="M228 80 L268 80 L268 170 L228 170 Z" fill="#d9f6f8" opacity="0.55"/>
+      <path d="M284 80 L332 80 L332 170 L284 170 Z" fill="#d9f6f8" opacity="0.4"/>
+      <path d="M342 80 L398 80 L398 176 L342 176 Z" fill="#d9f6f8" opacity="0.38"/>
+    </g>
+  </g>
+
+  <g transform="translate(500,70)">
+    <text x="0" y="120" font-family="Segoe UI, Arial, sans-serif" font-size="118" font-weight="700" letter-spacing="-4" fill="#0d2d38">Spatial Vision</text>
+    <text x="8" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="104" font-weight="600" letter-spacing="-2" fill="#1ca4b2">Tech</text>
+  </g>
 </svg>
