@@ -1,29 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
 
 :root {
-  --gp-black: #000000;
-  --gp-white: #ffffff;
-  --gp-grey-1: #efefef;
-  --gp-grey-2: #aaaaaa;
-  --gp-grey-3: #848484;
-  --gp-grey-4: #575555;
-  --gp-grey-5: #363636;
-  --gp-turquoise: #64cdcd;
-  --gp-green: #00b482;
-  --gp-red: #ff0000;
-  --gp-gradient: linear-gradient(45deg, #00b482 0%, #64cdcd 100%);
-  --gp-soft: #f5faf8;
-  --gp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
-  --gp-border: rgba(0, 0, 0, 0.08);
+  --svt-navy: #0f172a;
+  --svt-deep: #0d4a5d;
+  --svt-teal: #1ba0a8;
+  --svt-soft: #ebf6f7;
+  --svt-white: #ffffff;
+  --svt-text: #122b3f;
+  --svt-muted: #5d6d7a;
+  --svt-border: rgba(15, 23, 42, 0.12);
+  --svt-shadow: 0 18px 48px rgba(13, 74, 93, 0.12);
+  --svt-gradient: linear-gradient(135deg, #0f172a 0%, #0d4a5d 44%, #1ba0a8 100%);
   --content-width: 1280px;
+
+  --gp-black: var(--svt-navy);
+  --gp-white: var(--svt-white);
+  --gp-grey-1: #edf3f5;
+  --gp-grey-2: #b8c7cf;
+  --gp-grey-3: #7d8d98;
+  --gp-grey-4: #53626c;
+  --gp-grey-5: #24313d;
+  --gp-turquoise: var(--svt-teal);
+  --gp-green: var(--svt-deep);
+  --gp-red: #d64d4d;
+  --gp-gradient: var(--svt-gradient);
+  --gp-soft: var(--svt-soft);
+  --gp-shadow: var(--svt-shadow);
+  --gp-border: var(--svt-border);
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  background: var(--gp-white);
-  color: var(--gp-black);
+  background: var(--svt-white);
+  color: var(--svt-text);
   font-family: 'Inter', Arial, sans-serif;
   line-height: 1.6;
 }
@@ -42,7 +53,7 @@ button, input, textarea, select { font: inherit; }
   z-index: 20;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--gp-border);
+  border-bottom: 1px solid var(--svt-border);
 }
 
 .topbar {
@@ -68,8 +79,8 @@ button, input, textarea, select { font: inherit; }
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--gp-gradient);
-  box-shadow: 0 0 0 4px rgba(0, 180, 130, 0.12);
+  background: var(--svt-gradient);
+  box-shadow: 0 0 0 4px rgba(27, 160, 168, 0.14);
 }
 
 .main-nav,
@@ -86,13 +97,13 @@ button, input, textarea, select { font: inherit; }
   font-size: 0.86rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--gp-black);
+  color: var(--svt-text);
   transition: color 0.2s ease;
 }
 
 .main-nav a:hover,
 .utility-nav a:hover,
-.meta-nav a:hover { color: var(--gp-green); }
+.meta-nav a:hover { color: var(--svt-deep); }
 
 .meta-nav {
   justify-content: flex-end;

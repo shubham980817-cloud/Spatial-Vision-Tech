@@ -1,0 +1,15 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spatial Vision Tech mark">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0d4a5d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#71d8d4"/>
+      <stop offset="100%" stop-color="#17a6b8"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="52" fill="url(#bg)"/>
+  <path d="M70 176V80h36c28 0 44 14 44 39 0 25-16 39-44 39H70zm36-24c17 0 25-8 25-20 0-12-8-20-25-20H94v40h12z" fill="#f8fbff"/>
+  <path d="M150 80h32l26 96h-32l-5.5-22h-25l-5.5 22h-31l26-96zm17 26-8 32h17l-9-32z" fill="url(#accent)"/>
+</svg>
