@@ -6,6 +6,8 @@ The site uses a PhonePe-compatible UPI QR for the ₹100 pre-registration fee, �
 
 Registration is staged: students first submit ₹100 for pre-registration. After admin approval, they can submit the remaining ₹4,900 final registration fee. Admin can set each student's finalized fee, verify submitted payments individually, and certificates unlock only when verified payments reach that finalized fee.
 
+The ₹100 UPI transaction ID is submitted for manual admin verification; entering a UTR does not automatically prove payment. After the admin verifies and approves the registration, the student receives an email. A separate email is sent when portal access is granted.
+
 Update the UPI ID and QR URLs in `register.html` and `student.html` if your payment account changes. Deploy the static site with:
 
 ```bash
@@ -32,9 +34,32 @@ firebase deploy --only functions,hosting
 
 The backend creates `Registrations`, `Payments`, `Performance`, and `Enquiries` tabs automatically the first time data is received. Google Sheets can download the workbook as `.xlsx` at any time.
 
+## Student milestone emails
+
+The `notifyStudentMilestones` function sends approval and portal-access emails through an SMTP provider. Choose a provider that permits sending from your verified domain, then set these Firebase Secrets (enter each value at the CLI prompt; do not commit SMTP credentials):
+
+```bash
+firebase functions:secrets:set SMTP_HOST
+firebase functions:secrets:set SMTP_PORT
+firebase functions:secrets:set SMTP_USER
+firebase functions:secrets:set SMTP_PASS
+firebase functions:secrets:set SMTP_FROM
+```
+
+`SMTP_FROM` should be the sender address/name verified with that provider, for example `Spatial Vision Tech <admin@spatialvisiontech.in>`. Configure SPF/DKIM for the sender domain with the provider, then deploy:
+
+```bash
+cd functions
+npm install
+cd ..
+firebase deploy --only functions:notifyStudentMilestones,hosting
+```
+
 ## Student password resets
 
-In Firebase Console for `spatial-vision-tech`, open Authentication > Sign-in method and enable Email/Password. Under Authentication > Settings > Authorized domains, allow the domains used to host the site (including `spatial-vision-tech.web.app` if using Firebase Hosting). Under Authentication > Templates, review the Password reset email sender and template. Students should check spam/junk if the reset request succeeds but the email is missing.
+Password reset requests are sent to the email address entered by the student. They are not sent to the administrator unless that address is also the student's Firebase Authentication email. Firebase uses the project's configured password-reset email template and default sender; the admin address is not automatically the sender.
+
+If a student does not receive the link, confirm the exact email on their Firebase Authentication user, check spam/junk, then review Authentication > Templates > Password reset in Firebase Console for `spatial-vision-tech`. Confirm Authentication > Sign-in method has Email/Password enabled and that the site's hosting domain is listed under Authentication > Settings > Authorized domains. Firebase may show a generic success message even when no user exists for the entered address.
 
 Admins can set a temporary password from the student row in `admin.html`. The signed-in account must be the verified `admin@spatialvisiontech.in` Firebase Auth user; confirm its email is marked verified in Firebase Console > Authentication > Users. Passwords must be 12-128 characters and should be shared with the student through a secure channel. Deploy the callable function and hosting update with:
 

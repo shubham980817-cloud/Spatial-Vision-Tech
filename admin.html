@@ -115,7 +115,8 @@
                         ? `<span class="status-badge status-pending">Pending Approval</span>`
                         : `<span class="status-badge status-approved">Approved Active</span>`;
                         
-                    let approveBtn = s.approvalStatus === "Pending" && ['Submitted', 'Paid'].includes(s.regPaymentStatus)
+                    let hasRegistrationPaymentSubmission = ['Submitted', 'Paid'].includes(s.regPaymentStatus) || Boolean(s.regUtr && s.preRegistrationPaid !== true);
+                    let approveBtn = s.approvalStatus === "Pending" && hasRegistrationPaymentSubmission
                         ? `<button class="approve-btn" onclick="approveStudent('${docId}')">Verify & Approve Registration</button>`
                         : s.approvalStatus === "Pending"
                             ? `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Awaiting verified payment</span>`

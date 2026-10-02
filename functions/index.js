@@ -2,10 +2,18 @@ const admin = require('firebase-admin');
 const { google } = require('googleapis');
 const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
+const nodemailer = require('nodemailer');
 
 admin.initializeApp();
 
 const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
+const SMTP_HOST = defineSecret('SMTP_HOST');
+const SMTP_PORT = defineSecret('SMTP_PORT');
+const SMTP_USER = defineSecret('SMTP_USER');
+const SMTP_PASS = defineSecret('SMTP_PASS');
+const SMTP_FROM = defineSecret('SMTP_FROM');
+const SMTP_SECRETS = [SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM];
 const spreadsheetId = () => process.env.GOOGLE_SHEET_ID;
 let sheetsClientPromise;
 
@@ -88,6 +96,58 @@ exports.setStudentPassword = onCall(async request => {
 
   await admin.auth().updateUser(studentUid, { password });
   return { success: true };
+});
+
+exports.notifyStudentMilestones = onDocumentUpdated({
+  document: 'students/{studentId}',
+  secrets: SMTP_SECRETS,
+  retry: true
+}, async event => {
+  const before = event.data.before.data();
+  const after = event.data.after.data();
+  const registrationApproved = before.approvalStatus !== 'Approved'
+    && after.approvalStatus === 'Approved'
+    && after.preRegistrationPaid === true;
+  const portalAccessGranted = before.grantedAccess !== true && after.grantedAccess === true;
+
+  if (!registrationApproved && !portalAccessGranted) return;
+  if (typeof after.email !== 'string' || !after.email.trim()) {
+    throw new Error(`Student ${event.params.studentId} has no email address for milestone notification.`);
+  }
+
+  const port = Number(SMTP_PORT.value());
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('SMTP_PORT must be a valid port number.');
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST.value(),
+    port,
+    secure: port === 465,
+    auth: { user: SMTP_USER.value(), pass: SMTP_PASS.value() }
+  });
+  const messages = [];
+
+  if (registrationApproved) {
+    messages.push({
+      subject: 'INR 100 registration payment verified',
+      text: `Hello ${after.name || 'Student'},\n\nYour INR 100 pre-registration payment has been verified and your registration is approved. You can sign in to your Spatial Vision Tech student account. Portal access is granted separately; we will email you again when it is enabled.`
+    });
+  }
+
+  if (portalAccessGranted) {
+    messages.push({
+      subject: 'Spatial Vision Tech Student Portal access granted',
+      text: `Hello ${after.name || 'Student'},\n\nYour Student Portal access has been granted. Sign in to the Spatial Vision Tech Student Portal using your registered email address and password.`
+    });
+  }
+
+  await Promise.all(messages.map(message => transporter.sendMail({
+    from: SMTP_FROM.value(),
+    to: after.email.trim(),
+    subject: message.subject,
+    text: message.text
+  })));
 });
 
 exports.exportRegistration = onDocumentCreated('students/{studentId}', async event => {
