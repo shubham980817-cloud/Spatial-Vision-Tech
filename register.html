@@ -4,107 +4,254 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spatial Vision Tech | Register</title>
+  <link rel="stylesheet" href="bim-theme.css" />
+  <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4faf8; color: #1d2d2e; }
-    .wrap { max-width: 760px; margin: 60px auto; background: #fff; padding: 30px; border: 1px solid #dfeae7; box-shadow: 0 12px 28px rgba(0,0,0,.07); }
-    .field { margin-bottom: 18px; }
-    label { display: block; margin-bottom: 8px; font-weight: 700; }
-    input, select { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #cddbd7; }
-    .btn { display: inline-block; background: #00b482; color: #051a1d; border: none; padding: 12px 20px; font-weight: 700; cursor: pointer; }
-    .btn.secondary { background: #0d4a5d; color: #fff; }
-    .muted { color: #555; }
-    .payment-box { background: #f7f9fa; border: 1px solid #dfe7eb; padding: 18px; margin: 20px 0; }
-    .qr { display: block; width: 220px; height: 220px; margin: 12px auto; }
-    .status { margin-top: 12px; font-weight: 700; }
-    .receipt { display: none; margin-top: 18px; }
-    .receipt-card { border: 1px solid #dfe7eb; background: #fff; padding: 20px; }
+    body { background: #f3faf8; }
+    .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.75), rgba(0,0,0,0.40)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 110px 0 84px; }
+    .page-shell { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+    .register-wrap { max-width: 760px; margin: 80px auto 110px; background: #fff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 18px 45px rgba(0,0,0,0.07); padding: 30px; }
+    .register-wrap h2 { margin-top: 0; }
+    .field-group { margin-bottom: 20px; }
+    .field-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #0b1f25; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .field-group input, .field-group select { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.12); }
+    .payment-box { background: #f7f9fa; border: 1px solid rgba(0,0,0,0.08); padding: 22px; margin-top: 8px; }
+    .payment-box .qr { width: 220px; height: 220px; display: block; margin: 16px auto; }
+    .payment-status { display: none; margin-top: 18px; padding: 12px 14px; background: #fff3dc; color: #8f5e00; font-weight: 700; }
+    .receipt-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 50; padding: 24px; overflow: auto; }
+    .receipt-card { max-width: 860px; margin: 20px auto; background: #fff; padding: 18px; }
+    .receipt-card .actions { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; }
+    .receipt-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .receipt-table th, .receipt-table td { border: 1px solid rgba(0,0,0,0.12); padding: 10px 12px; }
+    .receipt-table th { background: #0b1f25; color: #fff; }
+    @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h2>Register for the BIM course</h2>
-    <p class="muted">This free version uses local storage, so it works on static hosts like GitHub Pages or Cloudflare Pages.</p>
+  <header class="site-header">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Course Overview</a>
+        <a href="services.html">Our Services</a>
+        <a href="certifications.html">Certifications</a>
+        <a href="register.html">Register &amp; Pay</a>
+        <a href="contact.html">Contact Us</a>
+      </nav>
+      <nav class="meta-nav" aria-label="Secondary navigation">
+        <div class="utility-nav">
+          <a href="student.html">Student Portal</a>
+          <a href="performance.html">Performance &amp; Practice</a>
+          <a href="admin.html">Admin Portal</a>
+        </div>
+      </nav>
+    </div>
+  </header>
 
-    <form id="registerForm">
-      <div class="field"><label>Full name</label><input id="name" required /></div>
-      <div class="field"><label>Email address</label><input id="email" type="email" required /></div>
-      <div class="field"><label>Phone number</label><input id="phone" required /></div>
-      <div class="field"><label>Create portal password</label><input id="password" type="password" required /></div>
-      <div class="field">
-        <label>Course</label>
-        <select id="course">
-          <option value="Autodesk Revit: Structural Modeling Masterclass">Autodesk Revit: Structural Modeling Masterclass</option>
-          <option value="Advanced BIM: Coordination & Clash Detection">Advanced BIM: Coordination & Clash Detection</option>
-        </select>
+  <main>
+    <section class="page-hero">
+      <div class="page-shell">
+        <p class="eyebrow">Register</p>
+        <h1>Secure your place in the next BIM cohort.</h1>
+        <p class="hero-copy">Complete registration, transfer the pre-registration fee, and begin the onboarding process for your course access.</p>
       </div>
+    </section>
 
-      <div class="payment-box">
-        <p><strong>Pre-registration fee: ₹100</strong></p>
-        <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="UPI QR" />
-        <p><strong>UPI ID:</strong> spatialvisiontech@rbl</p>
-        <div class="field"><label>UPI transaction ID / UTR</label><input id="utr" required placeholder="Enter transaction ID" /></div>
+    <section class="page-shell">
+      <div class="register-wrap">
+        <h2>Step 1: Student registration</h2>
+        <p>Pay the ₹100 pre-registration fee to submit your application. Admin review is required before final access is granted.</p>
+
+        <form id="registrationForm">
+          <div class="field-group">
+            <label for="reg-name">Full name</label>
+            <input id="reg-name" type="text" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label for="reg-email">Email address</label>
+              <input id="reg-email" type="email" required />
+            </div>
+            <div class="field-group">
+              <label for="reg-phone">Phone number</label>
+              <input id="reg-phone" type="tel" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="reg-pass">Create portal password</label>
+            <input id="reg-pass" type="password" required />
+          </div>
+
+          <div class="field-group">
+            <label for="course">Select course</label>
+            <select id="course" required>
+              <option value="Autodesk Revit: Structural Modeling Masterclass">Autodesk Revit: Structural Modeling Masterclass</option>
+              <option value="Advanced BIM: Coordination & Clash Detection">Advanced BIM: Coordination & Clash Detection</option>
+            </select>
+          </div>
+
+          <div class="payment-box">
+            <p><strong>Pre-registration fee: ₹100</strong></p>
+            <p>Scan the QR using any UPI app, then enter the transaction ID below.</p>
+            <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="UPI QR for registration fee" />
+            <p><strong>UPI ID:</strong> spatialvisiontech@rbl</p>
+            <div class="field-group">
+              <label for="reg-utr">UPI transaction ID / UTR</label>
+              <input id="reg-utr" type="text" required placeholder="Enter your transaction ID" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" id="submitBtn">Submit registration payment</button>
+          <div id="payment-status" class="payment-status"></div>
+        </form>
       </div>
+    </section>
+  </main>
 
-      <button class="btn" type="submit">Submit registration payment</button>
-      <div id="status" class="status"></div>
-    </form>
-
-    <div id="receipt" class="receipt">
-      <div class="receipt-card">
-        <h3>Registration receipt</h3>
+  <div id="receiptModal" class="receipt-overlay">
+    <div class="receipt-card">
+      <div class="actions">
+        <button class="btn btn-primary" type="button" id="downloadPdfBtn" onclick="downloadPDF()">Download PDF receipt</button>
+        <button class="btn" type="button" onclick="closeReceipt()" style="background:#555;">Close</button>
+      </div>
+      <div id="receipt-content">
+        <h3 style="margin-top:0; color:#0b1f25;">Spatial Vision Tech</h3>
+        <p>Registration confirmation</p>
+        <table class="receipt-table">
+          <tr><th>Description</th><th>Amount</th></tr>
+          <tr>
+            <td><strong id="r-course"></strong><br />Initial registration fee</td>
+            <td>₹100.00</td>
+          </tr>
+        </table>
+        <p><strong>Date:</strong> <span id="r-date"></span></p>
         <p><strong>Name:</strong> <span id="r-name"></span></p>
         <p><strong>Email:</strong> <span id="r-email"></span></p>
         <p><strong>Student ID:</strong> <span id="r-student-id"></span></p>
-        <p><strong>Course:</strong> <span id="r-course"></span></p>
-        <p><strong>Fee:</strong> ₹100</p>
-        <p><strong>Status:</strong> Payment submitted, admin approval pending</p>
+        <p><strong>Receipt no:</strong> <span id="r-receipt-no"></span></p>
+        <p><strong>Status:</strong> <span style="color:#ef6c00; font-weight:700;">Payment pending approval</span></p>
       </div>
     </div>
-
-    <p style="margin-top:20px;"><a href="student.html">Go to student login</a> | <a href="admin.html">Go to admin login</a></p>
   </div>
 
-  <script src="storage.js"></script>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <strong class="footer-wordmark">Spatial Vision Tech</strong>
+        <p>Spatial Vision Tech provides BIM training and practical digital construction services.</p>
+      </div>
+      <div>
+        <p class="footer-title">Company</p>
+        <div class="footer-links">
+          <a href="index.html">Course Overview</a>
+          <a href="services.html">Our Services</a>
+          <a href="certifications.html">Certifications</a>
+          <a href="register.html">Register &amp; Pay</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-title">Contact</p>
+        <div class="footer-contact">
+          <p>Pune, Maharashtra, India</p>
+          <a href="tel:+917498121719">+91 7498121719</a>
+          <a href="mailto:admin@spatialvisiontech.in">admin@spatialvisiontech.in</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Spatial Vision Tech</span><span>spatialvisiontech.in</span></div>
+  </footer>
+
   <script>
-    document.getElementById('registerForm').addEventListener('submit', function (event) {
-      event.preventDefault();
+    const firebaseConfig = {
+      apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+      authDomain: "spatial-vision-tech.firebaseapp.com",
+      projectId: "spatial-vision-tech",
+      storageBucket: "spatial-vision-tech.firebasestorage.app",
+      messagingSenderId: "455311542009",
+      appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const password = document.getElementById('password').value;
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-pass').value;
       const course = document.getElementById('course').value;
-      const utr = document.getElementById('utr').value.trim();
+      const regUtr = document.getElementById('reg-utr').value.trim();
+      const dateObj = new Date();
 
-      if (!name || !email || !phone || !password || !utr) {
-        return;
-      }
-
-      const student = createStudentRecord({
-        uid: `local-${Date.now()}`,
-        studentId: `SVT/${new Date().getFullYear()}/${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-        name,
-        email,
-        phone,
-        password,
-        course,
-        regUtr: utr,
-        regPaymentStatus: 'Submitted',
-        approvalStatus: 'Pending',
-        grantedAccess: false,
-        preRegistrationPaid: false,
-        finalizedFee: 4900,
-        feeHistory: []
-      });
-
-      document.getElementById('status').textContent = 'Payment submitted. Admin approval is pending.';
-      document.getElementById('r-name').textContent = student.name;
-      document.getElementById('r-email').textContent = student.email;
-      document.getElementById('r-student-id').textContent = student.studentId;
-      document.getElementById('r-course').textContent = student.course;
-      document.getElementById('receipt').style.display = 'block';
-      event.target.reset();
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const studentId = `SVT/${dateObj.getFullYear()}/${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
+          const receiptNo = `REG-${dateObj.getFullYear()}-${userCredential.user.uid.slice(0, 6).toUpperCase()}`;
+          return db.collection('students').doc(userCredential.user.uid).set({
+            uid: userCredential.user.uid,
+            studentId,
+            name,
+            email,
+            phone,
+            course,
+            regDate: dateObj.toISOString(),
+            regUtr,
+            approvalStatus: 'Pending',
+            grantedAccess: false,
+            preRegistrationAmount: 100,
+            preRegistrationPaid: false,
+            finalizedFee: 4900,
+            feeHistory: []
+          }).then(() => {
+            document.getElementById('r-course').textContent = course;
+            document.getElementById('r-date').textContent = dateObj.toLocaleDateString('en-IN');
+            document.getElementById('r-name').textContent = name;
+            document.getElementById('r-email').textContent = email;
+            document.getElementById('r-student-id').textContent = studentId;
+            document.getElementById('r-receipt-no').textContent = receiptNo;
+            document.getElementById('receiptModal').style.display = 'block';
+            document.getElementById('payment-status').style.display = 'block';
+            document.getElementById('payment-status').textContent = 'Payment submitted. Admin verification is pending.';
+            submitBtn.textContent = 'Submitted';
+            document.getElementById('registrationForm').reset();
+            return auth.signOut();
+          });
+        })
+        .catch((error) => {
+          alert('Registration error: ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit registration payment';
+        });
     });
+
+    function downloadPDF() {
+      const btn = document.getElementById('downloadPdfBtn');
+      btn.disabled = true; btn.textContent = 'Generating...';
+      html2pdf().set({
+        margin: 0.4,
+        filename: 'registration-receipt.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      }).from(document.getElementById('receipt-content')).save().then(() => {
+        btn.disabled = false; btn.textContent = 'Download PDF receipt';
+      });
+    }
+
+    function closeReceipt() {
+      document.getElementById('receiptModal').style.display = 'none';
+    }
   </script>
 </body>
 </html>

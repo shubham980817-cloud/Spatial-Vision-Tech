@@ -1,171 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spatial Vision Tech | Admin Portal</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4faf8; color: #1d2d2e; }
-    .wrap { max-width: 1200px; margin: 60px auto; background: #fff; padding: 30px; border: 1px solid #dfeae7; box-shadow: 0 12px 28px rgba(0,0,0,.07); }
-    .screen { display: none; }
-    .screen.active { display: block; }
-    .field { margin-bottom: 18px; }
-    label { display: block; margin-bottom: 8px; font-weight: 700; }
-    input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #cddbd7; }
-    .btn { display: inline-block; background: #00b482; color: #051a1d; border: none; padding: 12px 20px; font-weight: 700; cursor: pointer; }
-    .btn.secondary { background: #0d4a5d; color: #fff; }
-    .btn.warn { background: #e67e22; color: #fff; }
-    .btn.danger { background: #d64545; color: #fff; }
-    table { width: 100%; border-collapse: collapse; margin-top: 18px; }
-    th, td { border: 1px solid #dfe7eb; padding: 10px; text-align: left; vertical-align: top; }
-    th { background: #0b1f25; color: #fff; }
-    .status { display: inline-block; padding: 4px 10px; background: #fff3dc; color: #7a4f00; border-radius: 18px; font-size: 12px; font-weight: 700; }
-    .status.approved { background: #eaf8ee; color: #1e6b3a; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision Tech | Admin Portal</title>
+    <link rel="stylesheet" href="bim-theme.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-functions-compat.js"></script>
+
+    <style>
+        body { font-family: 'Aptos', Arial, sans-serif; margin: 0; padding: 0; background: #f4f8f6; color: #1f2d2d; }
+        .top-bar { background: #0b1f25; color: #fff; padding: 15px 20px; text-align: center; font-size: 1.5em; font-weight: 800; }
+        .content-wrapper { background: white; padding: 30px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); max-width: 1500px; margin: 40px auto; }
+        #login-screen { max-width: 420px; margin: 100px auto; background: white; padding: 40px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); }
+        .form-group { margin-bottom: 20px; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.12); border-radius: 4px; box-sizing: border-box; }
+        .btn { background: #00b482; color: #071a1f; padding: 12px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: 800; }
+        #dashboard-screen { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th { background: #0b1f25; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-weight: 700; font-size: 0.85em; }
+        .status-pending { background: #fff3e0; color: #8f5e00; }
+        .status-approved { background: #e8f5e9; color: #2e7d32; }
+        .approve-btn { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 700; margin-bottom: 5px; width: 100%; }
+        .access-btn { background: #0d9b86; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 700; margin-bottom: 5px; width: 100%; }
+        .revoke-btn { background: #ef6c00; }
+        .remove-btn { background: #d64a4a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 700; width: 100%; }
+        .password-input { box-sizing: border-box; width: 100%; padding: 7px; margin: 6px 0; }
+        .password-btn { background: #0d4a5d; color: white; border: none; padding: 7px 10px; border-radius: 4px; cursor: pointer; font-weight: 700; width: 100%; margin-bottom: 8px; }
+        .header-bar { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #00b482; padding-bottom: 10px; }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <div id="loginScreen" class="screen active">
-      <h2>Admin Sign In</h2>
-      <form id="loginForm">
-        <div class="field"><label>Email</label><input id="email" type="email" value="admin@spatialvisiontech.in" /></div>
-        <div class="field"><label>Password</label><input id="password" type="password" value="Admin@123456" /></div>
-        <button class="btn" type="submit">Login</button>
-        <div id="loginMsg" style="margin-top:12px; color:red;"></div>
-      </form>
-    </div>
+    <div class="top-bar">Spatial Vision Tech - Admin Control</div>
 
-    <div id="dashboardScreen" class="screen">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px;">
-        <h2 style="margin:0;">Student Management</h2>
-        <button class="btn secondary" type="button" onclick="logout()">Sign out</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Registration</th>
-            <th>Finalized Fee</th>
-            <th>Fee History</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="studentTable"></tbody>
-      </table>
-    </div>
-  </div>
+    <section>
+        <div id="login-screen">
+            <h2 style="margin-top: 0; color: #0d4a5d;">Admin Sign In</h2>
+            <form id="loginForm">
+                <div class="form-group"><input type="email" id="admin-email" required placeholder="admin@spatialvisiontech.in"></div>
+                <div class="form-group"><input type="password" id="admin-password" required placeholder="Password"></div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
 
-  <script src="storage.js"></script>
-  <script>
-    let adminLoggedIn = false;
+        <div id="dashboard-screen" class="content-wrapper">
+            <div class="header-bar">
+                <h2 style="margin:0; color:#0d4a5d;">Student Registrations & Fee Approvals</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="performance.html" class="btn" style="width:auto; padding: 8px 20px; text-decoration:none; background:#1ba0a8;">Performance & Practice</a>
+                    <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="firebase.auth().signOut().then(()=>location.reload())">Sign Out</button>
+                </div>
+            </div>
+            <p style="margin:0 0 15px; color:#555;">Use the portal access control for students after pre-registration or final registration. It can also be granted or revoked for existing student records.</p>
+            
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Identity</th>
+                            <th>Registration Status</th>
+                            <th>Pre-Registration / Finalized Fee</th>
+                            <th>Fee Payments History</th>
+                            <th>Practice Performance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body">
+                        <tr><td colspan="6" style="text-align:center;">Loading records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-    function switchScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-    }
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
+            authDomain: "spatial-vision-tech.firebaseapp.com",
+            projectId: "spatial-vision-tech",
+            storageBucket: "spatial-vision-tech.firebasestorage.app",
+            messagingSenderId: "455311542009",
+            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const setStudentPasswordCall = firebase.functions().httpsCallable('setStudentPassword');
 
-    function listStudents() {
-      const students = readStudents().filter(student => student.role !== 'admin');
-      const tbody = document.getElementById('studentTable');
-      tbody.innerHTML = '';
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            auth.signInWithEmailAndPassword(document.getElementById('admin-email').value, document.getElementById('admin-password').value)
+            .then(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                loadStudentsData();
+            });
+        });
 
-      students.forEach(student => {
-        const row = document.createElement('tr');
-        const hasPortal = student.grantedAccess === true;
-        const approvalTag = student.approvalStatus === 'Approved'
-          ? '<span class="status approved">Approved</span>'
-          : '<span class="status">Pending</span>';
+        function loadStudentsData() {
+            db.collection("students").orderBy("regDate", "desc").get().then((querySnapshot) => {
+                const tbody = document.getElementById('student-table-body');
+                tbody.innerHTML = "";
+                
+                querySnapshot.forEach((doc) => {
+                    const s = doc.data();
+                    const docId = doc.id;
+                    
+                    let statusHtml = s.approvalStatus === "Pending" 
+                        ? `<span class="status-badge status-pending">Pending Approval</span>`
+                        : `<span class="status-badge status-approved">Approved Active</span>`;
+                        
+                    let approveBtn = s.approvalStatus === "Pending" && ['Submitted', 'Paid'].includes(s.regPaymentStatus)
+                        ? `<button class="approve-btn" onclick="approveStudent('${docId}')">Verify & Approve Registration</button>`
+                        : s.approvalStatus === "Pending"
+                            ? `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Awaiting verified payment</span>`
+                        : `<span style="display:block; text-align:center; color:#28a745; font-weight:bold; margin-bottom:5px;">Approved</span>`;
 
-        row.innerHTML = `
-          <td>
-            <strong>${student.name}</strong><br>
-            <small>${student.email}</small><br>
-            <small>${student.studentId}</small>
-          </td>
-          <td>
-            ${approvalTag}<br>
-            <small>Payment: ${student.regPaymentStatus || 'Pending'}</small><br>
-            <small>UTR: ${student.regUtr || 'Not entered'}</small>
-          </td>
-          <td>
-            ₹${Number(student.finalizedFee || 4900).toLocaleString('en-IN')}
-          </td>
-          <td>
-            ${(student.feeHistory || []).length ? student.feeHistory.map(f => `<div><strong>${f.type}</strong><br><small>₹${Number(f.amount).toLocaleString('en-IN')} | ${f.status}</small></div>`).join('<br>') : '<small>No fee records</small>'}
-          </td>
-          <td>
-            <button class="btn" type="button" onclick="approveStudent('${student.uid}')">Approve</button><br><br>
-            <button class="btn ${hasPortal ? 'secondary' : 'warn'}" type="button" onclick="toggleAccess('${student.uid}', ${!hasPortal})">${hasPortal ? 'Revoke Portal' : 'Grant Portal'}</button><br><br>
-            <input type="password" id="temp-${student.uid}" placeholder="Temporary password" /><br><br>
-            <button class="btn secondary" type="button" onclick="setTempPassword('${student.uid}')">Set Password</button><br><br>
-            <button class="btn danger" type="button" onclick="deleteStudent('${student.uid}')">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+                    let feeHistoryHtml = "";
+                    if(s.feeHistory && s.feeHistory.length > 0) {
+                        s.feeHistory.forEach((fee, index) => {
+                            const paid = fee.status === 'Paid';
+                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount}<br><small>Status: ${fee.status || 'Recorded'}</small>${fee.utr ? `<br><small>UTR: ${fee.utr}</small>` : ''}${!paid ? `<br><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="markFeePaid('${docId}', ${index})">Verify Payment</button>` : ''}</div>`;
+                        });
+                    } else { feeHistoryHtml = "<small>No course installments submitted yet.</small>"; }
 
-    document.getElementById('loginForm').addEventListener('submit', function (event) {
-      event.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const msg = document.getElementById('loginMsg');
+                    const tr = document.createElement('tr');
+                    const attempts = s.testAttempts || [];
+                    const latestAttempt = attempts[attempts.length - 1];
+                    const hasPortalAccess = s.grantedAccess === true;
+                    const accessButton = hasPortalAccess
+                        ? `<span style="display:block; text-align:center; color:#2e7d32; font-weight:bold; margin-bottom:5px;">Portal access granted</span><button class="access-btn revoke-btn" onclick="togglePortalAccess('${docId}', false)">Revoke Portal Access</button>`
+                        : `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Portal access not granted</span><button class="access-btn" onclick="togglePortalAccess('${docId}', true)">Grant Portal Access</button>`;
+                    tr.innerHTML = `
+                        <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
+                        <td>${statusHtml}<br><small>${s.course}</small></td>
+                        <td style="font-weight:bold; color:#0d4a5d;">Pre: ₹${s.preRegistrationAmount || 100}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small>${s.regUtr ? `<br><small>UTR: ${s.regUtr}</small>` : ''}<br><label style="font-weight:normal;">Finalized fee<br><input id="final-fee-${docId}" type="number" min="100" step="100" value="${s.finalizedFee || 30000}" style="width:90px; padding:4px;"></label><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="saveFinalizedFee('${docId}')">Save Fee</button></td>
+                        <td>${feeHistoryHtml}</td>
+                        <td>${latestAttempt ? `<strong>${latestAttempt.score}%</strong><br><small>${attempts.length} test${attempts.length === 1 ? '' : 's'}</small>` : '<small>No tests yet</small>'}</td>
+                        <td>
+                            ${approveBtn}
+                            ${accessButton}
+                            <input class="password-input" id="student-password-${docId}" type="password" minlength="12" maxlength="128" autocomplete="new-password" aria-label="Temporary password for ${s.name}" placeholder="Temporary password (12+ chars)">
+                            <button class="password-btn" onclick="setStudentPassword('${docId}')">Set Password</button>
+                            <button class="remove-btn" onclick="removeStudent('${docId}')">Delete Record</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
 
-      if (validateAdminLogin(email, password)) {
-        adminLoggedIn = true;
-        msg.textContent = '';
-        switchScreen('dashboardScreen');
-        listStudents();
-      } else {
-        msg.textContent = 'Invalid admin login.';
-      }
-    });
+        window.approveStudent = function(docId) {
+            if(confirm("Have you verified the ₹100 PhonePe/UPI pre-registration payment? This will unlock the ₹4,900 final registration payment.")) {
+                db.collection("students").doc(docId).update({ approvalStatus: "Approved", preRegistrationPaid: true, regPaymentStatus: "Pre-registration Paid" })
+                .then(() => loadStudentsData());
+            }
+        }
+        window.saveFinalizedFee = function(docId) {
+            const amount = Number(document.getElementById(`final-fee-${docId}`).value);
+            if (!Number.isFinite(amount) || amount < 100) {
+                alert("Enter a valid finalized fee.");
+                return;
+            }
+            db.collection("students").doc(docId).update({ finalizedFee: amount })
+                .then(() => loadStudentsData());
+        }
+        window.togglePortalAccess = function(docId, grantAccess) {
+            const action = grantAccess ? "grant" : "revoke";
+            const confirmation = grantAccess
+                ? "Grant this student access to the Student Portal? This also applies to existing student records."
+                : "Revoke this student's Student Portal access?";
+            if (!confirm(confirmation)) return;
+            db.collection("students").doc(docId).update({ grantedAccess: grantAccess, accessUpdatedAt: new Date().toISOString() })
+                .then(() => loadStudentsData())
+                .catch(error => alert(`Unable to ${action} portal access: ${error.message}`));
+        }
+        window.setStudentPassword = async function(studentUid) {
+            const input = document.getElementById(`student-password-${studentUid}`);
+            const password = input.value;
+            if (password.length < 12 || password.length > 128) {
+                alert('Enter a temporary password between 12 and 128 characters.');
+                return;
+            }
+            if (!confirm('Set a new password for this student? Share it through a secure channel.')) return;
 
-    window.approveStudent = function(uid) {
-      const student = getStudentById(uid);
-      if (!student) return;
-      const updated = updateStudent(uid, {
-        approvalStatus: 'Approved',
-        regPaymentStatus: 'Pre-registration Paid',
-        preRegistrationPaid: true,
-        grantedAccess: student.grantedAccess || false
-      });
-      if (updated) listStudents();
-    };
-
-    window.toggleAccess = function(uid, allowed) {
-      updateStudent(uid, { grantedAccess: allowed, accessUpdatedAt: new Date().toISOString() });
-      listStudents();
-    };
-
-    window.setTempPassword = function(uid) {
-      const input = document.getElementById(`temp-${uid}`);
-      const pass = input.value;
-      if (!pass || pass.length < 8) {
-        alert('Temporary password must be at least 8 characters.');
-        return;
-      }
-      const success = setStudentPassword(uid, pass);
-      if (success) {
-        input.value = '';
-        alert('Password updated for this student.');
-      }
-    };
-
-    window.deleteStudent = function(uid) {
-      const remaining = readStudents().filter(student => {
-        return student.uid !== uid && student.email?.toLowerCase() !== ADMIN_EMAIL;
-      });
-      writeStudents(remaining);
-      listStudents();
-    };
-
-    function logout() {
-      adminLoggedIn = false;
-      document.getElementById('loginForm').reset();
-      document.getElementById('loginMsg').textContent = '';
-      switchScreen('loginScreen');
-    }
-  </script>
+            try {
+                await setStudentPasswordCall({ studentUid, password });
+                input.value = '';
+                alert('Password updated. Share the temporary password securely.');
+            } catch (error) {
+                alert(`Unable to update the password: ${error.message}`);
+            }
+        }
+        window.markFeePaid = function(docId, feeIndex) {
+            if (!confirm("Have you verified this payment in the PhonePe or bank account?")) return;
+            db.collection("students").doc(docId).get().then((doc) => {
+                const student = doc.data();
+                const feeHistory = [...(student.feeHistory || [])];
+                if (!feeHistory[feeIndex]) return;
+                feeHistory[feeIndex] = { ...feeHistory[feeIndex], status: "Paid", verifiedAt: new Date().toISOString() };
+                return db.collection("students").doc(docId).update({ feeHistory });
+            }).then(() => loadStudentsData());
+        }
+        window.removeStudent = function(docId) {
+            if(confirm("Delete this student permanently?")) {
+                db.collection("students").doc(docId).delete().then(() => loadStudentsData());
+            }
+        }
+    </script>
 </body>
 </html>
