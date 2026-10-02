@@ -48,7 +48,57 @@ function ensureSeedData() {
       finalizedFee: 4900,
       feeHistory: []
     };
-    writeStudents([adminSeed]);
+
+    const demoStudents = [
+      {
+        uid: 'student-demo-1',
+        studentId: 'SVT/2026/AB12CD',
+        name: 'Aarav Patil',
+        email: 'aarav@example.com',
+        phone: '9876543210',
+        course: 'Autodesk Revit: Structural Modeling Masterclass',
+        password: 'Student@123',
+        role: 'student',
+        regDate: new Date().toISOString(),
+        regUtr: 'UPI123456789',
+        regPaymentStatus: 'Pre-registration Paid',
+        approvalStatus: 'Approved',
+        grantedAccess: true,
+        preRegistrationAmount: 100,
+        preRegistrationPaid: true,
+        finalizedFee: 4900,
+        feeHistory: [
+          {
+            type: 'Final Registration Fee (₹4,900)',
+            amount: '4900',
+            utr: 'UPI987654321',
+            status: 'Paid',
+            date: new Date().toISOString()
+          }
+        ]
+      },
+      {
+        uid: 'student-demo-2',
+        studentId: 'SVT/2026/EF34GH',
+        name: 'Meera Shah',
+        email: 'meera@example.com',
+        phone: '9123456789',
+        course: 'Advanced BIM: Coordination & Clash Detection',
+        password: 'Demo@456',
+        role: 'student',
+        regDate: new Date(Date.now() - 86400000).toISOString(),
+        regUtr: 'UPI456789123',
+        regPaymentStatus: 'Submitted',
+        approvalStatus: 'Pending',
+        grantedAccess: false,
+        preRegistrationAmount: 100,
+        preRegistrationPaid: false,
+        finalizedFee: 4900,
+        feeHistory: []
+      }
+    ];
+
+    writeStudents([adminSeed, ...demoStudents]);
   }
 }
 
