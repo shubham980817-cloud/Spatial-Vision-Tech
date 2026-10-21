@@ -6,8 +6,7 @@
   <title>Spatial Vision Tech | Contact</title>
   <link rel="stylesheet" href="bim-theme.css" />
   <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="cloudflare-client.js"></script>
   <style>
     body { background: #f5faf8; }
     .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.75), rgba(0,0,0,0.42)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 110px 0 84px; }
@@ -34,21 +33,20 @@
 <body>
   <header class="site-header">
     <div class="topbar">
-      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
-      <nav class="main-nav" aria-label="Main navigation">
-        <a href="index.html">Course Overview</a>
-        <a href="services.html">Our Services</a>
-        <a href="certifications.html">Certifications</a>
-        <a href="register.html">Register &amp; Pay</a>
-        <a href="contact.html">Contact Us</a>
-      </nav>
-      <nav class="meta-nav" aria-label="Secondary navigation">
-        <div class="utility-nav">
+      <details class="page-menu">
+        <summary><span class="menu-icon" aria-hidden="true">☰</span> Pages</summary>
+        <nav class="page-menu-links" aria-label="All pages">
+          <a href="index.html">Home</a>
+          <a href="services.html">Services</a>
+          <a href="certifications.html">Certifications</a>
+          <a href="register.html">Register &amp; Pay</a>
+          <a href="contact.html">Contact</a>
           <a href="student.html">Student Portal</a>
           <a href="performance.html">Performance &amp; Practice</a>
           <a href="admin.html">Admin Portal</a>
-        </div>
-      </nav>
+        </nav>
+      </details>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></a>
     </div>
   </header>
 
@@ -94,7 +92,7 @@
               <label for="message">How can we help?</label>
               <textarea id="message" name="message" required></textarea>
             </div>
-            <button class="btn btn-primary submit-btn" id="submitBtn" type="submit">Open email app</button>
+            <button class="btn btn-primary submit-btn" id="submitBtn" type="submit">Send message</button>
             <div id="status-msg" class="msg-box"></div>
           </form>
         </div>
@@ -130,16 +128,7 @@
   </footer>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-      authDomain: "spatial-vision-tech.firebaseapp.com",
-      projectId: "spatial-vision-tech",
-      storageBucket: "spatial-vision-tech.firebasestorage.app",
-      messagingSenderId: "455311542009",
-      appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = svt.store();
 
     document.getElementById('contactForm').addEventListener('submit', function (event) {
       event.preventDefault();
@@ -153,10 +142,15 @@
 
       db.collection('enquiries').add({
         name, email, phone, message, createdAt: new Date().toISOString()
-      }).then(() => {
-        const subject = encodeURIComponent('Website enquiry from ' + name);
-        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\n\n${message}`);
-        window.location.href = `mailto:admin@spatialvisiontech.in?subject=${subject}&body=${body}`;
+      }).then((result) => {
+        const msgBox = document.getElementById('status-msg');
+        msgBox.style.display = 'block';
+        msgBox.style.background = result.notificationWarning ? '#fff3dc' : '#e8f5e9';
+        msgBox.style.color = result.notificationWarning ? '#8a4b08' : '#2e7d32';
+        msgBox.textContent = result.notificationWarning || 'Your message was sent successfully. Our team will be in touch.';
+        document.getElementById('contactForm').reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message';
       }).catch((error) => {
         const msgBox = document.getElementById('status-msg');
         msgBox.style.display = 'block';
@@ -164,7 +158,7 @@
         msgBox.style.color = '#c62828';
         msgBox.textContent = `Unable to save your enquiry: ${error.message}`;
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Open email app';
+        submitBtn.textContent = 'Send message';
       });
     });
   </script>

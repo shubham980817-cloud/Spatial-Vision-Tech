@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="bim-theme.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="cloudflare-client.js"></script>
 
     <style>
         body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background: #f4f8f6; color: #1f2d2d; line-height: 1.6; }
@@ -53,8 +51,19 @@
 </head>
 <body>
     <div class="top-bar">
-        <a href="index.html" style="text-decoration:none; color:#0d4a5d; font-weight:bold;">← Home</a>
-        <a href="performance.html" style="text-decoration:none; color:#0d4a5d; font-weight:bold;">Performance & Practice</a>
+        <details class="page-menu">
+            <summary><span class="menu-icon" aria-hidden="true">☰</span> Pages</summary>
+            <nav class="page-menu-links" aria-label="All pages">
+                <a href="index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="certifications.html">Certifications</a>
+                <a href="register.html">Register &amp; Pay</a>
+                <a href="contact.html">Contact</a>
+                <a href="student.html">Student Portal</a>
+                <a href="performance.html">Performance &amp; Practice</a>
+                <a href="admin.html">Admin Portal</a>
+            </nav>
+        </details>
         <a href="index.html" title="Go to Homepage">
             <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Homepage" class="top-bar-logo">
         </a>
@@ -98,6 +107,8 @@
                     <p style="font-size:1.2em; color:#555;">Your Student Portal access is waiting for administration approval after payment review.</p>
                     <p>Once an admin grants access, your dashboard and course fee payment portal will unlock.</p>
                 </div>
+                <button id="request-approval-btn" onclick="requestApprovalReview()" class="btn" style="margin-top:15px; width:auto; padding:10px 30px;">Request approval review</button>
+                <div id="approval-request-msg" role="status" aria-live="polite" style="margin-top:10px; font-weight:bold;"></div>
                 <button onclick="logout()" class="btn" style="background:#555; margin-top:30px; width:auto; padding:10px 30px;">Sign Out</button>
             </div>
 
@@ -131,6 +142,7 @@
                             <input type="text" id="fee-utr" required placeholder="Enter the transaction ID after payment">
                         </div>
                         <button type="submit" id="feeSubmitBtn" class="btn" disabled>Choose an Installment</button>
+                        <div id="fee-payment-msg" role="status" aria-live="polite" style="margin-top:10px;"></div>
                     </form>
                 </div>
 
@@ -138,6 +150,19 @@
                     <a class="student-action" href="certifications.html">Download Result Certificate</a>
                     <button class="student-action" type="button" onclick="document.getElementById('receipt-history').scrollIntoView({ behavior: 'smooth' });">View Old Receipts</button>
                 </div>
+
+                <section class="payment-section" aria-labelledby="file-upload-heading">
+                    <h3 id="file-upload-heading" style="color:#0d4a5d; margin-top:0;">Upload a file</h3>
+                    <p style="color:#555;">Upload a PDF, image, or Word document (10 MB maximum).</p>
+                    <form id="student-file-form">
+                        <div class="form-group">
+                            <label for="student-file">Choose file</label>
+                            <input id="student-file" name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                        </div>
+                        <button class="btn" id="student-file-submit" type="submit">Upload file</button>
+                        <div id="student-file-msg" role="status" aria-live="polite" style="margin-top:10px;"></div>
+                    </form>
+                </section>
 
                 <div id="receipt-history" class="receipt-history">
                     <h3>Previous Receipts</h3>
@@ -204,17 +229,8 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const auth = svt.auth();
+        const db = svt.store();
 
         function showScreen(id) {
             ['login-screen', 'forgot-password-screen', 'pending-approval-screen', 'student-dashboard'].forEach(s => document.getElementById(s).style.display = 'none');
@@ -255,6 +271,15 @@
                     
                     // Portal access is granted separately by an admin after payment review.
                     if(activeStudent.grantedAccess !== true) {
+                        const approvalRequestButton = document.getElementById('request-approval-btn');
+                        const approvalRequestMessage = document.getElementById('approval-request-msg');
+                        approvalRequestButton.disabled = Boolean(activeStudent.approvalRequestAt);
+                        if (activeStudent.approvalRequestAt) {
+                            approvalRequestMessage.style.color = '#2e7d32';
+                            approvalRequestMessage.innerText = 'Your approval review request has been sent to the administration team.';
+                        } else {
+                            approvalRequestMessage.innerText = '';
+                        }
                         showScreen('pending-approval-screen');
                     } else {
                         document.getElementById('d-name').innerText = activeStudent.name;
@@ -270,7 +295,30 @@
                 });
         });
 
-        // Forgot Password (Firebase built-in)
+        function requestApprovalReview() {
+            const button = document.getElementById('request-approval-btn');
+            const message = document.getElementById('approval-request-msg');
+            if (!activeDocId || !activeStudent || activeStudent.approvalRequestAt) return;
+
+            button.disabled = true;
+            button.innerText = 'Sending request...';
+            const requestedAt = new Date().toISOString();
+            db.collection('students').doc(activeDocId).update({ approvalRequestAt: requestedAt })
+                .then(result => {
+                    activeStudent.approvalRequestAt = requestedAt;
+                    message.style.color = result.notificationWarning ? '#8a4b08' : '#2e7d32';
+                    message.innerText = result.notificationWarning || 'Your approval review request has been sent to the administration team.';
+                    button.innerText = 'Request sent';
+                })
+                .catch(error => {
+                    message.style.color = 'red';
+                    message.innerText = `Unable to send your request: ${error.message}`;
+                    button.disabled = false;
+                    button.innerText = 'Request approval review';
+                });
+        }
+
+        // Password reset links are issued by the Cloudflare Worker.
         document.getElementById('resetForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('reset-email').value.trim();
@@ -353,8 +401,8 @@
             };
 
             db.collection("students").doc(activeDocId).update({
-                feeHistory: firebase.firestore.FieldValue.arrayUnion(newFeeRecord)
-            }).then(() => {
+                feeHistory: svt.store.FieldValue.arrayUnion(newFeeRecord)
+            }).then((result) => {
                 activeStudent.feeHistory = [...(activeStudent.feeHistory || []), newFeeRecord];
                 document.getElementById('r-receipt-no').innerText = receiptNo;
                 document.getElementById('r-date').innerText = dateStr;
@@ -369,6 +417,11 @@
                 renderReceiptHistory();
                 document.getElementById('feePaymentForm').reset();
                 updateFeePaymentDetails();
+                if (result.notificationWarning) {
+                    const message = document.getElementById('fee-payment-msg');
+                    message.style.color = '#8a4b08';
+                    message.innerText = result.notificationWarning;
+                }
             }).catch(error => {
                 document.getElementById('login-msg').innerText = error.message;
                 updateFeePaymentDetails();
@@ -379,6 +432,30 @@
             updateFeePaymentDetails();
         });
         updateFeePaymentDetails();
+
+        document.getElementById('student-file-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const button = document.getElementById('student-file-submit');
+            const message = document.getElementById('student-file-msg');
+            button.disabled = true;
+            button.innerText = 'Uploading...';
+            message.innerText = '';
+            try {
+                const result = await svt.request(`/api/students/${encodeURIComponent(activeDocId)}/files`, {
+                    method: 'POST',
+                    body: new FormData(event.currentTarget)
+                });
+                message.style.color = result.notificationWarning ? '#8a4b08' : '#2e7d32';
+                message.innerText = result.notificationWarning || 'File uploaded. Email notifications have been sent.';
+                event.currentTarget.reset();
+            } catch (error) {
+                message.style.color = 'red';
+                message.innerText = `Unable to upload your file: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.innerText = 'Upload file';
+            }
+        });
 
         function downloadPDF() {
             html2pdf().set({ margin: 0.4, filename: 'Course_Fee_Receipt.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } })

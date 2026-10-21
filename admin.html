@@ -6,14 +6,11 @@
     <title>Spatial Vision Tech | Admin Portal</title>
     <link rel="stylesheet" href="bim-theme.css">
     
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-functions-compat.js"></script>
+    <script src="cloudflare-client.js"></script>
 
     <style>
         body { font-family: 'Aptos', Arial, sans-serif; margin: 0; padding: 0; background: #f4f8f6; color: #1f2d2d; }
-        .top-bar { background: #0b1f25; color: #fff; padding: 15px 20px; text-align: center; font-size: 1.5em; font-weight: 800; }
+        .top-bar { background: #0b1f25; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; font-size: clamp(1rem, 4vw, 1.5em); font-weight: 800; }
         .content-wrapper { background: white; padding: 30px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); max-width: 1500px; margin: 40px auto; }
         #login-screen { max-width: 420px; margin: 100px auto; background: white; padding: 40px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 14px 30px rgba(0,0,0,0.08); }
         .form-group { margin-bottom: 20px; }
@@ -36,7 +33,22 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">Spatial Vision Tech - Admin Control</div>
+    <div class="top-bar">
+        <details class="page-menu">
+            <summary><span class="menu-icon" aria-hidden="true">☰</span> Pages</summary>
+            <nav class="page-menu-links" aria-label="All pages">
+                <a href="index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="certifications.html">Certifications</a>
+                <a href="register.html">Register &amp; Pay</a>
+                <a href="contact.html">Contact</a>
+                <a href="student.html">Student Portal</a>
+                <a href="performance.html">Performance &amp; Practice</a>
+                <a href="admin.html">Admin Portal</a>
+            </nav>
+        </details>
+        <span>Spatial Vision Tech - Admin Control</span>
+    </div>
 
     <section>
         <div id="login-screen">
@@ -53,7 +65,7 @@
                 <h2 style="margin:0; color:#0d4a5d;">Student Registrations & Fee Approvals</h2>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <a href="performance.html" class="btn" style="width:auto; padding: 8px 20px; text-decoration:none; background:#1ba0a8;">Performance & Practice</a>
-                    <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="firebase.auth().signOut().then(()=>location.reload())">Sign Out</button>
+                    <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="svt.auth().signOut().then(()=>location.reload())">Sign Out</button>
                 </div>
             </div>
             <p style="margin:0 0 15px; color:#555;">Use the portal access control for students after pre-registration or final registration. It can also be granted or revoked for existing student records.</p>
@@ -79,27 +91,28 @@
     </section>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const setStudentPasswordCall = firebase.functions().httpsCallable('setStudentPassword');
+        const auth = svt.auth();
+        const db = svt.store();
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             auth.signInWithEmailAndPassword(document.getElementById('admin-email').value, document.getElementById('admin-password').value)
             .then(() => {
+                if (auth.currentUser.role !== 'admin') throw new Error('This account does not have administrator access.');
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
                 loadStudentsData();
-            });
+            }).catch(error => alert(`Unable to sign in: ${error.message}`));
         });
 
         function loadStudentsData() {
@@ -125,7 +138,7 @@
                     if(s.feeHistory && s.feeHistory.length > 0) {
                         s.feeHistory.forEach((fee, index) => {
                             const paid = fee.status === 'Paid';
-                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${fee.type}</strong>: ₹${fee.amount}<br><small>Status: ${fee.status || 'Recorded'}</small>${fee.utr ? `<br><small>UTR: ${fee.utr}</small>` : ''}${!paid ? `<br><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="markFeePaid('${docId}', ${index})">Verify Payment</button>` : ''}</div>`;
+                            feeHistoryHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:5px;"><strong>${escapeHtml(fee.type)}</strong>: ₹${escapeHtml(fee.amount)}<br><small>Status: ${escapeHtml(fee.status || 'Recorded')}</small>${fee.utr ? `<br><small>UTR: ${escapeHtml(fee.utr)}</small>` : ''}${!paid ? `<br><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="markFeePaid('${docId}', ${index})">Verify Payment</button>` : ''}</div>`;
                         });
                     } else { feeHistoryHtml = "<small>No course installments submitted yet.</small>"; }
 
@@ -137,15 +150,15 @@
                         ? `<span style="display:block; text-align:center; color:#2e7d32; font-weight:bold; margin-bottom:5px;">Portal access granted</span><button class="access-btn revoke-btn" onclick="togglePortalAccess('${docId}', false)">Revoke Portal Access</button>`
                         : `<span style="display:block; text-align:center; color:#ef6c00; font-weight:bold; margin-bottom:5px;">Portal access not granted</span><button class="access-btn" onclick="togglePortalAccess('${docId}', true)">Grant Portal Access</button>`;
                     tr.innerHTML = `
-                        <td><strong style="color:#1ba0a8;">${s.studentId}</strong><br><strong>${s.name}</strong><br><small>${s.email}</small></td>
-                        <td>${statusHtml}<br><small>${s.course}</small></td>
-                        <td style="font-weight:bold; color:#0d4a5d;">Pre: ₹${s.preRegistrationAmount || 100}<br><small>${s.regPaymentStatus || 'Pending confirmation'}</small>${s.regUtr ? `<br><small>UTR: ${s.regUtr}</small>` : ''}<br><label style="font-weight:normal;">Finalized fee<br><input id="final-fee-${docId}" type="number" min="100" step="100" value="${s.finalizedFee || 30000}" style="width:90px; padding:4px;"></label><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="saveFinalizedFee('${docId}')">Save Fee</button></td>
+                        <td><strong style="color:#1ba0a8;">${escapeHtml(s.studentId)}</strong><br><strong>${escapeHtml(s.name)}</strong><br><small>${escapeHtml(s.email)}</small></td>
+                        <td>${statusHtml}<br><small>${escapeHtml(s.course)}</small></td>
+                        <td style="font-weight:bold; color:#0d4a5d;">Pre: ₹${escapeHtml(s.preRegistrationAmount || 100)}<br><small>${escapeHtml(s.regPaymentStatus || 'Pending confirmation')}</small>${s.regUtr ? `<br><small>UTR: ${escapeHtml(s.regUtr)}</small>` : ''}<br><label style="font-weight:normal;">Finalized fee<br><input id="final-fee-${docId}" type="number" min="100" step="100" value="${escapeHtml(s.finalizedFee || 30000)}" style="width:90px; padding:4px;"></label><button class="approve-btn" style="width:auto; margin-top:4px;" onclick="saveFinalizedFee('${docId}')">Save Fee</button></td>
                         <td>${feeHistoryHtml}</td>
-                        <td>${latestAttempt ? `<strong>${latestAttempt.score}%</strong><br><small>${attempts.length} test${attempts.length === 1 ? '' : 's'}</small>` : '<small>No tests yet</small>'}</td>
+                        <td>${latestAttempt ? `<strong>${escapeHtml(latestAttempt.score)}%</strong><br><small>${attempts.length} test${attempts.length === 1 ? '' : 's'}</small>` : '<small>No tests yet</small>'}</td>
                         <td>
                             ${approveBtn}
                             ${accessButton}
-                            <input class="password-input" id="student-password-${docId}" type="password" minlength="12" maxlength="128" autocomplete="new-password" aria-label="Temporary password for ${s.name}" placeholder="Temporary password (12+ chars)">
+                            <input class="password-input" id="student-password-${docId}" type="password" minlength="12" maxlength="128" autocomplete="new-password" aria-label="Temporary password for ${escapeHtml(s.name)}" placeholder="Temporary password (12+ chars)">
                             <button class="password-btn" onclick="setStudentPassword('${docId}')">Set Password</button>
                             <button class="remove-btn" onclick="removeStudent('${docId}')">Delete Record</button>
                         </td>
@@ -158,7 +171,10 @@
         window.approveStudent = function(docId) {
             if(confirm("Have you verified the ₹100 PhonePe/UPI pre-registration payment? This will unlock the ₹4,900 final registration payment.")) {
                 db.collection("students").doc(docId).update({ approvalStatus: "Approved", preRegistrationPaid: true, regPaymentStatus: "Pre-registration Paid" })
-                .then(() => loadStudentsData());
+                    .then(result => {
+                        if (result.notificationWarning) alert(result.notificationWarning);
+                        loadStudentsData();
+                    }).catch(error => alert(`Unable to approve registration: ${error.message}`));
             }
         }
         window.saveFinalizedFee = function(docId) {
@@ -168,7 +184,8 @@
                 return;
             }
             db.collection("students").doc(docId).update({ finalizedFee: amount })
-                .then(() => loadStudentsData());
+                .then(() => loadStudentsData())
+                .catch(error => alert(`Unable to save the finalized fee: ${error.message}`));
         }
         window.togglePortalAccess = function(docId, grantAccess) {
             const action = grantAccess ? "grant" : "revoke";
@@ -177,7 +194,10 @@
                 : "Revoke this student's Student Portal access?";
             if (!confirm(confirmation)) return;
             db.collection("students").doc(docId).update({ grantedAccess: grantAccess, accessUpdatedAt: new Date().toISOString() })
-                .then(() => loadStudentsData())
+                .then(result => {
+                    if (result.notificationWarning) alert(result.notificationWarning);
+                    loadStudentsData();
+                })
                 .catch(error => alert(`Unable to ${action} portal access: ${error.message}`));
         }
         window.setStudentPassword = async function(studentUid) {
@@ -190,9 +210,9 @@
             if (!confirm('Set a new password for this student? Share it through a secure channel.')) return;
 
             try {
-                await setStudentPasswordCall({ studentUid, password });
+                const result = await svt.setStudentPassword({ studentUid, password });
                 input.value = '';
-                alert('Password updated. Share the temporary password securely.');
+                alert(result.notificationWarning || 'Password updated. Share the temporary password securely.');
             } catch (error) {
                 alert(`Unable to update the password: ${error.message}`);
             }
@@ -205,11 +225,15 @@
                 if (!feeHistory[feeIndex]) return;
                 feeHistory[feeIndex] = { ...feeHistory[feeIndex], status: "Paid", verifiedAt: new Date().toISOString() };
                 return db.collection("students").doc(docId).update({ feeHistory });
-            }).then(() => loadStudentsData());
+            }).then(result => {
+                if (result?.notificationWarning) alert(result.notificationWarning);
+                loadStudentsData();
+            }).catch(error => alert(`Unable to verify payment: ${error.message}`));
         }
         window.removeStudent = function(docId) {
             if(confirm("Delete this student permanently?")) {
-                db.collection("students").doc(docId).delete().then(() => loadStudentsData());
+                db.collection("students").doc(docId).delete().then(() => loadStudentsData())
+                    .catch(error => alert(`Unable to delete student record: ${error.message}`));
             }
         }
     </script>

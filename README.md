@@ -1,43 +1,53 @@
 # Spatial Vision Tech
 
-## PhonePe / UPI payment setup
+The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Cloudflare Email Service for transactional email. It no longer depends on Firebase.
 
-The site uses a PhonePe-compatible UPI QR for the ₹100 pre-registration fee, ₹4,900 final registration fee, and each course installment. Students submit the UPI transaction ID after payment, receive a downloadable receipt marked as pending verification, and admin verifies the transaction before approval.
+## Cloudflare setup
 
-Registration is staged: students first submit ₹100 for pre-registration. After admin approval, they can submit the remaining ₹4,900 final registration fee. Admin can set each student's finalized fee, verify submitted payments individually, and certificates unlock only when verified payments reach that finalized fee.
+1. Install the project dependencies with `npm install`.
+2. Create the D1 database and R2 bucket:
 
-Update the UPI ID and QR URLs in `register.html` and `student.html` if your payment account changes. Deploy the static site with:
+   ```bash
+   npx wrangler d1 create spatial-vision-tech
+   npx wrangler r2 bucket create spatial-vision-tech-files
+   ```
 
-```bash
-firebase deploy --only hosting
-```
+3. Copy the D1 database ID returned by Wrangler into `wrangler.jsonc`, replacing `REPLACE_WITH_D1_DATABASE_ID`.
+4. In the Cloudflare dashboard, onboard and verify `spatialvisiontech.in` with Email Service. The sender `admin@spatialvisiontech.in` must be allowed by the Worker binding. Configure the domain's required DNS records before expecting delivery.
+5. Set a random password pepper (at least 32 characters) and a separate one-time administrator setup token, then deploy the database schema and Worker:
 
-## Google Sheets data export
+   ```bash
+   npx wrangler secret put PASSWORD_PEPPER
+   npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN
+   npm run db:migrate:remote
+   npm run deploy
+   ```
 
-The Firebase backend exports registrations, verified payment submissions, performance results, and contact enquiries to separate tabs in one Google Sheet.
+6. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a new password of at least 16 characters. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret with `npx wrangler secret delete ADMIN_BOOTSTRAP_TOKEN`. Keep `PASSWORD_PEPPER` configured; losing it prevents password verification.
 
-1. Create a Google Sheet in the `spatialvisiontech` Google account and copy its ID from the URL.
-2. Enable the Google Sheets API in the Google Cloud project `spatial-vision-tech`.
-3. Create `functions/.env` from `functions/.env.example` and set `GOOGLE_SHEET_ID` to the copied Sheet ID.
-4. Share the Sheet with the Firebase App Engine service account, usually `spatial-vision-tech@appspot.gserviceaccount.com`, as Editor. The exact account is shown in Firebase Console under Project settings > Service accounts.
-5. Make sure the Firestore rules allow signed-in registration/student writes and public creation of valid `enquiries` records. The enquiry form now saves to Firestore before opening the visitor's email app.
-6. Install and deploy the backend and hosting:
+The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` and the Email Service sender allowlist together if the notification address changes.
 
-```bash
-cd functions
-npm install
-cd ..
-firebase deploy --only functions,hosting
-```
+## Application notifications
 
-The backend creates `Registrations`, `Payments`, `Performance`, and `Enquiries` tabs automatically the first time data is received. Google Sheets can download the workbook as `.xlsx` at any time.
+- A new registration sends a confirmation to the student and a review notice to `admin@spatialvisiontech.in`.
+- Submitted course payments notify both the student and admin; admin verification sends a separate confirmation to the student.
+- Uploading a PDF, image, or Word document from the student portal saves it to R2 and emails both the student and admin. Uploads are limited to 10 MB.
+- Password reset requests send a one-hour reset link. Successful resets also send a password-changed confirmation.
+- Contact form submissions and student approval-review requests notify the admin.
+- Registration approval and Student Portal access grants notify the student.
 
-## Student password resets
+Email is sent through the Cloudflare Email Service binding. Delivery requires an onboarded sender domain; configuring the binding alone is not sufficient.
 
-In Firebase Console for `spatial-vision-tech`, open Authentication > Sign-in method and enable Email/Password. Under Authentication > Settings > Authorized domains, allow the domains used to host the site (including `spatial-vision-tech.web.app` if using Firebase Hosting). Under Authentication > Templates, review the Password reset email sender and template. Students should check spam/junk if the reset request succeeds but the email is missing.
+Passwords are PBKDF2-derived in the browser before reaching the Worker so registration and sign-in can operate within Cloudflare Workers Free CPU limits. The Worker uses `PASSWORD_PEPPER` to protect stored verifiers.
 
-Admins can set a temporary password from the student row in `admin.html`. The signed-in account must be the verified `admin@spatialvisiontech.in` Firebase Auth user; confirm its email is marked verified in Firebase Console > Authentication > Users. Passwords must be 12-128 characters and should be shared with the student through a secure channel. Deploy the callable function and hosting update with:
+## Student registrations and payments
 
-```bash
-firebase deploy --only functions:setStudentPassword,hosting
-```
+The registration page records the ₹100 pre-registration payment for administrator review. After approval, students can submit course-fee installments from their portal. Admin verifies each transaction in the admin portal. Certificate eligibility continues to depend on verified payments reaching the finalized course fee.
+
+Update the UPI ID and QR URLs in `register.html` and `student.html` if your payment account changes.
+
+## Fresh backend
+
+This migration starts with an empty D1 database; existing Firebase accounts and records are not imported. Students must register again and choose a new password. The first administrator account must be created with the one-time setup procedure above.
+
+Run locally with `npm run db:migrate:local` followed by `npm run dev`. Local development does not deliver production notification emails.

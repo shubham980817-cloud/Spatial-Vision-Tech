@@ -6,9 +6,7 @@
     <title>Spatial Vision Tech | Student Performance</title>
     <link rel="stylesheet" href="bim-theme.css">
     <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png">
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="cloudflare-client.js"></script>
     <style>
         body { font-family: 'Aptos', Arial, sans-serif; margin: 0; background: #f4f8f6; color: #1f2d2d; line-height: 1.6; }
         .top-bar { background: #0b1f25; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -55,7 +53,19 @@
 </head>
 <body>
     <div class="top-bar">
-        <a href="index.html">&larr; Home</a>
+        <details class="page-menu">
+            <summary><span class="menu-icon" aria-hidden="true">☰</span> Pages</summary>
+            <nav class="page-menu-links" aria-label="All pages">
+                <a href="index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="certifications.html">Certifications</a>
+                <a href="register.html">Register &amp; Pay</a>
+                <a href="contact.html">Contact</a>
+                <a href="student.html">Student Portal</a>
+                <a href="performance.html">Performance &amp; Practice</a>
+                <a href="admin.html">Admin Portal</a>
+            </nav>
+        </details>
         <a href="index.html" title="Go to Homepage"><img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech Homepage" class="top-bar-logo"></a>
     </div>
 
@@ -132,17 +142,8 @@
     </main>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-            authDomain: "spatial-vision-tech.firebaseapp.com",
-            projectId: "spatial-vision-tech",
-            storageBucket: "spatial-vision-tech.firebasestorage.app",
-            messagingSenderId: "455311542009",
-            appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const auth = svt.auth();
+        const db = svt.store();
         const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
         const defaultQuestions = [
             { id: 'q1', text: 'What does BIM primarily manage?', options: { a: 'Only 2D drawings', b: 'Information connected to a digital building model', c: 'Site attendance only' }, correct: 'b' },
@@ -265,7 +266,7 @@
                 showMessage(document.getElementById('test-message'), 'Admin preview submitted. Student records were not changed.', '#2e7d32');
                 return;
             }
-            db.collection('students').doc(activeStudentId).update({ testAttempts: firebase.firestore.FieldValue.arrayUnion(attempt) })
+            db.collection('students').doc(activeStudentId).update({ testAttempts: svt.store.FieldValue.arrayUnion(attempt) })
                 .then(() => {
                     activeStudent.testAttempts = [...(activeStudent.testAttempts || []), attempt];
                     renderPerformance(activeStudent);
