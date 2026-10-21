@@ -169,6 +169,7 @@
 
   window.svtApi = { request };
   window.svt = {
+    request,
     auth,
     derivePassword,
     getPasswordSalt,
