@@ -884,3 +884,324 @@ h2 {
     align-items: flex-start;
   }
 }
+
+html body {
+  background-color: #eef3f5;
+  background-image:
+    linear-gradient(rgba(13, 74, 93, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 74, 93, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+html body .site-header {
+  background: rgba(8, 29, 42, 0.97);
+  border-bottom: 1px solid rgba(98, 208, 218, 0.3);
+  box-shadow: 0 8px 28px rgba(5, 24, 35, 0.14);
+}
+
+html body .brand,
+html body .site-header .page-menu > summary {
+  color: #f4fbfc;
+}
+
+html body .site-header .page-menu > summary {
+  border-color: rgba(207, 236, 241, 0.28);
+  border-radius: 3px;
+}
+
+html body .site-header .page-menu > summary:hover,
+html body .site-header .page-menu > summary:focus-visible {
+  border-color: #63d2d9;
+  background: rgba(99, 210, 217, 0.1);
+}
+
+html body .site-header .brand-mark {
+  border-radius: 2px;
+  background: linear-gradient(135deg, #75e0e1 0 48%, #1592a4 48% 100%);
+  box-shadow: 0 0 0 4px rgba(99, 210, 217, 0.14);
+}
+
+html body .page-menu-links {
+  background: #102d3c;
+  border-color: rgba(207, 236, 241, 0.2);
+}
+
+html body .page-menu-links a {
+  color: #ecf7f8;
+}
+
+html body .page-menu-links a:hover,
+html body .page-menu-links a:focus-visible {
+  background: rgba(99, 210, 217, 0.12);
+  color: #8ce8eb;
+}
+
+html body .hero-brand {
+  min-height: 600px;
+  overflow: hidden;
+  background-color: #e8f0f2;
+  background-image:
+    linear-gradient(rgba(13, 74, 93, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 74, 93, 0.055) 1px, transparent 1px),
+    linear-gradient(120deg, #edf4f5, #e3edef 72%, #dce9ec);
+  background-size: 32px 32px, 32px 32px, auto;
+  border-top: 0;
+}
+
+html body .hero-brand::before {
+  background-image:
+    linear-gradient(rgba(13, 74, 93, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 74, 93, 0.09) 1px, transparent 1px);
+  background-size: 128px 128px;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 82%, transparent);
+}
+
+html body .hero-brand::after {
+  content: "";
+  position: absolute;
+  width: min(42vw, 560px);
+  aspect-ratio: 1;
+  right: -10%;
+  bottom: -42%;
+  border: 1px solid rgba(13, 112, 132, 0.2);
+  border-radius: 50%;
+  box-shadow: 0 0 0 42px rgba(13, 112, 132, 0.035), 0 0 0 84px rgba(13, 112, 132, 0.025);
+}
+
+html body .hero-brand-text,
+html body .hero-brand-text h1 {
+  color: #102f3d;
+}
+
+html body .hero-brand-text .kicker,
+html body .kicker {
+  color: #087f91;
+}
+
+html body .hero-brand-text p {
+  color: #536976;
+}
+
+html body .hero-brand-logo {
+  filter: drop-shadow(0 20px 28px rgba(13, 74, 93, 0.12));
+}
+
+html body .site-header .brand-logo {
+  padding: 3px;
+  background: #f3fbfc;
+  border-radius: 3px;
+}
+
+html body .page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(97, 202, 214, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(97, 202, 214, 0.08) 1px, transparent 1px),
+    linear-gradient(112deg, #0b2534, #125165 72%, #0c3547);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+html body .page-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(40vw, 520px);
+  aspect-ratio: 1;
+  right: -8%;
+  bottom: -65%;
+  border: 1px solid rgba(113, 225, 230, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 0 38px rgba(113, 225, 230, 0.04), 0 0 0 76px rgba(113, 225, 230, 0.025);
+}
+
+html body .page-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+html body .page-hero .eyebrow,
+html body .hero-brand .kicker {
+  color: #8ce8eb;
+}
+
+html body .services,
+html body .software-section,
+html body .project-showcase,
+html body .news {
+  background-color: #f2f6f7;
+  background-image:
+    linear-gradient(rgba(13, 74, 93, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 74, 93, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+html body .service-card,
+html body .software-card,
+html body .news-card,
+html body .cert-card,
+html body .register-wrap,
+html body .portal-card,
+html body .panel,
+html body .content-wrapper,
+html body #login-screen {
+  border: 1px solid rgba(13, 74, 93, 0.16);
+  border-radius: 3px;
+  box-shadow: 0 12px 30px rgba(8, 42, 58, 0.08);
+}
+
+html body .service-card,
+html body .cert-card,
+html body .register-wrap,
+html body .portal-card,
+html body .panel,
+html body .content-wrapper {
+  position: relative;
+}
+
+html body .service-card::before,
+html body .cert-card::before,
+html body .register-wrap::before,
+html body .portal-card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 24px;
+  width: 48px;
+  height: 3px;
+  background: #24b6c0;
+}
+
+html body .service-card:hover {
+  border-color: rgba(24, 157, 171, 0.48);
+  box-shadow: 0 18px 36px rgba(8, 42, 58, 0.13);
+}
+
+html body .service-icon,
+html body .service-card .num {
+  border-radius: 3px;
+  background: #0d4a5d;
+  color: #a1f1ed;
+  font-family: "Manrope", "Inter", sans-serif;
+}
+
+html body .btn,
+html body button {
+  border-radius: 3px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+html body .btn-primary,
+html body .btn:not(.btn-secondary) {
+  background: linear-gradient(115deg, #0d4a5d, #11788a);
+  color: #f3fbfc;
+  box-shadow: 0 8px 20px rgba(13, 74, 93, 0.18);
+}
+
+html body .btn-primary:hover,
+html body .btn:not(.btn-secondary):hover {
+  background: linear-gradient(115deg, #0a3d50, #0e697a);
+  box-shadow: 0 12px 24px rgba(13, 74, 93, 0.24);
+}
+
+html body .field input,
+html body .field textarea,
+html body .field select,
+html body .field-group input,
+html body .field-group select,
+html body .form-group input,
+html body .form-group select,
+html body .form-group textarea,
+html body input,
+html body select,
+html body textarea {
+  border-radius: 3px;
+  border-color: rgba(13, 74, 93, 0.22);
+}
+
+html body input:focus,
+html body select:focus,
+html body textarea:focus {
+  outline: 3px solid rgba(36, 182, 192, 0.2);
+  border-color: #168d9b;
+}
+
+html body .payment-box,
+html body .payment-section,
+html body .metric,
+html body .resource {
+  border-color: rgba(13, 74, 93, 0.15);
+  border-radius: 3px;
+  background-color: #f3f8f9;
+}
+
+html body table {
+  border: 1px solid rgba(13, 74, 93, 0.2);
+}
+
+html body table th {
+  background: #103847;
+  color: #eaf8f9;
+  letter-spacing: 0.035em;
+}
+
+html body table td {
+  border-bottom-color: rgba(13, 74, 93, 0.12);
+}
+
+html body .top-bar {
+  background-color: #0b2534;
+  background-image:
+    linear-gradient(rgba(97, 202, 214, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(97, 202, 214, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border-bottom: 1px solid rgba(99, 210, 217, 0.3);
+}
+
+html body .top-bar .page-menu > summary {
+  color: #f4fbfc;
+}
+
+html body .site-footer {
+  background-color: #081d2a;
+  background-image:
+    linear-gradient(rgba(97, 202, 214, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(97, 202, 214, 0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+  border-top: 3px solid #168d9b;
+}
+
+@media (max-width: 640px) {
+  html body .hero-brand {
+    min-height: 0;
+  }
+
+  html body .hero-brand::after,
+  html body .page-hero::after {
+    width: 72vw;
+    right: -28%;
+    bottom: -42%;
+  }
+
+  html body .service-card::before,
+  html body .cert-card::before,
+  html body .register-wrap::before,
+  html body .portal-card::before {
+    left: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html body *,
+  html body *::before,
+  html body *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
