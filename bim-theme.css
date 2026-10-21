@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
-
 :root {
   --svt-navy: #0f172a;
   --svt-deep: #0d4a5d;
@@ -35,7 +33,7 @@ body {
   margin: 0;
   background: var(--svt-white);
   color: var(--svt-text);
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
   line-height: 1.6;
 }
 img { max-width: 100%; display: block; }
@@ -102,8 +100,21 @@ button, input, textarea, select { font: inherit; }
 .page-menu > summary:focus-visible { border-color: var(--svt-teal); }
 
 .menu-icon {
-  font-size: 1.15rem;
-  line-height: 1;
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 14px;
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  background: linear-gradient(currentColor, currentColor) 0 0 / 18px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 6px / 18px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 12px / 18px 2px no-repeat;
+}
+
+.page-menu > summary .menu-icon {
+  color: var(--svt-text);
 }
 
 .page-menu-links {
@@ -134,6 +145,10 @@ button, input, textarea, select { font: inherit; }
 
 .top-bar .page-menu > summary {
   border-color: rgba(255,255,255,0.32);
+  color: #fff;
+}
+
+.top-bar .page-menu > summary .menu-icon {
   color: #fff;
 }
 
@@ -307,7 +322,7 @@ button, input, textarea, select { font: inherit; }
   line-height: 0.94;
   letter-spacing: -0.06em;
   font-weight: 800;
-  font-family: 'Manrope', 'Inter', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .hero h1 .accent {
@@ -380,7 +395,7 @@ button, input, textarea, select { font: inherit; }
   font-size: 1.8rem;
   line-height: 1;
   margin-bottom: 4px;
-  font-family: 'Manrope', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .hero-stats span {
@@ -418,7 +433,7 @@ section {
 
 h2 {
   margin: 0;
-  font-family: 'Manrope', 'Inter', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
   font-size: clamp(2.1rem, 4vw, 4rem);
   line-height: 1.02;
   letter-spacing: -0.05em;
@@ -470,7 +485,7 @@ h2 {
   margin: 0 0 10px;
   font-size: 1.42rem;
   line-height: 1.2;
-  font-family: 'Manrope', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .service-card p {
@@ -615,7 +630,7 @@ h2 {
   font-size: clamp(1.8rem, 2vw, 2.4rem);
   line-height: 1.05;
   letter-spacing: -0.05em;
-  font-family: 'Manrope', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .project-content p {
@@ -672,7 +687,7 @@ h2 {
   margin: 0 0 12px;
   font-size: 1.5rem;
   line-height: 1.2;
-  font-family: 'Manrope', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .news-body p {
@@ -721,7 +736,7 @@ h2 {
   display: block;
   margin-bottom: 20px;
   color: var(--gp-white);
-  font-family: 'Manrope', sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -909,6 +924,10 @@ html body .site-header .page-menu > summary {
   border-radius: 3px;
 }
 
+html body .site-header .page-menu > summary .menu-icon {
+  color: #f4fbfc;
+}
+
 html body .site-header .page-menu > summary:hover,
 html body .site-header .page-menu > summary:focus-visible {
   border-color: #63d2d9;
@@ -1083,7 +1102,7 @@ html body .service-card .num {
   border-radius: 3px;
   background: #0d4a5d;
   color: #a1f1ed;
-  font-family: "Manrope", "Inter", sans-serif;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 html body .btn,
