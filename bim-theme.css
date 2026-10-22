@@ -1320,8 +1320,21 @@ html body .site-footer {
 html body {
   background: #fff;
   color: #202725;
-  font-family: Aptos, "Segoe UI", Arial, sans-serif;
+  font-family: "Aptos", "Aptos Display", "Segoe UI", Arial, sans-serif;
   background-image: none;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6,
+html body button,
+html body input,
+html body select,
+html body textarea {
+  font-family: "Aptos", "Aptos Display", "Segoe UI", Arial, sans-serif;
 }
 
 html body .site-header {
@@ -1363,6 +1376,7 @@ html body .site-header .page-menu > summary {
   padding: 0;
   border: 1px solid rgba(32, 39, 37, 0.24);
   border-radius: 50%;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
 html body .site-header .page-menu > summary .menu-icon {
@@ -1373,16 +1387,48 @@ html body .site-header .page-menu > summary:hover,
 html body .site-header .page-menu > summary:focus-visible {
   border-color: #d65b43;
   background: #f8efec;
+  transform: rotate(-4deg);
+}
+
+html body .page-menu[open] > summary {
+  border-color: #d65b43;
+  background: #f8efec;
+}
+
+html body .page-menu[open] > summary .menu-icon {
+  background: linear-gradient(#bd4934, #bd4934) 0 0 / 18px 2px no-repeat,
+    linear-gradient(#bd4934, #bd4934) 0 6px / 18px 2px no-repeat,
+    linear-gradient(#bd4934, #bd4934) 0 12px / 18px 2px no-repeat;
 }
 
 html body .site-header .primary-nav a {
+  position: relative;
   font-size: 0.82rem;
   font-weight: 600;
+  transition: color 180ms ease;
+}
+
+html body .site-header .primary-nav a::after {
+  position: absolute;
+  right: 0;
+  bottom: -7px;
+  left: 0;
+  height: 2px;
+  background: #d65b43;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
 }
 
 html body .site-header .primary-nav a:hover,
 html body .site-header .primary-nav a:focus-visible {
   color: #bd4934;
+}
+
+html body .site-header .primary-nav a:hover::after,
+html body .site-header .primary-nav a:focus-visible::after {
+  transform: scaleX(1);
 }
 
 html body .page-menu-links {
@@ -1393,12 +1439,14 @@ html body .page-menu-links {
 
 html body .page-menu-links a {
   color: #202725;
+  transition: color 160ms ease, background-color 160ms ease, padding-left 160ms ease;
 }
 
 html body .page-menu-links a:hover,
 html body .page-menu-links a:focus-visible {
   color: #bd4934;
   background: #f7f3f0;
+  padding-left: 18px;
 }
 
 html body .hero-brand {
@@ -1538,6 +1586,7 @@ html body .value-grid article {
 html body .service-card {
   min-height: 245px;
   padding: 34px 30px;
+  transition: background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
 html body .service-card::before,
@@ -1569,9 +1618,14 @@ html body .cert-card p {
 }
 
 html body .service-card:hover {
-  transform: none;
+  transform: translateY(-5px);
   background: #faf9f6;
-  box-shadow: inset 0 3px #d65b43;
+  box-shadow: inset 0 3px #d65b43, 0 16px 30px rgba(32, 39, 37, 0.1);
+}
+
+html body .service-card:focus-within {
+  outline: 2px solid #d65b43;
+  outline-offset: -2px;
 }
 
 html body .btn,
@@ -1592,6 +1646,27 @@ html body .btn-primary:hover,
 html body .btn:not(.btn-secondary):hover {
   background: #bd4934;
   box-shadow: none;
+}
+
+html body .btn,
+html body button {
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+html body .btn:hover,
+html body button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(32, 39, 37, 0.16);
+}
+
+html body .btn:active,
+html body button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+html body :focus-visible {
+  outline: 3px solid rgba(214, 91, 67, 0.68);
+  outline-offset: 3px;
 }
 
 html body .page-hero {
@@ -1806,5 +1881,41 @@ html body textarea {
 
   html body .site-header .primary-nav a {
     font-size: 0.68rem;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  html body .section-heading,
+  html body .service-card,
+  html body .software-card,
+  html body .cert-card,
+  html body .value-grid article,
+  html body .contact-grid > *,
+  html body .register-wrap {
+    animation: svt-enter linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 24%;
+  }
+
+  @keyframes svt-enter {
+    from {
+      opacity: 0.45;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body *,
+  html body *::before,
+  html body *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
