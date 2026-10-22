@@ -59,8 +59,21 @@
             <form id="loginForm">
                 <div class="form-group"><input type="email" id="admin-email" required placeholder="admin@spatialvisiontech.in"></div>
                 <div class="form-group"><input type="password" id="admin-password" required placeholder="Password"></div>
+                <p style="text-align:right; margin: -8px 0 16px;"><a href="#" id="forgot-password-link">Forgot password?</a></p>
                 <button type="submit" class="btn">Login</button>
+                <div id="login-message" role="status" aria-live="polite" style="margin-top:15px;"></div>
             </form>
+        </div>
+
+        <div id="forgot-password-screen" style="display:none; max-width:420px; margin:100px auto; background:white; padding:40px; border:1px solid rgba(0,0,0,0.08); box-shadow:0 14px 30px rgba(0,0,0,0.08);">
+            <h2 style="margin-top:0; color:#0d4a5d;">Reset Admin Password</h2>
+            <p>Enter your administrator email address. If it belongs to an account, we’ll send a secure reset link.</p>
+            <form id="resetForm">
+                <div class="form-group"><label for="reset-email">Email Address</label><input type="email" id="reset-email" autocomplete="email" required placeholder="admin@spatialvisiontech.in"></div>
+                <button type="submit" id="resetBtn" class="btn">Send Secure Reset Link</button>
+                <div id="reset-message" role="status" aria-live="polite" style="margin-top:15px;"></div>
+            </form>
+            <p style="text-align:center; margin-bottom:0;"><a href="#" id="back-to-login">Back to Admin Sign In</a></p>
         </div>
 
         <div id="dashboard-screen" class="content-wrapper">
@@ -97,6 +110,46 @@
         const auth = svt.auth();
         const db = svt.store();
 
+        const loginScreen = document.getElementById('login-screen');
+        const forgotPasswordScreen = document.getElementById('forgot-password-screen');
+        const resetEmailInput = document.getElementById('reset-email');
+
+        document.getElementById('forgot-password-link').addEventListener('click', event => {
+            event.preventDefault();
+            resetEmailInput.value = document.getElementById('admin-email').value.trim();
+            document.getElementById('reset-message').textContent = '';
+            loginScreen.style.display = 'none';
+            forgotPasswordScreen.style.display = 'block';
+            resetEmailInput.focus();
+        });
+
+        document.getElementById('back-to-login').addEventListener('click', event => {
+            event.preventDefault();
+            document.getElementById('admin-email').value = resetEmailInput.value.trim();
+            forgotPasswordScreen.style.display = 'none';
+            loginScreen.style.display = 'block';
+            document.getElementById('admin-password').focus();
+        });
+
+        document.getElementById('resetForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = document.getElementById('resetBtn');
+            const message = document.getElementById('reset-message');
+            button.disabled = true;
+            message.style.color = '';
+            message.textContent = '';
+            try {
+                const result = await auth.sendPasswordResetEmail(resetEmailInput.value.trim());
+                message.style.color = '#2e7d32';
+                message.textContent = result.message || 'If an account exists for this email, a reset link will arrive shortly. Check your inbox and spam folder.';
+            } catch (error) {
+                message.style.color = '#c62828';
+                message.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, character => ({
                 '&': '&amp;',
@@ -115,7 +168,11 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
                 loadStudentsData();
-            }).catch(error => alert(`Unable to sign in: ${error.message}`));
+            }).catch(error => {
+                const message = document.getElementById('login-message');
+                message.style.color = '#c62828';
+                message.textContent = `Unable to sign in: ${error.message}`;
+            });
         });
 
         function loadStudentsData() {

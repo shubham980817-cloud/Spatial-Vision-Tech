@@ -332,23 +332,13 @@
             message.innerText = '';
 
             auth.sendPasswordResetEmail(email)
-                .then(() => {
+                .then(result => {
                     message.style.color = 'green';
-                    message.innerText = 'If an account exists for this email, a reset link will arrive shortly. Check your inbox and spam folder.';
+                    message.innerText = `${result.message || 'If an account exists for this email, a reset link will arrive shortly.'} Check your inbox and spam folder.`;
                 })
                 .catch(error => {
                     message.style.color = 'red';
-                    if (error.code === 'auth/invalid-email') {
-                        message.innerText = 'Enter a valid email address.';
-                    } else if (error.code === 'auth/too-many-requests') {
-                        message.innerText = 'Too many reset attempts. Please wait a while and try again.';
-                    } else if (error.code === 'auth/operation-not-allowed') {
-                        message.innerText = 'Password reset is currently unavailable. Please contact support.';
-                    } else if (error.code === 'auth/network-request-failed') {
-                        message.innerText = 'Network error. Check your connection and try again.';
-                    } else {
-                        message.innerText = 'Unable to send the reset link. Check the email address and try again, or contact support.';
-                    }
+                    message.innerText = error.message || 'Unable to send the reset link. Please try again or contact support.';
                 })
                 .finally(() => {
                     button.disabled = false;
