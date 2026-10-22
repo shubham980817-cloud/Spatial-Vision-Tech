@@ -3,6 +3,12 @@
   "name": "admin",
   "main": "worker.js",
   "compatibility_date": "2026-10-21",
+  "routes": [
+    {
+      "pattern": "spatialvisiontech.in/*",
+      "zone_name": "spatialvisiontech.in"
+    }
+  ],
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
