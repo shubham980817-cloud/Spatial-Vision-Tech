@@ -7,8 +7,7 @@
   <link rel="stylesheet" href="bim-theme.css" />
   <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="cloudflare-client.js"></script>
   <style>
     body { background: #f5faf8; }
     .page-hero { background: linear-gradient(90deg, rgba(0,0,0,0.72), rgba(0,0,0,0.42)), url('https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat; color: #fff; padding: 110px 0 84px; }
@@ -37,7 +36,7 @@
           <a href="admin.html">Admin Portal</a>
         </nav>
       </details>
-      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></div>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></a>
       <nav class="primary-nav" aria-label="Main navigation">
         <a href="index.html#about">Overview</a>
         <a href="services.html">Services</a>
@@ -74,6 +73,19 @@
       </div>
     </section>
 
+    <section class="value-section">
+      <div class="section-heading">
+        <span class="kicker">Career outcomes</span>
+        <h2>What you get out of this program.</h2>
+        <p class="section-intro">A complete, hiring-ready BIM career path built to meet real industry standards.</p>
+      </div>
+      <div class="value-grid">
+        <article><h3>Earn up to 40% higher salary.</h3><p>Full-stack BIM professionals earn significantly higher packages.</p></article>
+        <article><h3>Global standards</h3><p>Portfolio project built to ISO 19650 and RIBA standards.</p></article>
+        <article><h3>Career growth</h3><p>Move from where you are to where top AEC firms hire from.</p></article>
+      </div>
+    </section>
+
     <section class="page-shell">
       <div class="portal-card">
         <div class="section-heading" style="margin-top:0; margin-bottom:18px;">
@@ -86,6 +98,10 @@
             <label for="c-email">Registered email</label>
             <input id="c-email" type="email" required />
           </div>
+          <div class="field">
+            <label for="c-password">Student Portal password</label>
+            <input id="c-password" type="password" required autocomplete="current-password" />
+          </div>
           <button class="btn btn-primary" type="submit">Check eligibility & download</button>
           <div id="cert-msg" class="msg-box"></div>
         </form>
@@ -94,7 +110,7 @@
   </main>
 
   <div id="certificate-preview" class="certificate-preview">
-    <div style="padding: 20px; background: #fff; width: 900px; margin: 0 auto; border: 10px solid #0b1f25; font-family: Arial, sans-serif; color: #0b1f25;">
+    <div style="padding: 20px; background: #fff; width: 900px; margin: 0 auto; border: 10px solid #0b1f25; font-family: Aptos, 'Segoe UI', Arial, sans-serif; color: #0b1f25;">
       <div style="border: 2px solid #64cdcd; padding: 30px; text-align: center;">
         <img src="Gemini_Generated_Image_.png" alt="SVT Logo" style="width:90px; margin:0 auto 20px; display:block;" />
         <h2 style="letter-spacing:4px; margin:0; text-transform:uppercase;">Certificate of Completion</h2>
@@ -138,16 +154,8 @@
   </footer>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC30M1I7z4XQjtdVrz5P8nLV1Hig3E0yDg",
-      authDomain: "spatial-vision-tech.firebaseapp.com",
-      projectId: "spatial-vision-tech",
-      storageBucket: "spatial-vision-tech.firebasestorage.app",
-      messagingSenderId: "455311542009",
-      appId: "1:455311542009:web:7cf754a4c2ebd93cdac428"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = svt.store();
+    const auth = svt.auth();
 
     document.getElementById('certForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -161,7 +169,8 @@
       msg.style.color = '#0b1f25';
       msg.textContent = 'Checking records...';
 
-      db.collection('students').where('email', '==', email).get().then((snapshot) => {
+      auth.signInWithEmailAndPassword(email, document.getElementById('c-password').value)
+        .then(() => db.collection('students').where('email', '==', email).get()).then((snapshot) => {
         if (snapshot.empty) {
           msg.style.background = '#ffebee';
           msg.style.color = '#c62828';

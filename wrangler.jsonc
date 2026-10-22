@@ -1,9 +1,42 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "admin",
-  "compatibility_date": "2026-09-13",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-21",
+  "routes": [
+    {
+      "pattern": "spatialvisiontech.in/*",
+      "zone_name": "spatialvisiontech.in"
+    }
+  ],
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "spatial-vision-tech",
+      "database_id": "2da4a2a1-4d56-49f0-a6ea-275cc16b5aa1",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "spatial-vision-tech-files"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": ["admin@spatialvisiontech.in"]
+    }
+  ],
+  "vars": {
+    "MAIL_FROM": "admin@spatialvisiontech.in",
+    "SITE_URL": "https://spatialvisiontech.in"
   },
   "observability": {
     "enabled": true

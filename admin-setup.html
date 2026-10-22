@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Initial Administrator Setup | Spatial Vision Tech</title>
+  <link rel="stylesheet" href="bim-theme.css">
+  <script src="cloudflare-client.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="topbar">
+      <details class="page-menu">
+        <summary aria-label="Open page navigation"><span class="menu-icon" aria-hidden="true">☰</span></summary>
+        <nav class="page-menu-links" aria-label="More pages">
+          <a href="certifications.html">Certifications</a>
+          <a href="register.html">Register &amp; Pay</a>
+          <a href="student.html">Student Portal</a>
+          <a href="performance.html">Performance &amp; Practice</a>
+          <a href="admin.html">Admin Portal</a>
+        </nav>
+      </details>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span>Spatial Vision Tech</span></a>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a href="index.html#about">Overview</a>
+        <a href="services.html">Services</a>
+        <a href="index.html#course">Courses</a>
+        <a href="contact.html">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+  <main class="page-shell" style="max-width:560px; padding-top:80px;">
+    <section class="portal-card">
+      <h1>Initial administrator setup</h1>
+      <p>Use this page once after deploying the Worker and setting the bootstrap token. It can create only the first administrator account.</p>
+      <form id="admin-setup-form">
+        <div class="field">
+          <label for="setup-token">One-time setup token</label>
+          <input id="setup-token" type="password" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="admin-password">New administrator password</label>
+          <input id="admin-password" type="password" minlength="16" maxlength="128" autocomplete="new-password" required>
+        </div>
+        <button class="btn btn-primary" id="setup-submit" type="submit">Create administrator account</button>
+        <p id="setup-result" role="status" aria-live="polite"></p>
+      </form>
+      <a href="admin.html">Go to Admin Portal</a>
+    </section>
+  </main>
+  <script>
+    document.getElementById('admin-setup-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const password = document.getElementById('admin-password').value;
+      const button = document.getElementById('setup-submit');
+      const result = document.getElementById('setup-result');
+      button.disabled = true;
+      try {
+        const saltInfo = await svt.getPasswordSalt('admin@spatialvisiontech.in');
+        const passwordVerifier = await svt.derivePassword(password, saltInfo);
+        await svt.request('/api/setup/admin', {
+          method: 'POST',
+          body: JSON.stringify({
+            setupToken: document.getElementById('setup-token').value,
+            passwordVerifier
+          })
+        });
+        result.style.color = '#2e7d32';
+        result.textContent = 'Administrator account created. Remove the bootstrap token and sign in to the Admin Portal.';
+        event.currentTarget.reset();
+      } catch (error) {
+        result.style.color = '#c62828';
+        result.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

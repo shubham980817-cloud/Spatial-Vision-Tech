@@ -1,0 +1,14 @@
+{
+  "name": "spatial-vision-tech",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "db:migrate:local": "wrangler d1 migrations apply spatial-vision-tech --local",
+    "db:migrate:remote": "wrangler d1 migrations apply spatial-vision-tech --remote",
+    "lint": "node --check worker.js && node --check cloudflare-client.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.45.0"
+  }
+}
