@@ -380,10 +380,15 @@ async function handleAuth(request, env, pathname, url) {
       return fail('Too many reset attempts. Please wait and try again.', 429);
     }
     const user = await env.DB.prepare('SELECT id, email FROM users WHERE email = ?').bind(email).first();
+    const isAdminAccount = email === ADMIN_EMAIL;
+    if (!user && isAdminAccount) {
+      return fail('The Cloudflare administrator account has not been initialized. Complete setup at admin-setup.html before requesting a reset.', 404);
+    }
     if (user) {
       const token = randomToken();
+      const tokenHash = await digest(token);
       await env.DB.prepare('INSERT INTO password_resets (token_hash, user_id, expires_at) VALUES (?, ?, ?)')
-        .bind(await digest(token), user.id, new Date(Date.now() + 3600000).toISOString()).run();
+        .bind(tokenHash, user.id, new Date(Date.now() + 3600000).toISOString()).run();
       const resetUrl = new URL('/reset-password.html', env.SITE_URL || new URL(request.url).origin);
       resetUrl.searchParams.set('token', token);
       const failures = await attemptEmails(env, [{
@@ -391,7 +396,12 @@ async function handleAuth(request, env, pathname, url) {
         subject: 'Reset your Spatial Vision Tech password',
         text: `Hello,\n\nUse the following one-time link to reset your password within one hour:\n${resetUrl.href}\n\nIf you did not request this, you can ignore this email.`
       }]);
-      if (failures.length) console.error('Password reset email could not be delivered.');
+      if (failures.length) {
+        await env.DB.prepare('DELETE FROM password_resets WHERE token_hash = ?').bind(tokenHash).run();
+        if (isAdminAccount) {
+          return fail('Cloudflare could not deliver the administrator reset email. Check Email Service onboarding, the allowed sender address, MAIL_FROM, and the Worker logs.', 503);
+        }
+      }
     }
     return response({ success: true, message: 'If an account exists for this email, a reset link will arrive shortly.' });
   }
