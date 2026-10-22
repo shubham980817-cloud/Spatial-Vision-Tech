@@ -384,6 +384,12 @@ async function handleAuth(request, env, pathname, url) {
     if (!user && isAdminAccount) {
       return fail('The Cloudflare administrator account has not been initialized. Complete setup at admin-setup.html before requesting a reset.', 404);
     }
+    const resetRecipient = isAdminAccount
+      ? typeof env.ADMIN_RESET_RECIPIENT === 'string' ? env.ADMIN_RESET_RECIPIENT.trim() : ''
+      : email;
+    if (isAdminAccount && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetRecipient)) {
+      return fail('Admin password reset is not configured. Set ADMIN_RESET_RECIPIENT to a verified Cloudflare Email Routing destination address.', 503);
+    }
     if (user) {
       const token = randomToken();
       const tokenHash = await digest(token);
@@ -392,14 +398,14 @@ async function handleAuth(request, env, pathname, url) {
       const resetUrl = new URL('/reset-password.html', env.SITE_URL || new URL(request.url).origin);
       resetUrl.searchParams.set('token', token);
       const failures = await attemptEmails(env, [{
-        to: email,
+        to: resetRecipient,
         subject: 'Reset your Spatial Vision Tech password',
         text: `Hello,\n\nUse the following one-time link to reset your password within one hour:\n${resetUrl.href}\n\nIf you did not request this, you can ignore this email.`
       }]);
       if (failures.length) {
         await env.DB.prepare('DELETE FROM password_resets WHERE token_hash = ?').bind(tokenHash).run();
         if (isAdminAccount) {
-          return fail('Cloudflare could not deliver the administrator reset email. Check Email Service onboarding, the allowed sender address, MAIL_FROM, and the Worker logs.', 503);
+          return fail('Cloudflare could not deliver the administrator reset email. Verify ADMIN_RESET_RECIPIENT is a verified Email Routing destination and check Email Service onboarding, the allowed sender, MAIL_FROM, and Worker logs.', 503);
         }
       }
     }

@@ -27,6 +27,16 @@ The site uses Cloudflare Workers for its API, D1 for accounts and application da
 
 The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` and the Email Service sender allowlist together if the notification address changes.
 
+### Email sending on Workers Free
+
+Cloudflare Workers Free can send Email Service messages only to verified Email Routing destination addresses; arbitrary student email addresses require Workers Paid. To receive admin password-reset emails on the Free plan:
+
+1. In Cloudflare, open **Compute > Email Service > Email Routing > Destination Addresses**, add the inbox you want to receive admin resets at, and complete its email verification.
+2. In **Workers & Pages > admin > Settings > Variables and Secrets**, add an `ADMIN_RESET_RECIPIENT` secret with that exact verified destination address. Storing it as a secret keeps the setting intact when Git deployments update the Worker.
+3. Keep the admin login email as `admin@spatialvisiontech.in`. The reset token is still issued for the admin account; only its delivery address changes.
+
+Student reset emails on the Free plan also require each student's email to be a verified destination address. Use Workers Paid for arbitrary student recipients.
+
 ## Application notifications
 
 - A new registration sends a confirmation to the student and a review notice to `admin@spatialvisiontech.in`.
