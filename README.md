@@ -2,10 +2,10 @@
 
 The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Cloudflare Email Service for transactional email. It no longer depends on Firebase.
 
-## Cloudflare setup
+## Cloudflare setup and Git deployment
 
 1. Install the project dependencies with `npm install`.
-2. Create the D1 database and R2 bucket:
+2. If they do not already exist, create the D1 database and R2 bucket:
 
    ```bash
    npx wrangler d1 create spatial-vision-tech
@@ -14,16 +14,16 @@ The site uses Cloudflare Workers for its API, D1 for accounts and application da
 
 3. Copy the D1 database ID returned by Wrangler into `wrangler.jsonc`, replacing `REPLACE_WITH_D1_DATABASE_ID`.
 4. In the Cloudflare dashboard, onboard and verify `spatialvisiontech.in` with Email Service. The sender `admin@spatialvisiontech.in` must be allowed by the Worker binding. Configure the domain's required DNS records before expecting delivery.
-5. Set a random password pepper (at least 32 characters) and a separate one-time administrator setup token, then deploy the database schema and Worker:
+5. In the Cloudflare dashboard, open the Worker named `admin` and set the `PASSWORD_PEPPER` secret (at least 32 random characters) and the one-time `ADMIN_BOOTSTRAP_TOKEN` secret under **Settings > Variables and Secrets**. Keep `PASSWORD_PEPPER` configured; losing it prevents password verification.
+6. Apply the database schema when setting up a new database or when deploying new migrations:
 
    ```bash
-   npx wrangler secret put PASSWORD_PEPPER
-   npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN
    npm run db:migrate:remote
-   npm run deploy
    ```
 
-6. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a new password of at least 16 characters. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret with `npx wrangler secret delete ADMIN_BOOTSTRAP_TOKEN`. Keep `PASSWORD_PEPPER` configured; losing it prevents password verification.
+7. Connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. Choose the production branch you want Cloudflare to watch, set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`. Cloudflare Workers Builds then deploys commits from that branch; do not run a local deploy command.
+8. Add the `spatialvisiontech.in` custom domain to the Worker if it is not already configured. Before enabling preview deployments, configure separate preview bindings and data so previews do not use production resources.
+9. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a new password of at least 16 characters. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret in **Settings > Variables and Secrets**.
 
 The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` and the Email Service sender allowlist together if the notification address changes.
 
