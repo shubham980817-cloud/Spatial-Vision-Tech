@@ -1290,3 +1290,521 @@ html body .site-footer {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Editorial, image-led visual refresh. */
+:root {
+  --svt-navy: #17211f;
+  --svt-deep: #253b34;
+  --svt-teal: #d65b43;
+  --svt-soft: #f3f2ee;
+  --svt-white: #fff;
+  --svt-text: #202725;
+  --svt-muted: #636c67;
+  --svt-border: rgba(32, 39, 37, 0.14);
+  --svt-shadow: 0 18px 42px rgba(32, 39, 37, 0.08);
+  --svt-gradient: linear-gradient(135deg, #d65b43, #e47d57);
+  --gp-black: #17211f;
+  --gp-grey-1: #f3f2ee;
+  --gp-grey-2: #c8cbc6;
+  --gp-grey-3: #929a94;
+  --gp-grey-4: #636c67;
+  --gp-grey-5: #303a35;
+  --gp-turquoise: #e47d57;
+  --gp-green: #253b34;
+  --gp-gradient: linear-gradient(135deg, #d65b43, #e47d57);
+  --gp-soft: #f3f2ee;
+  --gp-shadow: 0 18px 42px rgba(32, 39, 37, 0.08);
+  --gp-border: rgba(32, 39, 37, 0.14);
+}
+
+html body {
+  background: #fff;
+  color: #202725;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
+  background-image: none;
+}
+
+html body .site-header {
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid rgba(32, 39, 37, 0.12);
+  box-shadow: none;
+  backdrop-filter: blur(14px);
+}
+
+html body .topbar {
+  min-height: 82px;
+}
+
+html body .brand,
+html body .site-header .page-menu > summary,
+html body .site-header .primary-nav a {
+  color: #202725;
+}
+
+html body .brand {
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+}
+
+html body .site-header .brand-logo {
+  background: transparent;
+}
+
+html body .site-header .brand-mark {
+  background: #d65b43;
+  box-shadow: none;
+}
+
+html body .site-header .page-menu > summary {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(32, 39, 37, 0.24);
+  border-radius: 50%;
+}
+
+html body .site-header .page-menu > summary .menu-icon {
+  color: #202725;
+}
+
+html body .site-header .page-menu > summary:hover,
+html body .site-header .page-menu > summary:focus-visible {
+  border-color: #d65b43;
+  background: #f8efec;
+}
+
+html body .site-header .primary-nav a {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+html body .site-header .primary-nav a:hover,
+html body .site-header .primary-nav a:focus-visible {
+  color: #bd4934;
+}
+
+html body .page-menu-links {
+  background: #fff;
+  border: 1px solid rgba(32, 39, 37, 0.12);
+  box-shadow: 0 18px 40px rgba(23, 33, 31, 0.14);
+}
+
+html body .page-menu-links a {
+  color: #202725;
+}
+
+html body .page-menu-links a:hover,
+html body .page-menu-links a:focus-visible {
+  color: #bd4934;
+  background: #f7f3f0;
+}
+
+html body .hero-brand {
+  min-height: min(720px, calc(100svh - 82px));
+  justify-content: flex-start;
+  background: #24322f;
+  border: 0;
+}
+
+html body .hero-brand::before {
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(16, 25, 23, 0.82) 0%, rgba(16, 25, 23, 0.62) 42%, rgba(16, 25, 23, 0.08) 100%),
+    url("bim-model.jpg") center 48% / cover no-repeat;
+  mask-image: none;
+}
+
+html body .hero-brand::after {
+  display: none;
+}
+
+html body .hero-brand-wrap {
+  justify-content: flex-start;
+  width: min(1280px, calc(100% - 64px));
+  min-height: inherit;
+  gap: 0;
+  padding: 90px 0;
+}
+
+html body .hero-brand-logo {
+  display: none;
+}
+
+html body .hero-brand-text {
+  max-width: 740px;
+  color: #fff;
+  line-height: 1.2;
+}
+
+html body .hero-brand-text .kicker,
+html body .hero-brand .kicker {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: #f2a28e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+html body .hero-brand-text h1 {
+  color: #fff;
+  font-size: clamp(3.6rem, 8vw, 7.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+}
+
+html body .hero-brand-text .accent {
+  display: inline;
+  color: #f2a28e;
+}
+
+html body .hero-brand-text p {
+  max-width: 590px;
+  margin-top: 28px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 1.55;
+}
+
+html body .whatsapp-inquiry {
+  margin-top: 30px;
+}
+
+html body .services,
+html body .software-section,
+html body .project-showcase,
+html body .news,
+html body .value-section {
+  background: #fff;
+  background-image: none;
+}
+
+html body .services,
+html body .project-showcase,
+html body .software-section,
+html body .news,
+html body .value-section {
+  padding-top: clamp(72px, 9vw, 124px);
+  padding-bottom: clamp(72px, 9vw, 124px);
+}
+
+html body .section-heading {
+  width: min(920px, calc(100% - 48px));
+  margin: 0 auto 48px;
+}
+
+html body .section-heading .kicker,
+html body .kicker {
+  color: #bd4934;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+}
+
+html body h2 {
+  color: #202725;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+html body .section-intro {
+  max-width: 680px;
+  color: #636c67;
+  font-size: 1.12rem;
+  line-height: 1.6;
+}
+
+html body .service-grid,
+html body .software-grid,
+html body .value-grid {
+  gap: 1px;
+  background: rgba(32, 39, 37, 0.13);
+}
+
+html body .service-card,
+html body .software-card,
+html body .cert-card,
+html body .news-card,
+html body .value-grid article {
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .service-card {
+  min-height: 245px;
+  padding: 34px 30px;
+}
+
+html body .service-card::before,
+html body .cert-card::before,
+html body .register-wrap::before,
+html body .portal-card::before {
+  display: none;
+}
+
+html body .service-icon,
+html body .service-card .num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f8efec;
+  color: #bd4934;
+}
+
+html body .service-card h3,
+html body .cert-card h3 {
+  color: #202725;
+  font-size: 1.35rem;
+}
+
+html body .service-card p,
+html body .service-card li,
+html body .cert-card p {
+  color: #636c67;
+}
+
+html body .service-card:hover {
+  transform: none;
+  background: #faf9f6;
+  box-shadow: inset 0 3px #d65b43;
+}
+
+html body .btn,
+html body button {
+  min-height: 50px;
+  border-radius: 2px;
+  letter-spacing: 0.035em;
+}
+
+html body .btn-primary,
+html body .btn:not(.btn-secondary) {
+  background: #d65b43;
+  color: #fff;
+  box-shadow: none;
+}
+
+html body .btn-primary:hover,
+html body .btn:not(.btn-secondary):hover {
+  background: #bd4934;
+  box-shadow: none;
+}
+
+html body .page-hero {
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+  padding: 100px 0 72px;
+  background-color: #24322f;
+  background-blend-mode: multiply;
+  background-image:
+    linear-gradient(90deg, rgba(16, 25, 23, 0.72), rgba(16, 25, 23, 0.2)),
+    url("bim-model.jpg");
+  background-position: center;
+  background-size: cover;
+}
+
+html body .page-hero h1 {
+  max-width: 900px;
+  color: #fff;
+  font-size: clamp(3rem, 6.6vw, 6.3rem);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+html body .page-hero .eyebrow {
+  color: #f2a28e;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+}
+
+html body .page-hero .hero-copy {
+  max-width: 680px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.12rem;
+}
+
+html body .page-shell {
+  max-width: 1280px;
+}
+
+html body .cert-grid {
+  gap: 1px;
+  background: rgba(32, 39, 37, 0.13);
+}
+
+html body .contact-panel,
+html body .cta-box {
+  background: #253b34;
+  color: #fff;
+  border-radius: 0;
+}
+
+html body .contact-panel h3 {
+  color: #f2a28e;
+}
+
+html body .contact-panel p,
+html body .contact-panel a {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+html body .contact-grid,
+html body .register-wrap,
+html body .portal-card,
+html body .panel,
+html body .content-wrapper,
+html body #login-screen {
+  border-radius: 0;
+  box-shadow: 0 14px 36px rgba(32, 39, 37, 0.07);
+}
+
+html body .register-wrap,
+html body .portal-card,
+html body .form-panel,
+html body .panel {
+  padding: clamp(24px, 4vw, 42px);
+}
+
+html body .site-footer {
+  background: #17211f;
+  background-image: none;
+  border-top: 0;
+}
+
+html body .footer-title {
+  color: #f2a28e;
+}
+
+html body .footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  padding-top: 20px;
+}
+
+html body .top-bar {
+  background: #fff;
+  background-image: none;
+  border-bottom: 1px solid rgba(32, 39, 37, 0.12);
+  color: #202725;
+}
+
+html body .top-bar .page-menu > summary,
+html body .top-bar .primary-nav a,
+html body .top-bar a {
+  color: #202725;
+}
+
+html body .top-bar .page-menu > summary {
+  border-color: rgba(32, 39, 37, 0.24);
+}
+
+html body .top-bar .page-menu > summary .menu-icon {
+  color: #202725;
+}
+
+html body .top-bar .page-menu-links {
+  background: #fff;
+  border-color: rgba(32, 39, 37, 0.12);
+}
+
+html body .top-bar .page-menu-links a {
+  color: #202725;
+}
+
+html body input,
+html body select,
+html body textarea {
+  border-radius: 2px;
+  border-color: rgba(32, 39, 37, 0.22);
+}
+
+@media (max-width: 760px) {
+  html body .topbar {
+    width: calc(100% - 32px);
+    min-height: 72px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  html body .site-header .primary-nav {
+    flex-basis: 100%;
+    order: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 10px 0 2px;
+    border-top: 1px solid rgba(32, 39, 37, 0.12);
+  }
+
+  html body .top-bar .primary-nav {
+    flex-basis: 100%;
+    order: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  html body .site-header .primary-nav a {
+    font-size: 0.75rem;
+  }
+
+  html body .hero-brand {
+    min-height: 620px;
+  }
+
+  html body .hero-brand::before {
+    background-position: 58% center;
+  }
+
+  html body .hero-brand-wrap {
+    width: calc(100% - 40px);
+    padding: 72px 0;
+  }
+
+  html body .hero-brand-text h1 {
+    font-size: clamp(3.25rem, 15vw, 5.5rem);
+  }
+
+  html body .page-hero {
+    min-height: 360px;
+    padding: 76px 0 48px;
+  }
+
+  html body .page-hero h1 {
+    font-size: clamp(2.7rem, 12vw, 4.6rem);
+  }
+
+  html body .section-heading {
+    width: calc(100% - 40px);
+  }
+
+  html body .service-grid,
+  html body .software-grid,
+  html body .value-grid,
+  html body .cert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  html body .site-header .brand {
+    gap: 6px;
+    font-size: 0.7rem;
+  }
+
+  html body .site-header .brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  html body .site-header .primary-nav {
+    gap: 5px;
+  }
+
+  html body .site-header .primary-nav a {
+    font-size: 0.68rem;
+  }
+}
