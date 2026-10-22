@@ -11,31 +11,32 @@
 <body>
   <header class="site-header">
     <div class="topbar">
+      <details class="page-menu">
+        <summary aria-label="Open page navigation"><span class="menu-icon" aria-hidden="true">☰</span></summary>
+        <nav class="page-menu-links" aria-label="More pages">
+          <a href="certifications.html">Certifications</a>
+          <a href="register.html">Register &amp; Pay</a>
+          <a href="student.html">Student Portal</a>
+          <a href="performance.html">Performance &amp; Practice</a>
+          <a href="admin.html">Admin Portal</a>
+        </nav>
+      </details>
       <div class="brand" aria-label="Spatial Vision Tech home">
         <img src="Gemini_Generated_Image_.png" alt="Spatial Vision Tech" class="brand-logo" />
         <span>Spatial Vision Tech</span>
       </div>
 
-      <nav class="main-nav" aria-label="Main navigation">
-        <a href="index.html">Course Overview</a>
-        <a href="services.html">Our Services</a>
-        <a href="certifications.html">Certifications</a>
-        <a href="register.html">Register &amp; Pay</a>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a href="index.html#about">Overview</a>
+        <a href="services.html">Services</a>
+        <a href="index.html#course">Courses</a>
         <a href="contact.html">Contact Us</a>
-      </nav>
-
-      <nav class="meta-nav" aria-label="Secondary navigation">
-        <div class="utility-nav">
-          <a href="student.html">Student Portal</a>
-          <a href="performance.html">Performance &amp; Practice</a>
-          <a href="admin.html">Admin Portal</a>
-        </div>
       </nav>
     </div>
   </header>
 
   <main>
-    <section class="hero hero-brand">
+    <section class="hero hero-brand" id="about">
       <div class="hero-brand-wrap">
         <img src="Gemini_Generated_Image_kvn5swkvn5swkvn5.png" alt="Spatial Vision Tech brand mark" class="hero-brand-logo" />
         <div class="hero-brand-text">
@@ -45,7 +46,7 @@
       </div>
     </section>
 
-    <section class="services">
+    <section class="services" id="services">
       <div class="section-heading">
         <span class="kicker">BIM careers</span>
         <h2>How can BIM accelerate your career?</h2>
@@ -73,7 +74,7 @@
       </div>
     </section>
 
-    <section class="project-showcase">
+    <section class="project-showcase" id="course">
       <div class="section-heading">
         <span class="kicker">Course curriculum</span>
         <h2>Foundation to advanced BIM.</h2>
@@ -118,7 +119,10 @@
     <section class="cta-band">
       <div class="cta-box">
         <h2>Start your journey to become a Full-Stack BIM Professional.</h2>
-        <a class="btn btn-primary" href="register.html">Apply now</a>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="register.html">Apply now</a>
+          <a class="btn btn-secondary whatsapp-inquiry" href="https://wa.me/917498121719?text=Hi%20Spatial%20Vision%20Tech%2C%20I%27d%20like%20to%20know%20more%20about%20your%20BIM%20services%20and%20courses." target="_blank" rel="noopener noreferrer">WhatsApp Inquiry</a>
+        </div>
       </div>
     </section>
   </main>
