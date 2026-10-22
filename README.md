@@ -1,6 +1,6 @@
 # Spatial Vision Tech
 
-The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Cloudflare Email Service for transactional email. It no longer depends on Firebase.
+The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Cloudflare Email Service for transactional email.
 
 ## Cloudflare setup and Git deployment
 
@@ -21,7 +21,7 @@ The site uses Cloudflare Workers for its API, D1 for accounts and application da
    npm run db:migrate:remote
    ```
 
-7. Connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. Select the `cloudflare-backend-migration` production branch (the `main` branch is the legacy Firebase site), set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`. Cloudflare Workers Builds then deploys commits from the selected branch; do not run a local deploy command.
+7. Connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. Select the `main` production branch, set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`. Cloudflare Workers Builds then deploys commits from the selected branch; do not run a local deploy command.
 8. The Wrangler configuration routes `spatialvisiontech.in/*` to the Worker. Confirm the domain is active in this Cloudflare zone before enabling the Git build. Before enabling preview deployments, configure separate preview bindings and data so previews do not use production resources.
 9. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a new password of at least 16 characters. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret in **Settings > Variables and Secrets**.
 
@@ -48,6 +48,6 @@ Update the UPI ID and QR URLs in `register.html` and `student.html` if your paym
 
 ## Fresh backend
 
-This migration starts with an empty D1 database; existing Firebase accounts and records are not imported. Students must register again and choose a new password. The first administrator account must be created with the one-time setup procedure above.
+The D1 database starts with no application accounts or records. Students must register and choose a password. The first administrator account must be created with the one-time setup procedure above.
 
 Run locally with `npm run db:migrate:local` followed by `npm run dev`. Local development does not deliver production notification emails.
