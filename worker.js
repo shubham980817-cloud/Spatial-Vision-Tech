@@ -188,11 +188,11 @@ async function notifyStudentDocumentChange(env, previous, student, studentId) {
     messages.push({
       to: student.email,
       subject: 'Your Spatial Vision Tech registration was received',
-      text: `Hello ${student.name || 'student'},\n\nYour registration for ${student.course || 'your selected course'} has been received. Your registration payment is pending verification, and the administration team will review your application.\n\nStudent ID: ${student.studentId || studentId}\nPayment status: ${student.regPaymentStatus || 'Submitted - Pending Verification'}\n\n${studentSummary(student)}`
+      text: `Hello ${student.name || 'student'},\n\nYour registration for ${student.course || 'your selected course'} has been received. No pre-registration payment is required. The administration team will review your application.\n\nStudent ID: ${student.studentId || studentId}\n\n${studentSummary(student)}`
     }, {
       to: ADMIN_EMAIL,
       subject: `New student registration: ${student.name || student.email || studentId}`,
-      text: `A student registration is waiting for review.\n\nRegistration payment status: ${student.regPaymentStatus || 'Submitted - Pending Verification'}\nRegistration UTR: ${student.regUtr || 'Not provided'}\n\n${studentSummary(student)}`
+      text: `A student registration is waiting for review. No pre-registration payment is required.\n\n${studentSummary(student)}`
     });
     return attemptEmails(env, messages);
   }
@@ -277,7 +277,6 @@ async function handleAuth(request, env, pathname, url) {
     const name = String(profile.name || '').trim().slice(0, 200);
     const phone = String(profile.phone || '').trim().slice(0, 50);
     const course = String(profile.course || '').trim().slice(0, 200);
-    const regUtr = String(profile.regUtr || '').trim().slice(0, 120);
     const allowedCourses = new Set([
       'Autodesk Revit: Structural Modeling Masterclass',
       'Advanced BIM: Coordination & Clash Detection'
@@ -285,8 +284,8 @@ async function handleAuth(request, env, pathname, url) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Enter a valid email address.');
     if (email === ADMIN_EMAIL) return fail('The administrator account is reserved for initial setup.', 403);
     if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
-    if (!name || !phone || !allowedCourses.has(course) || regUtr.length < 3) {
-      return fail('Provide your name, phone number, course, and valid payment transaction ID.');
+    if (!name || !phone || !allowedCourses.has(course)) {
+      return fail('Provide your name, phone number, and select a valid course.');
     }
     if (!await rateLimit(env, `register:${request.headers.get('CF-Connecting-IP') || 'unknown'}`, 8, 3600)) {
       return fail('Too many registration attempts. Please try again later.', 429);
@@ -301,12 +300,8 @@ async function handleAuth(request, env, pathname, url) {
       phone,
       course,
       regDate: createdAt,
-      regUtr,
-      regPaymentStatus: 'Submitted',
       approvalStatus: 'Pending',
       grantedAccess: false,
-      preRegistrationAmount: 100,
-      preRegistrationPaid: false,
       finalizedFee: 4900,
       feeHistory: [],
       testAttempts: []

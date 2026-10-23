@@ -35,7 +35,7 @@ Cloudflare Workers Free can send Email Service messages only to verified Email R
 2. In **Workers & Pages > admin > Settings > Variables and Secrets**, add an `ADMIN_RESET_RECIPIENT` secret with that exact verified destination address. Storing it as a secret keeps the setting intact when Git deployments update the Worker.
 3. Keep the admin login email as `admin@spatialvisiontech.in`. The reset token is still issued for the admin account; only its delivery address changes.
 
-Student reset emails on the Free plan also require each student's email to be a verified destination address. Use Workers Paid for arbitrary student recipients.
+On the Free plan, emails to students (including registration confirmations and password resets) require each student's email to be a verified Email Routing destination address. Use Workers Paid to send to arbitrary student addresses. Email delivery failures are reported in Worker logs and do not prevent account registration.
 
 ## Application notifications
 
@@ -52,7 +52,7 @@ Passwords are PBKDF2-derived in the browser before reaching the Worker so regist
 
 ## Student registrations and payments
 
-The registration page records the ₹100 pre-registration payment for administrator review. After approval, students can submit course-fee installments from their portal. Admin verifies each transaction in the admin portal. Certificate eligibility continues to depend on verified payments reaching the finalized course fee.
+Student registration does not require a pre-registration payment. Administrators review and approve applications, then manage portal access separately. Students can submit course-fee installments from their portal; administrators verify each transaction in the admin portal. Certificate eligibility continues to depend on verified payments reaching the finalized course fee.
 
 Update the UPI ID and QR URLs in `register.html` and `student.html` if your payment account changes.
 

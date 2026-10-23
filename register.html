@@ -6,7 +6,6 @@
   <title>Spatial Vision Tech | Register</title>
   <link rel="stylesheet" href="bim-theme.css" />
   <link rel="icon" type="image/png" href="Gemini_Generated_Image_.png" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="cloudflare-client.js"></script>
   <style>
     body { background: #f3faf8; }
@@ -18,9 +17,6 @@
     .field-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #0b1f25; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .field-group input, .field-group select { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.12); }
-    .payment-box { background: #f7f9fa; border: 1px solid rgba(0,0,0,0.08); padding: 22px; margin-top: 8px; }
-    .payment-box .qr { width: 220px; height: 220px; display: block; margin: 16px auto; }
-    .payment-status { display: none; margin-top: 18px; padding: 12px 14px; background: #fff3dc; color: #8f5e00; font-weight: 700; }
     .receipt-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 50; padding: 24px; overflow: auto; }
     .receipt-card { max-width: 860px; margin: 20px auto; background: #fff; padding: 18px; }
     .receipt-card .actions { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; }
@@ -37,7 +33,7 @@
         <summary aria-label="Open page navigation"><span class="menu-icon" aria-hidden="true">☰</span></summary>
         <nav class="page-menu-links" aria-label="More pages">
           <a href="certifications.html">Certifications</a>
-          <a href="register.html">Register &amp; Pay</a>
+          <a href="register.html">Register</a>
           <a href="student.html">Student Portal</a>
           <a href="performance.html">Performance &amp; Practice</a>
           <a href="admin.html">Admin Portal</a>
@@ -57,15 +53,15 @@
     <section class="page-hero">
       <div class="page-shell">
         <p class="eyebrow">Register</p>
-        <h1>Secure your place in the next BIM cohort.</h1>
-        <p class="hero-copy">Complete registration, transfer the pre-registration fee, and begin the onboarding process for your course access.</p>
+        <h1>Register for the next BIM cohort.</h1>
+        <p class="hero-copy">Submit your details to begin the onboarding process. No pre-registration payment is required.</p>
       </div>
     </section>
 
     <section class="page-shell">
       <div class="register-wrap">
-        <h2>Step 1: Student registration</h2>
-        <p>Pay the ₹100 pre-registration fee to submit your application. Admin review is required before final access is granted.</p>
+        <h2>Student registration</h2>
+        <p>Submit your application for administrator review. You can register without making a pre-registration payment.</p>
 
         <form id="registrationForm">
           <div class="field-group">
@@ -97,19 +93,7 @@
             </select>
           </div>
 
-          <div class="payment-box">
-            <p><strong>Pre-registration fee: ₹100</strong></p>
-            <p>Scan the QR using any UPI app, then enter the transaction ID below.</p>
-            <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dspatialvisiontech%2540rbl%26pn%3DSpatial%2520Vision%2520Tech%26am%3D100%26cu%3DINR" alt="UPI QR for registration fee" />
-            <p><strong>UPI ID:</strong> spatialvisiontech@rbl</p>
-            <div class="field-group">
-              <label for="reg-utr">UPI transaction ID / UTR</label>
-              <input id="reg-utr" type="text" required placeholder="Enter your transaction ID" />
-            </div>
-          </div>
-
-          <button class="btn btn-primary" type="submit" id="submitBtn">Submit registration payment</button>
-          <div id="payment-status" class="payment-status"></div>
+          <button class="btn btn-primary" type="submit" id="submitBtn">Submit registration</button>
         </form>
       </div>
     </section>
@@ -118,25 +102,20 @@
   <div id="receiptModal" class="receipt-overlay">
     <div class="receipt-card">
       <div class="actions">
-        <button class="btn btn-primary" type="button" id="downloadPdfBtn" onclick="downloadPDF()">Download PDF receipt</button>
         <button class="btn" type="button" onclick="closeReceipt()" style="background:#555;">Close</button>
       </div>
       <div id="receipt-content">
         <h3 style="margin-top:0; color:#0b1f25;">Spatial Vision Tech</h3>
-        <p>Registration confirmation</p>
+        <p>Registration confirmation — this is not a payment receipt.</p>
+        <p id="registration-status" role="status" aria-live="polite"></p>
         <table class="receipt-table">
-          <tr><th>Description</th><th>Amount</th></tr>
-          <tr>
-            <td><strong id="r-course"></strong><br />Initial registration fee</td>
-            <td>₹100.00</td>
-          </tr>
+          <tr><th>Registration detail</th><th>Value</th></tr>
+          <tr><td>Course</td><td id="r-course"></td></tr>
+          <tr><td>Date</td><td id="r-date"></td></tr>
+          <tr><td>Name</td><td id="r-name"></td></tr>
+          <tr><td>Email</td><td id="r-email"></td></tr>
+          <tr><td>Student ID</td><td id="r-student-id"></td></tr>
         </table>
-        <p><strong>Date:</strong> <span id="r-date"></span></p>
-        <p><strong>Name:</strong> <span id="r-name"></span></p>
-        <p><strong>Email:</strong> <span id="r-email"></span></p>
-        <p><strong>Student ID:</strong> <span id="r-student-id"></span></p>
-        <p><strong>Receipt no:</strong> <span id="r-receipt-no"></span></p>
-        <p><strong>Status:</strong> <span style="color:#ef6c00; font-weight:700;">Payment pending approval</span></p>
       </div>
     </div>
   </div>
@@ -153,7 +132,7 @@
           <a href="index.html">Course Overview</a>
           <a href="services.html">Our Services</a>
           <a href="certifications.html">Certifications</a>
-          <a href="register.html">Register &amp; Pay</a>
+          <a href="register.html">Register</a>
         </div>
       </div>
       <div>
@@ -182,23 +161,18 @@
       const phone = document.getElementById('reg-phone').value.trim();
       const password = document.getElementById('reg-pass').value;
       const course = document.getElementById('course').value;
-      const regUtr = document.getElementById('reg-utr').value.trim();
       const dateObj = new Date();
 
-      auth.registerStudent({ email, password, profile: { name, phone, course, regUtr } })
+      auth.registerStudent({ email, password, profile: { name, phone, course } })
         .then((result) => {
             const student = result.student;
-            const studentId = student.studentId;
-            const receiptNo = `REG-${dateObj.getFullYear()}-${student.uid.slice(0, 6).toUpperCase()}`;
             document.getElementById('r-course').textContent = course;
             document.getElementById('r-date').textContent = dateObj.toLocaleDateString('en-IN');
             document.getElementById('r-name').textContent = name;
             document.getElementById('r-email').textContent = email;
-            document.getElementById('r-student-id').textContent = studentId;
-            document.getElementById('r-receipt-no').textContent = receiptNo;
+            document.getElementById('r-student-id').textContent = student.studentId;
+            document.getElementById('registration-status').textContent = result.notificationWarning || 'Your registration is saved and pending administrator review.';
             document.getElementById('receiptModal').style.display = 'block';
-            document.getElementById('payment-status').style.display = 'block';
-            document.getElementById('payment-status').textContent = result.notificationWarning || 'Payment submitted. Admin verification is pending.';
             submitBtn.textContent = 'Submitted';
             document.getElementById('registrationForm').reset();
             return auth.signOut();
@@ -206,22 +180,9 @@
         .catch((error) => {
           alert('Registration error: ' + error.message);
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit registration payment';
+          submitBtn.textContent = 'Submit registration';
         });
     });
-
-    function downloadPDF() {
-      const btn = document.getElementById('downloadPdfBtn');
-      btn.disabled = true; btn.textContent = 'Generating...';
-      html2pdf().set({
-        margin: 0.4,
-        filename: 'registration-receipt.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      }).from(document.getElementById('receipt-content')).save().then(() => {
-        btn.disabled = false; btn.textContent = 'Download PDF receipt';
-      });
-    }
 
     function closeReceipt() {
       document.getElementById('receiptModal').style.display = 'none';
