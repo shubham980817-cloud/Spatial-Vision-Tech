@@ -266,6 +266,9 @@ async function handleAuth(request, env, pathname, url) {
   if (pathname === '/api/auth/password-salt' && request.method === 'GET') {
     const email = String(url.searchParams.get('email') || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Enter a valid email address.');
+    if (typeof env.PASSWORD_PEPPER !== 'string' || env.PASSWORD_PEPPER.length < 32) {
+      return fail('Account password service is not configured. Set the PASSWORD_PEPPER Worker secret and check Worker logs.', 503);
+    }
     return response({ salt: await passwordSalt(email, env), iterations: PASSWORD_ITERATIONS });
   }
 
@@ -284,6 +287,9 @@ async function handleAuth(request, env, pathname, url) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Enter a valid email address.');
     if (email === ADMIN_EMAIL) return fail('The administrator account is reserved for initial setup.', 403);
     if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
+    if (typeof env.PASSWORD_PEPPER !== 'string' || env.PASSWORD_PEPPER.length < 32) {
+      return fail('Account password service is not configured. Set the PASSWORD_PEPPER Worker secret and check Worker logs.', 503);
+    }
     if (!name || !phone || !allowedCourses.has(course)) {
       return fail('Provide your name, phone number, and select a valid course.');
     }
@@ -306,12 +312,16 @@ async function handleAuth(request, env, pathname, url) {
       feeHistory: [],
       testAttempts: []
     };
+    const token = randomToken();
+    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000).toISOString();
     try {
       await env.DB.batch([
         env.DB.prepare('INSERT INTO users (id, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)')
           .bind(userId, email, await hashPasswordVerifier(verifier, env), 'student', createdAt),
         env.DB.prepare('INSERT INTO documents (collection, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)')
-          .bind('students', userId, JSON.stringify(student), createdAt, createdAt)
+          .bind('students', userId, JSON.stringify(student), createdAt, createdAt),
+        env.DB.prepare('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)')
+          .bind(await digest(token), userId, expiresAt)
       ]);
     } catch (error) {
       if (String(error.message).includes('UNIQUE')) return fail('An account already exists for this email address.', 409);
@@ -319,10 +329,6 @@ async function handleAuth(request, env, pathname, url) {
     }
 
     const failures = await notifyStudentDocumentChange(env, null, student, userId);
-    const token = randomToken();
-    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000).toISOString();
-    await env.DB.prepare('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)')
-      .bind(await digest(token), userId, expiresAt).run();
     return response({
       user: { uid: userId, email },
       student,
