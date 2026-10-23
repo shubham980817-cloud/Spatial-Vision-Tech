@@ -377,7 +377,7 @@ async function handleAuth(request, env, pathname, url) {
     const input = await readJson(request);
     const email = String(input.email || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Enter a valid email address.');
-    if (!await rateLimit(env, `reset:${request.headers.get('CF-Connecting-IP') || 'unknown'}`, 5, 3600)) {
+    if (!await rateLimit(env, `reset:${request.headers.get('CF-Connecting-IP') || 'unknown'}`, 20, 3600)) {
       return fail('Too many reset attempts. Please wait and try again.', 429);
     }
     const user = await env.DB.prepare('SELECT id, email FROM users WHERE email = ?').bind(email).first();
