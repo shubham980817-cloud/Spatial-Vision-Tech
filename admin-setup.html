@@ -40,7 +40,8 @@
         </div>
         <div class="field">
           <label for="admin-password">New administrator password</label>
-          <input id="admin-password" type="password" minlength="16" maxlength="128" autocomplete="new-password" required>
+          <input id="admin-password" type="password" minlength="8" maxlength="12" autocomplete="new-password" required>
+          <small>Use 8–12 characters with at least one letter, one number, and one symbol.</small>
         </div>
         <button class="btn btn-primary" id="setup-submit" type="submit">Create administrator account</button>
         <p id="setup-result" role="status" aria-live="polite"></p>
@@ -56,12 +57,14 @@
       const result = document.getElementById('setup-result');
       button.disabled = true;
       try {
+        svt.validatePassword(password);
         const saltInfo = await svt.getPasswordSalt('admin@spatialvisiontech.in');
         const passwordVerifier = await svt.derivePassword(password, saltInfo);
         await svt.request('/api/setup/admin', {
           method: 'POST',
           body: JSON.stringify({
             setupToken: document.getElementById('setup-token').value,
+            password,
             passwordVerifier
           })
         });

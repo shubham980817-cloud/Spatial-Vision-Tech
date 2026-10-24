@@ -1,5 +1,6 @@
 (function () {
   let currentUser = null;
+  const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,12}$/;
 
   async function request(path, options = {}) {
     const headers = new Headers(options.headers || {});
@@ -21,6 +22,12 @@
     return request(`/api/auth/password-salt?email=${encodeURIComponent(email.trim().toLowerCase())}`);
   }
 
+  function validatePassword(password) {
+    if (!passwordPattern.test(password)) {
+      throw new Error('Password must be 8–12 characters and include a letter, a number, and a symbol.');
+    }
+  }
+
   async function derivePassword(password, saltInfo) {
     const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits({
@@ -39,14 +46,26 @@
       get currentUser() {
         return currentUser;
       },
+      async restoreSession() {
+        try {
+          const result = await request('/api/auth/me');
+          currentUser = result.user;
+        } catch (error) {
+          currentUser = null;
+          if (error.message !== 'Sign in to continue.') throw error;
+        }
+        return currentUser;
+      },
       async registerStudent(profile) {
         const { email, password, profile: studentProfile } = profile;
+        validatePassword(password);
         const saltInfo = await getPasswordSalt(email);
         const result = await request('/api/auth/register', {
           method: 'POST',
           body: JSON.stringify({
             email,
             profile: studentProfile,
+            password,
             passwordVerifier: await derivePassword(password, saltInfo)
           })
         });
@@ -172,6 +191,7 @@
     request,
     auth,
     derivePassword,
+    validatePassword,
     getPasswordSalt,
     store: Object.assign(store, {
       FieldValue: {
@@ -181,10 +201,11 @@
       }
     }),
     async setStudentPassword({ studentUid, password }) {
+      validatePassword(password);
       const saltInfo = await request(`/api/admin/students/${encodeURIComponent(studentUid)}/password-salt`);
       return request(`/api/admin/students/${encodeURIComponent(studentUid)}/password`, {
         method: 'POST',
-        body: JSON.stringify({ passwordVerifier: await derivePassword(password, saltInfo) })
+        body: JSON.stringify({ password, passwordVerifier: await derivePassword(password, saltInfo) })
       });
     }
   };

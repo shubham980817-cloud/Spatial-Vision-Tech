@@ -260,42 +260,59 @@
         let activeStudent = null;
         let activeDocId = null;
 
-        // Login Flow
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            btn.innerText = "Loading..."; btn.disabled = true;
+        async function openStudentPortal(user) {
+            if (!user || user.role !== 'student') throw new Error('Sign in with a student account to open this portal.');
+            const snapshot = await db.collection('students').doc(user.uid).get();
+            if (!snapshot.exists) throw new Error('Student record not found.');
+            activeStudent = snapshot.data();
+            activeDocId = snapshot.id;
 
-            auth.signInWithEmailAndPassword(document.getElementById('s-email').value, document.getElementById('s-password').value)
-                .then(() => db.collection("students").where("email", "==", document.getElementById('s-email').value).get())
-                .then((snapshot) => {
-                    if (snapshot.empty) throw new Error("Database record not found.");
-                    snapshot.forEach(doc => { activeStudent = doc.data(); activeDocId = doc.id; });
-                    
-                    // Portal access is granted separately by an admin after payment review.
-                    if(activeStudent.grantedAccess !== true) {
-                        const approvalRequestButton = document.getElementById('request-approval-btn');
-                        const approvalRequestMessage = document.getElementById('approval-request-msg');
-                        approvalRequestButton.disabled = Boolean(activeStudent.approvalRequestAt);
-                        if (activeStudent.approvalRequestAt) {
-                            approvalRequestMessage.style.color = '#2e7d32';
-                            approvalRequestMessage.innerText = 'Your approval review request has been sent to the administration team.';
-                        } else {
-                            approvalRequestMessage.innerText = '';
-                        }
-                        showScreen('pending-approval-screen');
-                    } else {
-                        document.getElementById('d-name').innerText = activeStudent.name;
-                        document.getElementById('d-student-id').innerText = activeStudent.studentId;
-                        showScreen('student-dashboard');
-                        renderReceiptHistory();
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('login-msg').style.color = 'red';
-                    document.getElementById('login-msg').innerText = error.message;
-                    btn.innerText = "Login"; btn.disabled = false;
-                });
+            if (activeStudent.grantedAccess !== true) {
+                const approvalRequestButton = document.getElementById('request-approval-btn');
+                const approvalRequestMessage = document.getElementById('approval-request-msg');
+                approvalRequestButton.disabled = Boolean(activeStudent.approvalRequestAt);
+                if (activeStudent.approvalRequestAt) {
+                    approvalRequestMessage.style.color = '#2e7d32';
+                    approvalRequestMessage.innerText = 'Your approval review request has been sent to the administration team.';
+                } else {
+                    approvalRequestMessage.innerText = '';
+                }
+                showScreen('pending-approval-screen');
+            } else {
+                document.getElementById('d-name').innerText = activeStudent.name;
+                document.getElementById('d-student-id').innerText = activeStudent.studentId;
+                showScreen('student-dashboard');
+                renderReceiptHistory();
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = document.getElementById('loginBtn');
+            button.innerText = 'Loading...';
+            button.disabled = true;
+            try {
+                await auth.signInWithEmailAndPassword(
+                    document.getElementById('s-email').value,
+                    document.getElementById('s-password').value
+                );
+                await openStudentPortal(auth.currentUser);
+            } catch (error) {
+                const message = document.getElementById('login-msg');
+                message.style.color = 'red';
+                message.innerText = error.message;
+                button.innerText = 'Login';
+                button.disabled = false;
+            }
+        });
+
+        auth.restoreSession().then(user => {
+            if (user?.role === 'student') return openStudentPortal(user);
+            if (user?.role === 'admin') {
+                document.getElementById('login-msg').innerText = 'An administrator is already signed in. Open the Admin Portal or sign out before using a student account.';
+            }
+        }).catch(error => {
+            document.getElementById('login-msg').innerText = `Unable to restore your sign-in: ${error.message}`;
         });
 
         function requestApprovalReview() {

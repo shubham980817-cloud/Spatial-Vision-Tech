@@ -82,7 +82,8 @@
 
           <div class="field-group">
             <label for="reg-pass">Create portal password</label>
-            <input id="reg-pass" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+            <input id="reg-pass" type="password" minlength="8" maxlength="12" autocomplete="new-password" required />
+            <small>Use 8–12 characters with at least one letter, one number, and one symbol.</small>
           </div>
 
           <div class="field-group">
@@ -175,10 +176,6 @@
             document.getElementById('receiptModal').style.display = 'block';
             submitBtn.textContent = 'Submitted';
             document.getElementById('registrationForm').reset();
-            auth.signOut().catch(error => {
-              console.error('Registration succeeded, but the temporary session could not be closed:', error);
-              document.getElementById('registration-status').textContent += ' Registration is complete; please sign out if you continue using this browser.';
-            });
         })
         .catch((error) => {
           alert('Registration error: ' + error.message);

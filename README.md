@@ -23,7 +23,7 @@ The site uses Cloudflare Workers for its API, D1 for accounts and application da
 
 7. Connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. Select the `main` production branch, set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`. Cloudflare Workers Builds then deploys commits from the selected branch; do not run a local deploy command.
 8. The Wrangler configuration routes `spatialvisiontech.in/*` to the Worker. Confirm the domain is active in this Cloudflare zone before enabling the Git build. Before enabling preview deployments, configure separate preview bindings and data so previews do not use production resources.
-9. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a new password of at least 16 characters. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret in **Settings > Variables and Secrets**.
+9. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a password that is 8–12 characters with at least one letter, one number, and one symbol. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret in **Settings > Variables and Secrets**.
 
 The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` and the Email Service sender allowlist together if the notification address changes.
 
@@ -48,7 +48,7 @@ On the Free plan, emails to students (including registration confirmations and p
 
 Email is sent through the Cloudflare Email Service binding. Delivery requires an onboarded sender domain; configuring the binding alone is not sufficient.
 
-Passwords are PBKDF2-derived in the browser before reaching the Worker so registration and sign-in can operate within Cloudflare Workers Free CPU limits. The Worker uses `PASSWORD_PEPPER` to protect stored verifiers.
+Password verifiers are PBKDF2-derived in the browser before reaching the Worker so registration and sign-in can operate within Cloudflare Workers Free CPU limits. New-password input is also sent over same-origin HTTPS for Worker-side policy validation and is not stored. The Worker uses `PASSWORD_PEPPER` to protect stored verifiers.
 
 ## Student registrations and payments
 
@@ -61,3 +61,10 @@ Update the UPI ID and QR URLs in `register.html` and `student.html` if your paym
 The D1 database starts with no application accounts or records. Students must register and choose a password. The first administrator account must be created with the one-time setup procedure above.
 
 Run locally with `npm run db:migrate:local` followed by `npm run dev`. Local development does not deliver production notification emails.
+
+## Practice tests and account access
+
+- Sign in once to the Admin Portal, Student Portal, or Performance & Practice page. The same-origin session is shared across those pages until sign-out or session expiry.
+- Administrators can create, edit, and publish multiple-choice tests in **Performance & Practice**. Published tests are available to students there; attempts are scored by the Worker and saved with a snapshot of the test so later edits do not change past results.
+- **Export All Data** in the Admin Portal downloads a JSON backup of student records, test definitions, enquiries, and test attempts. The file contains personal student information and answer details; store it securely.
+- New passwords must be 8–12 characters and include at least one letter, one number, and one symbol. This applies to registration, administrator setup, password resets, and administrator-set student passwords.

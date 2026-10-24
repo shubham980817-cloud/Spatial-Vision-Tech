@@ -156,6 +156,14 @@
   <script>
     const db = svt.store();
     const auth = svt.auth();
+    const sessionReady = auth.restoreSession().then(user => {
+      if (user?.role === 'student') {
+        document.getElementById('c-email').value = user.email;
+        document.getElementById('c-email').readOnly = true;
+        document.getElementById('c-password').closest('.field').style.display = 'none';
+      }
+      return user;
+    });
 
     document.getElementById('certForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -169,9 +177,12 @@
       msg.style.color = '#0b1f25';
       msg.textContent = 'Checking records...';
 
-      auth.signInWithEmailAndPassword(email, document.getElementById('c-password').value)
-        .then(() => db.collection('students').where('email', '==', email).get()).then((snapshot) => {
-        if (snapshot.empty) {
+      sessionReady.then(user => {
+        if (user && user.role !== 'student') throw new Error('Sign out of the administrator account before checking student certificate eligibility.');
+        if (user && user.email.toLowerCase() !== email.toLowerCase()) throw new Error('The signed-in student email does not match this certificate request.');
+        return user || auth.signInWithEmailAndPassword(email, document.getElementById('c-password').value).then(() => auth.currentUser);
+      }).then(user => db.collection('students').doc(user.uid).get()).then(snapshot => {
+        if (!snapshot.exists) {
           msg.style.background = '#ffebee';
           msg.style.color = '#c62828';
           msg.textContent = 'No matching student record was found.';
@@ -179,7 +190,7 @@
           return;
         }
 
-        const student = snapshot.docs[0].data();
+        const student = snapshot.data();
         const totalPaid = (student.feeHistory || []).filter(f => f.status === 'Paid').reduce((sum, item) => sum + Number(item.amount || 0), 0)
           + (student.preRegistrationPaid === true ? Number(student.preRegistrationAmount || 0) : 0);
 

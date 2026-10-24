@@ -81,10 +81,12 @@
                 <h2 style="margin:0; color:#0d4a5d;">Student Registrations & Fee Approvals</h2>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <a href="performance.html" class="btn" style="width:auto; padding: 8px 20px; text-decoration:none; background:#1ba0a8;">Performance & Practice</a>
+                    <button id="export-data-button" class="btn" style="width:auto; padding: 8px 20px; background:#0d4a5d;">Export All Data</button>
                     <button class="btn" style="width:auto; padding: 8px 20px; background:#555;" onclick="svt.auth().signOut().then(()=>location.reload())">Sign Out</button>
                 </div>
             </div>
             <p style="margin:0 0 15px; color:#555;">Use portal access control to grant or revoke student access independently of registration approval.</p>
+            <p style="margin:0 0 15px; color:#555;">Create, publish, and review practice tests from <a href="performance.html#admin-practice">Performance &amp; Practice</a>. Your admin sign-in carries over between pages.</p>
             
             <div style="overflow-x: auto;">
                 <table>
@@ -160,14 +162,18 @@
             })[character]);
         }
 
+        function showAdminDashboard() {
+            loginScreen.style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'block';
+            loadStudentsData();
+        }
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             auth.signInWithEmailAndPassword(document.getElementById('admin-email').value, document.getElementById('admin-password').value)
             .then(() => {
                 if (auth.currentUser.role !== 'admin') throw new Error('This account does not have administrator access.');
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard-screen').style.display = 'block';
-                loadStudentsData();
+                showAdminDashboard();
             }).catch(error => {
                 const message = document.getElementById('login-message');
                 message.style.color = '#c62828';
@@ -175,10 +181,50 @@
             });
         });
 
+        document.getElementById('export-data-button').addEventListener('click', async () => {
+            const button = document.getElementById('export-data-button');
+            button.disabled = true;
+            try {
+                const data = await svt.request('/api/admin/export');
+                const download = document.createElement('a');
+                download.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+                download.download = `spatial-vision-tech-export-${new Date().toISOString().slice(0, 10)}.json`;
+                download.click();
+                setTimeout(() => URL.revokeObjectURL(download.href), 1000);
+            } catch (error) {
+                alert(`Unable to export records: ${error.message}`);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        auth.restoreSession().then(user => {
+            if (!user) return;
+            if (user.role === 'admin') showAdminDashboard();
+            else {
+                const message = document.getElementById('login-message');
+                message.style.color = '#8a4b08';
+                message.textContent = 'A student account is signed in. Sign out there before opening the Admin Portal.';
+            }
+        }).catch(error => {
+            const message = document.getElementById('login-message');
+            message.style.color = '#c62828';
+            message.textContent = `Unable to restore your sign-in: ${error.message}`;
+        });
+
         function loadStudentsData() {
-            db.collection("students").orderBy("regDate", "desc").get().then((querySnapshot) => {
-                const tbody = document.getElementById('student-table-body');
+            const tbody = document.getElementById('student-table-body');
+            Promise.all([
+                db.collection("students").orderBy("regDate", "desc").get(),
+                svt.request('/api/practice-tests/attempts')
+            ]).then(([querySnapshot, attemptResult]) => {
                 tbody.innerHTML = "";
+                const attemptsByStudent = new Map();
+                attemptResult.attempts.forEach(attempt => {
+                    const studentAttempts = attemptsByStudent.get(attempt.studentId) || [];
+                    studentAttempts.push(attempt);
+                    attemptsByStudent.set(attempt.studentId, studentAttempts);
+                });
                 
                 querySnapshot.forEach((doc) => {
                     const s = doc.data();
@@ -201,7 +247,10 @@
                     } else { feeHistoryHtml = "<small>No course installments submitted yet.</small>"; }
 
                     const tr = document.createElement('tr');
-                    const attempts = s.testAttempts || [];
+                    const attempts = [
+                        ...(s.testAttempts || []),
+                        ...(attemptsByStudent.get(docId) || [])
+                    ].sort((left, right) => new Date(left.date).getTime() - new Date(right.date).getTime());
                     const latestAttempt = attempts[attempts.length - 1];
                     const hasPortalAccess = s.grantedAccess === true;
                     const accessButton = hasPortalAccess
@@ -216,13 +265,15 @@
                         <td>
                             ${approveBtn}
                             ${accessButton}
-                            <input class="password-input" id="student-password-${docId}" type="password" minlength="12" maxlength="128" autocomplete="new-password" aria-label="Temporary password for ${escapeHtml(s.name)}" placeholder="Temporary password (12+ chars)">
+                            <input class="password-input" id="student-password-${docId}" type="password" minlength="8" maxlength="12" autocomplete="new-password" aria-label="Temporary password for ${escapeHtml(s.name)}" placeholder="8–12 chars with letter, number, symbol">
                             <button class="password-btn" onclick="setStudentPassword('${docId}')">Set Password</button>
                             <button class="remove-btn" onclick="removeStudent('${docId}')">Delete Record</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
+            }).catch(error => {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#c62828;">Unable to load records: ${escapeHtml(error.message)}</td></tr>`;
             });
         }
 
@@ -261,8 +312,10 @@
         window.setStudentPassword = async function(studentUid) {
             const input = document.getElementById(`student-password-${studentUid}`);
             const password = input.value;
-            if (password.length < 12 || password.length > 128) {
-                alert('Enter a temporary password between 12 and 128 characters.');
+            try {
+                svt.validatePassword(password);
+            } catch (error) {
+                alert(error.message);
                 return;
             }
             if (!confirm('Set a new password for this student? Share it through a secure channel.')) return;

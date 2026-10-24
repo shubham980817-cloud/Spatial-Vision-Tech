@@ -2,6 +2,7 @@ const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
 const SESSION_COOKIE = 'svt_session';
 const SESSION_DAYS = 7;
 const PASSWORD_ITERATIONS = 600000;
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,12}$/;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_UPLOAD_TYPES = new Set([
   'application/pdf',
@@ -61,6 +62,10 @@ function isValidVerifier(value) {
   } catch {
     return false;
   }
+}
+
+function isValidPassword(value) {
+  return typeof value === 'string' && PASSWORD_PATTERN.test(value);
 }
 
 async function hashPasswordVerifier(verifier, env) {
@@ -182,6 +187,241 @@ function parseData(row) {
   return row ? JSON.parse(row.data) : null;
 }
 
+function publicPracticeTest(test) {
+  return {
+    title: test.title,
+    active: test.active !== false,
+    updatedAt: test.updatedAt || null,
+    questions: (Array.isArray(test.questions) ? test.questions : []).map(({ id, text, options }) => ({ id, text, options }))
+  };
+}
+
+function validPracticeTest(input) {
+  if (!input || typeof input.title !== 'string' || !input.title.trim() || input.title.trim().length > 160) return false;
+  if (!Array.isArray(input.questions) || input.questions.length < 1 || input.questions.length > 100) return false;
+  const ids = new Set();
+  return input.questions.every(question => {
+    if (!question || typeof question.id !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(question.id) ||
+        ids.has(question.id) || typeof question.text !== 'string' || !question.text.trim() || question.text.length > 1000 ||
+        !question.options || ['a', 'b', 'c'].some(key => typeof question.options[key] !== 'string' ||
+          !question.options[key].trim() || question.options[key].length > 500) ||
+        !['a', 'b', 'c'].includes(question.correct)) return false;
+    ids.add(question.id);
+    return true;
+  });
+}
+
+async function handlePracticeTests(request, env, pathname) {
+  if (pathname === '/api/practice-tests' && request.method === 'GET') {
+    const user = await requireUser(request, env);
+    if (!user) return fail('Sign in to access practice tests.', 401);
+    const rows = await env.DB.prepare('SELECT id, data FROM documents WHERE collection = ? ORDER BY created_at DESC')
+      .bind('practiceTests').all();
+    const documents = rows.results
+      .map(row => ({ id: row.id, data: parseData(row) }))
+      .filter(document => document.data && (user.role === 'admin' || document.data.active !== false))
+      .map(document => ({ ...document, data: user.role === 'admin' ? document.data : publicPracticeTest(document.data) }));
+    return response({ documents });
+  }
+
+  if (pathname === '/api/practice-tests/attempts' && request.method === 'GET') {
+    const user = await requireUser(request, env);
+    if (!user) return fail('Sign in to access test history.', 401);
+    const rows = [];
+    for (let offset = 0; ; offset += 500) {
+      const statement = user.role === 'admin'
+        ? env.DB.prepare(`
+            SELECT attempts.*, students.data AS student_data
+            FROM practice_attempts AS attempts
+            LEFT JOIN documents AS students
+              ON students.collection = 'students' AND students.id = attempts.student_id
+            ORDER BY attempts.created_at DESC, attempts.id DESC
+            LIMIT 500 OFFSET ?
+          `).bind(offset)
+        : env.DB.prepare(`
+            SELECT id, student_id, test_id, test_title, score, correct_count, question_count, created_at
+            FROM practice_attempts WHERE student_id = ? ORDER BY created_at DESC, id DESC LIMIT 500 OFFSET ?
+          `).bind(user.id, offset);
+      const page = await statement.all();
+      rows.push(...page.results);
+      if (page.results.length < 500) break;
+    }
+    const attempts = rows.map(row => {
+      const attempt = {
+        id: row.id,
+        testId: row.test_id,
+        title: row.test_title,
+        score: row.score,
+        correct: row.correct_count,
+        total: row.question_count,
+        date: row.created_at
+      };
+      if (user.role === 'admin') {
+        const student = row.student_data ? JSON.parse(row.student_data) : {};
+        attempt.studentId = row.student_id;
+        attempt.studentName = student.name || student.email || 'Deleted student';
+        attempt.studentEmail = student.email || '';
+        attempt.answers = JSON.parse(row.answers);
+        attempt.testSnapshot = JSON.parse(row.test_snapshot);
+      }
+      return attempt;
+    });
+    return response({ attempts });
+  }
+
+  const attemptMatch = /^\/api\/practice-tests\/([a-zA-Z0-9_-]{1,100})\/attempts$/.exec(pathname);
+  if (attemptMatch && request.method === 'POST') {
+    const user = await requireUser(request, env);
+    if (!user) return fail('Sign in to submit a test.', 401);
+    if (user.role !== 'student') return fail('Only student accounts can submit practice tests.', 403);
+    const testRow = await env.DB.prepare('SELECT data FROM documents WHERE collection = ? AND id = ?')
+      .bind('practiceTests', attemptMatch[1]).first();
+    const test = parseData(testRow);
+    if (!test || test.active === false || !validPracticeTest(test)) return fail('This test is unavailable.', 404);
+    const input = await readJson(request);
+    const answers = input.answers;
+    if (!answers || typeof answers !== 'object' || Array.isArray(answers) ||
+        Object.keys(answers).length !== test.questions.length) return fail('Answer every question before submitting.');
+    let correctCount = 0;
+    const normalizedAnswers = [];
+    for (const question of test.questions) {
+      const selected = answers[question.id];
+      if (!['a', 'b', 'c'].includes(selected)) return fail('Provide one valid answer for every question.');
+      if (selected === question.correct) correctCount += 1;
+      normalizedAnswers.push({ questionId: question.id, selected });
+    }
+    const createdAt = new Date().toISOString();
+    const attempt = {
+      id: crypto.randomUUID(),
+      studentId: user.id,
+      testId: attemptMatch[1],
+      testTitle: test.title.trim(),
+      score: Math.round((correctCount / test.questions.length) * 100),
+      correctCount,
+      questionCount: test.questions.length,
+      answers: normalizedAnswers,
+      testSnapshot: test.questions,
+      createdAt
+    };
+    await env.DB.prepare(`
+      INSERT INTO practice_attempts
+        (id, student_id, test_id, test_title, score, correct_count, question_count, answers, test_snapshot, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      attempt.id,
+      attempt.studentId,
+      attempt.testId,
+      attempt.testTitle,
+      attempt.score,
+      attempt.correctCount,
+      attempt.questionCount,
+      JSON.stringify(attempt.answers),
+      JSON.stringify(attempt.testSnapshot),
+      attempt.createdAt
+    ).run();
+    return response({
+      attempt: {
+        id: attempt.id,
+        testId: attempt.testId,
+        title: attempt.testTitle,
+        score: attempt.score,
+        correct: attempt.correctCount,
+        total: attempt.questionCount,
+        date: attempt.createdAt
+      }
+    }, 201);
+  }
+
+  const adminTestMatch = /^\/api\/practice-tests\/([a-zA-Z0-9_-]{1,100})$/.exec(pathname);
+  if (adminTestMatch && request.method === 'PUT') {
+    const access = await requireAdmin(request, env);
+    if (access.error) return access.error;
+    const input = await readJson(request);
+    const test = input.test;
+    if (!validPracticeTest(test) || (test.active !== undefined && typeof test.active !== 'boolean')) {
+      return fail('Provide a title and 1–100 complete questions with a correct answer for each.');
+    }
+    const existing = await env.DB.prepare('SELECT created_at FROM documents WHERE collection = ? AND id = ?')
+      .bind('practiceTests', adminTestMatch[1]).first();
+    const now = new Date().toISOString();
+    const data = {
+      title: test.title.trim(),
+      questions: test.questions.map(question => ({
+        id: question.id,
+        text: question.text.trim(),
+        options: {
+          a: question.options.a.trim(),
+          b: question.options.b.trim(),
+          c: question.options.c.trim()
+        },
+        correct: question.correct
+      })),
+      active: test.active !== false,
+      updatedAt: now
+    };
+    await env.DB.prepare(`
+      INSERT INTO documents (collection, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(collection, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
+    `).bind('practiceTests', adminTestMatch[1], JSON.stringify(data), existing?.created_at || now, now).run();
+    return response({ id: adminTestMatch[1], data });
+  }
+
+  return null;
+}
+
+async function handleAdminExport(request, env, pathname) {
+  if (pathname !== '/api/admin/export' || request.method !== 'GET') return null;
+  const access = await requireAdmin(request, env);
+  if (access.error) return access.error;
+  const documents = {};
+  for (const collection of ['students', 'practiceTests', 'enquiries']) {
+    const rows = [];
+    for (let offset = 0; ; offset += 500) {
+      const page = await env.DB.prepare(`
+        SELECT id, data, created_at, updated_at FROM documents
+        WHERE collection = ? ORDER BY id LIMIT 500 OFFSET ?
+      `).bind(collection, offset).all();
+      rows.push(...page.results.map(row => ({
+        id: row.id,
+        data: parseData(row),
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      })));
+      if (page.results.length < 500) break;
+    }
+    documents[collection] = rows;
+  }
+  const practiceAttempts = [];
+  for (let offset = 0; ; offset += 500) {
+    const page = await env.DB.prepare(`
+      SELECT id, student_id, test_id, test_title, score, correct_count, question_count,
+        answers, test_snapshot, created_at
+      FROM practice_attempts ORDER BY created_at, id LIMIT 500 OFFSET ?
+    `).bind(offset).all();
+    practiceAttempts.push(...page.results.map(row => ({
+      id: row.id,
+      studentId: row.student_id,
+      testId: row.test_id,
+      testTitle: row.test_title,
+      score: row.score,
+      correct: row.correct_count,
+      total: row.question_count,
+      answers: JSON.parse(row.answers),
+      testSnapshot: JSON.parse(row.test_snapshot),
+      createdAt: row.created_at
+    })));
+    if (page.results.length < 500) break;
+  }
+  return response({
+    exportedAt: new Date().toISOString(),
+    documents,
+    practiceAttempts
+  }, 200, {
+    'content-disposition': 'attachment; filename="spatial-vision-tech-export.json"',
+    'cache-control': 'no-store'
+  });
+}
+
 async function notifyStudentDocumentChange(env, previous, student, studentId) {
   const messages = [];
   if (!previous) {
@@ -286,6 +526,7 @@ async function handleAuth(request, env, pathname, url) {
     ]);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Enter a valid email address.');
     if (email === ADMIN_EMAIL) return fail('The administrator account is reserved for initial setup.', 403);
+    if (!isValidPassword(input.password)) return fail('Password must be 8–12 characters and include a letter, a number, and a symbol.');
     if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
     if (typeof env.PASSWORD_PEPPER !== 'string' || env.PASSWORD_PEPPER.length < 32) {
       return fail('Account password service is not configured. Set the PASSWORD_PEPPER Worker secret and check Worker logs.', 503);
@@ -428,6 +669,7 @@ async function handleAuth(request, env, pathname, url) {
     const input = await readJson(request);
     const token = String(input.token || '');
     const verifier = input.passwordVerifier;
+    if (!isValidPassword(input.password)) return fail('Password must be 8–12 characters and include a letter, a number, and a symbol.');
     if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
     const reset = await env.DB.prepare('SELECT user_id FROM password_resets WHERE token_hash = ? AND expires_at > ?')
       .bind(await digest(token), new Date().toISOString()).first();
@@ -461,6 +703,7 @@ async function handleAdminSetup(request, env, pathname) {
     const adminCount = await env.DB.prepare("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'").first();
     if (adminCount.count > 0) return fail('The administrator account has already been initialized.', 409);
     const verifier = input.passwordVerifier;
+    if (!isValidPassword(input.password)) return fail('Password must be 8–12 characters and include a letter, a number, and a symbol.');
     if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
     const userId = crypto.randomUUID();
     try {
@@ -525,6 +768,9 @@ async function handleCollections(request, env, pathname, url) {
   const user = await requireUser(request, env);
   const isAdmin = user?.role === 'admin';
 
+  if (collection === 'practiceTests' && request.method === 'GET' && !user) {
+    return fail('Sign in to access practice tests.', 401);
+  }
   if (collection === 'students') {
     if (!user) return fail('Sign in to access student records.', 401);
     if (!isAdmin && documentId && documentId !== user.id) return fail('You can only access your own student record.', 403);
@@ -537,7 +783,11 @@ async function handleCollections(request, env, pathname, url) {
   if (request.method === 'GET' && documentId) {
     const row = await env.DB.prepare('SELECT id, data FROM documents WHERE collection = ? AND id = ?')
       .bind(collection, documentId).first();
-    return row ? response({ id: row.id, data: parseData(row) }) : fail('Record not found.', 404);
+    const data = parseData(row);
+    if (collection === 'practiceTests' && data?.active === false && !isAdmin) return fail('Record not found.', 404);
+    return row
+      ? response({ id: row.id, data: collection === 'practiceTests' && !isAdmin ? publicPracticeTest(data) : data })
+      : fail('Record not found.', 404);
   }
 
   if (request.method === 'GET' && !documentId) {
@@ -550,7 +800,13 @@ async function handleCollections(request, env, pathname, url) {
         .bind(collection);
     }
     const results = await statement.all();
-    const documents = results.results.map(row => ({ id: row.id, data: parseData(row) }));
+    const documents = results.results
+      .map(row => ({ id: row.id, data: parseData(row) }))
+      .filter(doc => collection !== 'practiceTests' || isAdmin || doc.data?.active !== false)
+      .map(doc => ({
+        ...doc,
+        data: collection === 'practiceTests' && !isAdmin ? publicPracticeTest(doc.data) : doc.data
+      }));
     const whereField = url.searchParams.get('whereField');
     const whereValue = url.searchParams.get('whereValue');
     const filtered = whereField ? documents.filter(doc => String(doc.data[whereField] || '').toLowerCase() === String(whereValue || '').toLowerCase()) : documents;
@@ -597,7 +853,7 @@ async function handleCollections(request, env, pathname, url) {
     if (collection === 'students') {
       if (!isAdmin && !previous && documentId !== user.id) return fail('You can only create your own student record.', 403);
       if (!isAdmin && previous) {
-        const allowedFields = new Set(['feeHistory', 'approvalRequestAt', 'testAttempts']);
+        const allowedFields = new Set(['feeHistory', 'approvalRequestAt']);
         if (Object.keys(input.data || {}).some(key => !allowedFields.has(key))) return fail('This account cannot change the requested student fields.', 403);
       }
     }
@@ -636,13 +892,6 @@ async function handleCollections(request, env, pathname, url) {
           }
           updates.feeHistory = { __arrayUnion: normalizedFees };
         }
-        if (Object.hasOwn(updates, 'testAttempts')) {
-          const attempts = updates.testAttempts && updates.testAttempts.__arrayUnion;
-          if (!Array.isArray(attempts) || !attempts.length || attempts.length > 2 ||
-              attempts.some(attempt => !attempt || typeof attempt !== 'object' || !Number.isFinite(Number(attempt.score)))) {
-            return fail('Test results must be appended as completed attempts.');
-          }
-        }
         if (Object.hasOwn(updates, 'approvalRequestAt')) {
           if (!await rateLimit(env, `approval:${documentId}`, 1, 86400)) {
             return fail('You have already requested an approval review recently.', 429);
@@ -659,6 +908,10 @@ async function handleCollections(request, env, pathname, url) {
     }
 
     if (!next || typeof next !== 'object' || Array.isArray(next)) return fail('Record data must be an object.');
+    if (collection === 'practiceTests' &&
+        (!validPracticeTest(next) || (next.active !== undefined && typeof next.active !== 'boolean'))) {
+      return fail('Provide a title and 1–100 complete questions with a correct answer for each.');
+    }
     if (collection === 'students' && !isAdmin && next.email?.toLowerCase() !== user.email.toLowerCase()) {
       return fail('Student record email must match the signed-in account.', 403);
     }
@@ -714,6 +967,7 @@ async function handleAdminCallable(request, env, pathname) {
   if (access.error) return access.error;
   const input = await readJson(request);
   const verifier = input.passwordVerifier;
+  if (!isValidPassword(input.password)) return fail('Password must be 8–12 characters and include a letter, a number, and a symbol.');
   if (!isValidVerifier(verifier)) return fail('Password credentials are invalid.');
   const studentId = match[1];
   const studentRow = await env.DB.prepare('SELECT data FROM documents WHERE collection = ? AND id = ?')
@@ -748,6 +1002,10 @@ async function handleRequest(request, env) {
       if (fileResponse) return fileResponse;
       const adminResponse = await handleAdminCallable(request, env, url.pathname);
       if (adminResponse) return adminResponse;
+      const practiceResponse = await handlePracticeTests(request, env, url.pathname);
+      if (practiceResponse) return practiceResponse;
+      const exportResponse = await handleAdminExport(request, env, url.pathname);
+      if (exportResponse) return exportResponse;
       const collectionResponse = await handleCollections(request, env, url.pathname, url);
       if (collectionResponse) return collectionResponse;
       return fail('Not found.', 404);

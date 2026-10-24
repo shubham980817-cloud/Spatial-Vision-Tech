@@ -45,6 +45,7 @@
         .question-editor:first-child { border-top: 0; }
         .question-editor-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .question-editor-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .admin-panel input[type="checkbox"] { width: auto; }
         .danger-button { background: #d64a4a; }
         @media (max-width: 680px) { .question-editor-grid { grid-template-columns: 1fr; } }
         .hidden { display: none; }
@@ -79,7 +80,7 @@
             <p>Sign in to take practice tests, review your scores, and build your BIM knowledge.</p>
             <form id="performance-login-form">
                 <div class="form-group"><label for="performance-email">Email Address</label><input type="email" id="performance-email" required></div>
-                <div class="form-group"><label for="performance-password">Password</label><input type="password" id="performance-password" required></div>
+                <div class="form-group"><label for="performance-password">Password</label><input type="password" id="performance-password" autocomplete="current-password" required></div>
                 <button type="submit">Open Performance Portal</button>
                 <div id="login-message" class="message"></div>
             </form>
@@ -92,14 +93,23 @@
             </div>
 
             <section id="admin-practice-panel" class="panel admin-panel hidden">
-                <h2>Admin: Manage MCQ Test</h2>
-                <p>Add, edit, or remove the questions shown in the practice test. Changes are saved for every student.</p>
+                <h2 id="admin-practice">Admin: Create &amp; Manage Tests</h2>
+                <p>Create multiple-choice tests manually, edit saved tests, and publish or unpublish them for students. Submitted attempts remain in history even if a test is later edited.</p>
+                <div class="question-editor-actions">
+                    <button type="button" id="new-test-button" class="secondary">Create New Test</button>
+                    <label for="admin-test-select">Edit saved test</label>
+                    <select id="admin-test-select"></select>
+                </div>
+                <div class="form-group"><label for="admin-test-title">Test title</label><input id="admin-test-title" type="text" maxlength="160" required></div>
+                <label><input id="admin-test-active" type="checkbox" checked> Published for students</label>
                 <div id="question-editor-list"></div>
                 <div class="question-editor-actions">
                     <button type="button" id="add-question-button" class="secondary">Add Question</button>
-                    <button type="button" id="save-questions-button">Save MCQ Test</button>
+                    <button type="button" id="save-questions-button">Save Test</button>
                 </div>
-                <div id="admin-practice-message" class="message"></div>
+                <div id="admin-practice-message" class="message" role="status"></div>
+                <h3>All Student Test Attempts</h3>
+                <div id="admin-attempt-history"><p>Loading test history...</p></div>
             </section>
 
             <div class="overview-grid panel">
@@ -128,9 +138,10 @@
             </section>
 
             <section class="panel">
-                <h2>BIM Foundations Test</h2>
+                <h2 id="practice-test-title">Practice Test</h2>
                 <p>Choose one answer for each question. Your score is saved to your student record after submission.</p>
                 <form id="practice-test-form">
+                    <div id="practice-test-picker" class="form-group"><label for="practice-test-select">Choose a test</label><select id="practice-test-select"></select></div>
                     <div id="question-list"><p>Loading questions...</p></div>
                     <button type="submit">Submit Test</button>
                     <div id="test-message" class="message"></div>
@@ -147,139 +158,277 @@
     <script>
         const auth = svt.auth();
         const db = svt.store();
-        const ADMIN_EMAIL = 'admin@spatialvisiontech.in';
-        const defaultQuestions = [
-            { id: 'q1', text: 'What does BIM primarily manage?', options: { a: 'Only 2D drawings', b: 'Information connected to a digital building model', c: 'Site attendance only' }, correct: 'b' },
-            { id: 'q2', text: 'Which workflow is most associated with Navisworks?', options: { a: 'Clash detection and coordination', b: 'Payroll processing', c: 'Email marketing' }, correct: 'a' },
-            { id: 'q3', text: 'What is a Revit family?', options: { a: 'A project invoice', b: 'A reusable parametric component', c: 'A site safety report' }, correct: 'b' },
-            { id: 'q4', text: 'What does a federated model combine?', options: { a: 'Separate discipline models for coordination', b: 'Student passwords', c: 'Payment receipts only' }, correct: 'a' },
-            { id: 'q5', text: 'ISO 19650 is focused on:', options: { a: 'Managing information over an asset lifecycle', b: 'Rendering only', c: 'Computer hardware repair' }, correct: 'a' }
-        ];
-        let activeStudentId = null;
         let activeStudent = null;
-        let practiceQuestions = [];
+        let tests = [];
+        let currentTest = null;
+        let editorTestId = null;
+        let editorQuestions = [];
+        let attempts = [];
         let isAdmin = false;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
 
         function showMessage(element, text, color) {
             element.textContent = text;
             element.style.color = color;
         }
 
-        function renderPerformance(student) {
-            const attempts = student.testAttempts || [];
-            const scores = attempts.map(attempt => Number(attempt.score) || 0);
-            document.getElementById('student-name').textContent = student.name || student.email;
+        function renderPerformance() {
+            const legacyAttempts = Array.isArray(activeStudent.testAttempts) ? activeStudent.testAttempts : [];
+            const mergedAttempts = [...legacyAttempts, ...attempts.filter(attempt =>
+                !legacyAttempts.some(previous => previous.id && previous.id === attempt.id)
+            )].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const scores = mergedAttempts.map(attempt => Number(attempt.score) || 0);
+            document.getElementById('student-name').textContent = activeStudent.name || activeStudent.email;
             document.getElementById('latest-score').textContent = `${scores.length ? scores[scores.length - 1] : 0}%`;
             document.getElementById('test-count').textContent = scores.length;
             document.getElementById('best-score').textContent = `${scores.length ? Math.max(...scores) : 0}%`;
             const history = document.getElementById('attempt-history');
-            history.innerHTML = attempts.length ? attempts.slice().reverse().map(attempt => `<div class="history-row"><span>${new Date(attempt.date).toLocaleDateString('en-IN')}</span><strong>${attempt.score}% (${attempt.correct}/${attempt.total})</strong></div>`).join('') : '<p>No completed tests yet.</p>';
+            history.innerHTML = mergedAttempts.length ? mergedAttempts.slice().reverse().map(attempt =>
+                `<div class="history-row"><span>${escapeHtml(attempt.title || 'Practice test')} · ${new Date(attempt.date).toLocaleString('en-IN')}</span><strong>${escapeHtml(attempt.score)}% (${escapeHtml(attempt.correct)}/${escapeHtml(attempt.total)})</strong></div>`
+            ).join('') : '<p>No completed tests yet.</p>';
         }
 
-        function renderQuestions() {
+        function renderQuestions(test) {
+            currentTest = test || null;
+            document.getElementById('practice-test-title').textContent = currentTest?.data.title || 'Practice Test';
             const questionList = document.getElementById('question-list');
-            questionList.innerHTML = practiceQuestions.length ? practiceQuestions.map((question, index) => `<div class="question"><strong>${index + 1}. ${question.text}</strong>${['a', 'b', 'c'].map(option => `<label><input type="radio" name="${question.id}" value="${option}"${option === 'a' ? ' required' : ''}> ${question.options[option]}</label>`).join('')}</div>`).join('') : '<p>No questions have been added yet.</p>';
+            const form = document.getElementById('practice-test-form');
+            form.querySelector('button[type="submit"]').disabled = !currentTest;
+            questionList.innerHTML = currentTest?.data.questions?.length ? currentTest.data.questions.map((question, index) =>
+                `<div class="question"><strong>${index + 1}. ${escapeHtml(question.text)}</strong>${['a', 'b', 'c'].map(option =>
+                    `<label><input type="radio" name="${escapeHtml(question.id)}" value="${option}"${option === 'a' ? ' required' : ''}> ${escapeHtml(question.options[option])}</label>`
+                ).join('')}</div>`
+            ).join('') : '<p>No active tests are available yet.</p>';
         }
 
         function renderQuestionEditor() {
-            document.getElementById('question-editor-list').innerHTML = practiceQuestions.map((question, index) => `<div class="question-editor" data-question-index="${index}">
-                <div class="form-group"><label>Question ${index + 1}</label><input class="editor-text" value="${question.text.replace(/"/g, '&quot;')}" required></div>
+            const test = tests.find(item => item.id === editorTestId);
+            document.getElementById('admin-test-select').innerHTML = tests.map(item =>
+                `<option value="${escapeHtml(item.id)}"${item.id === editorTestId ? ' selected' : ''}>${escapeHtml(item.title)}</option>`
+            ).join('');
+            document.getElementById('admin-test-title').value = test?.data.title || '';
+            document.getElementById('admin-test-active').checked = test?.data.active !== false;
+            document.getElementById('question-editor-list').innerHTML = editorQuestions.map((question, index) => `<div class="question-editor">
+                <div class="form-group"><label>Question ${index + 1}</label><input class="editor-text" maxlength="1000" value="${escapeHtml(question.text)}" required></div>
                 <div class="question-editor-grid">
-                    <div class="form-group"><label>Option A</label><input class="editor-option-a" value="${question.options.a.replace(/"/g, '&quot;')}" required></div>
-                    <div class="form-group"><label>Option B</label><input class="editor-option-b" value="${question.options.b.replace(/"/g, '&quot;')}" required></div>
-                    <div class="form-group"><label>Option C</label><input class="editor-option-c" value="${question.options.c.replace(/"/g, '&quot;')}" required></div>
+                    <div class="form-group"><label>Option A</label><input class="editor-option-a" maxlength="500" value="${escapeHtml(question.options.a)}" required></div>
+                    <div class="form-group"><label>Option B</label><input class="editor-option-b" maxlength="500" value="${escapeHtml(question.options.b)}" required></div>
+                    <div class="form-group"><label>Option C</label><input class="editor-option-c" maxlength="500" value="${escapeHtml(question.options.c)}" required></div>
                 </div>
                 <label>Correct answer</label><select class="editor-correct"><option value="a"${question.correct === 'a' ? ' selected' : ''}>Option A</option><option value="b"${question.correct === 'b' ? ' selected' : ''}>Option B</option><option value="c"${question.correct === 'c' ? ' selected' : ''}>Option C</option></select>
-                <div class="question-editor-actions"><button type="button" class="danger-button" onclick="removeQuestion(${index})">Remove Question</button></div>
+                <div class="question-editor-actions"><button type="button" class="danger-button" data-remove-question="${index}">Remove Question</button></div>
             </div>`).join('');
+            document.querySelectorAll('[data-remove-question]').forEach(button => button.addEventListener('click', () => {
+                editorQuestions.splice(Number(button.dataset.removeQuestion), 1);
+                renderQuestionEditor();
+            }));
         }
 
-        function loadPracticeQuestions() {
-            return db.collection('practiceTests').doc('bim-foundations').get().then(snapshot => {
-                practiceQuestions = snapshot.exists && snapshot.data().questions ? snapshot.data().questions : defaultQuestions;
-                renderQuestions();
-                if (isAdmin) renderQuestionEditor();
-            });
+        function renderTestPickers() {
+            const availableTests = tests.filter(test => isAdmin || test.data.active !== false);
+            const picker = document.getElementById('practice-test-select');
+            document.getElementById('practice-test-picker').classList.toggle('hidden', availableTests.length <= 1);
+            picker.innerHTML = availableTests.map(test =>
+                `<option value="${escapeHtml(test.id)}">${escapeHtml(test.data.title)}</option>`
+            ).join('');
+            renderQuestions(availableTests.find(test => test.id === picker.value) || availableTests[0]);
         }
 
-        window.removeQuestion = function(index) {
-            practiceQuestions.splice(index, 1);
+        async function loadTests() {
+            const result = await svt.request('/api/practice-tests');
+            tests = result.documents;
+            renderTestPickers();
+            if (isAdmin) {
+                if (!editorTestId || !tests.some(test => test.id === editorTestId)) {
+                    editorTestId = tests[0]?.id || null;
+                }
+                editorQuestions = tests.find(test => test.id === editorTestId)?.data.questions.map(question => ({ ...question, options: { ...question.options } })) || [];
+                renderQuestionEditor();
+            }
+        }
+
+        async function loadHistory() {
+            const result = await svt.request('/api/practice-tests/attempts');
+            attempts = result.attempts;
+            if (isAdmin) {
+                const students = await db.collection('students').get();
+                const legacyAttempts = [];
+                students.forEach(student => {
+                    const data = student.data();
+                    (data.testAttempts || []).forEach(attempt => legacyAttempts.push({
+                        ...attempt,
+                        studentId: student.id,
+                        studentName: data.name || data.email || 'Student',
+                        studentEmail: data.email || ''
+                    }));
+                });
+                attempts.push(...legacyAttempts.filter(legacy =>
+                    !attempts.some(attempt => attempt.id && attempt.id === legacy.id)
+                ));
+                attempts.sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+            }
+            renderPerformance();
+            if (isAdmin) {
+                document.getElementById('admin-attempt-history').innerHTML = attempts.length ? `
+                    <div style="overflow-x:auto"><table><thead><tr><th>Student</th><th>Test</th><th>Score</th><th>Submitted</th></tr></thead><tbody>
+                    ${attempts.map(attempt => `<tr><td>${escapeHtml(attempt.studentName)}<br><small>${escapeHtml(attempt.studentEmail)}</small></td><td>${escapeHtml(attempt.title)}</td><td>${escapeHtml(attempt.score)}% (${escapeHtml(attempt.correct)}/${escapeHtml(attempt.total)})</td><td>${escapeHtml(new Date(attempt.date).toLocaleString('en-IN'))}</td></tr>`).join('')}
+                    </tbody></table></div>` : '<p>No student test attempts yet.</p>';
+            }
+        }
+
+        function setNewTest() {
+            editorTestId = `test-${crypto.randomUUID()}`;
+            editorQuestions = [{
+                id: `q-${crypto.randomUUID()}`,
+                text: '',
+                options: { a: '', b: '', c: '' },
+                correct: 'a'
+            }];
+            document.getElementById('admin-test-select').value = '';
+            document.getElementById('admin-test-title').value = '';
+            document.getElementById('admin-test-active').checked = true;
             renderQuestionEditor();
-        };
+        }
+
+        document.getElementById('admin-test-select').addEventListener('change', event => {
+            editorTestId = event.target.value;
+            editorQuestions = tests.find(test => test.id === editorTestId)?.data.questions.map(question => ({ ...question, options: { ...question.options } })) || [];
+            renderQuestionEditor();
+        });
+
+        document.getElementById('new-test-button').addEventListener('click', setNewTest);
 
         document.getElementById('add-question-button').addEventListener('click', () => {
-            practiceQuestions.push({ id: `q${Date.now()}`, text: '', options: { a: '', b: '', c: '' }, correct: 'a' });
+            editorQuestions.push({
+                id: `q-${crypto.randomUUID()}`,
+                text: '',
+                options: { a: '', b: '', c: '' },
+                correct: 'a'
+            });
             renderQuestionEditor();
         });
 
-        document.getElementById('save-questions-button').addEventListener('click', () => {
+        document.getElementById('save-questions-button').addEventListener('click', async () => {
             const editors = [...document.querySelectorAll('.question-editor')];
-            const questions = editors.map((editor, index) => ({
-                id: practiceQuestions[index].id,
-                text: editor.querySelector('.editor-text').value.trim(),
-                options: {
-                    a: editor.querySelector('.editor-option-a').value.trim(),
-                    b: editor.querySelector('.editor-option-b').value.trim(),
-                    c: editor.querySelector('.editor-option-c').value.trim()
-                },
-                correct: editor.querySelector('.editor-correct').value
-            }));
-            if (!questions.length || questions.some(question => !question.text || Object.values(question.options).some(option => !option))) {
-                showMessage(document.getElementById('admin-practice-message'), 'Complete every question and option before saving.', '#c62828');
+            const test = {
+                title: document.getElementById('admin-test-title').value.trim(),
+                active: document.getElementById('admin-test-active').checked,
+                questions: editors.map((editor, index) => ({
+                    id: editorQuestions[index].id,
+                    text: editor.querySelector('.editor-text').value.trim(),
+                    options: {
+                        a: editor.querySelector('.editor-option-a').value.trim(),
+                        b: editor.querySelector('.editor-option-b').value.trim(),
+                        c: editor.querySelector('.editor-option-c').value.trim()
+                    },
+                    correct: editor.querySelector('.editor-correct').value
+                }))
+            };
+            if (!test.title || !test.questions.length || test.questions.some(question =>
+                !question.text || Object.values(question.options).some(option => !option)
+            )) {
+                showMessage(document.getElementById('admin-practice-message'), 'Enter a title and complete every question and option before saving.', '#c62828');
                 return;
             }
-            db.collection('practiceTests').doc('bim-foundations').set({ title: 'BIM Foundations Test', questions, updatedAt: new Date().toISOString() })
-                .then(() => { practiceQuestions = questions; renderQuestions(); renderQuestionEditor(); showMessage(document.getElementById('admin-practice-message'), 'MCQ test saved for students.', '#2e7d32'); })
-                .catch(error => showMessage(document.getElementById('admin-practice-message'), error.message, '#c62828'));
+            const button = document.getElementById('save-questions-button');
+            button.disabled = true;
+            try {
+                const result = await svt.request(`/api/practice-tests/${encodeURIComponent(editorTestId)}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ test })
+                });
+                const saved = { id: result.id, data: result.data };
+                const existingIndex = tests.findIndex(item => item.id === saved.id);
+                if (existingIndex === -1) tests.unshift(saved);
+                else tests[existingIndex] = saved;
+                editorQuestions = test.questions;
+                renderQuestionEditor();
+                renderTestPickers();
+                showMessage(document.getElementById('admin-practice-message'), 'Test saved. Published tests are now available to students.', '#2e7d32');
+            } catch (error) {
+                showMessage(document.getElementById('admin-practice-message'), error.message, '#c62828');
+            } finally {
+                button.disabled = false;
+            }
         });
 
-        document.getElementById('performance-login-form').addEventListener('submit', function(event) {
+        document.getElementById('practice-test-select').addEventListener('change', event => {
+            const test = tests.find(item => item.id === event.target.value);
+            renderQuestions(test);
+        });
+
+        async function openPerformancePortal(user) {
+            if (!user) return;
+            isAdmin = user.role === 'admin';
+            if (isAdmin) {
+                activeStudent = { name: 'Administrator', email: user.email, testAttempts: [] };
+            } else {
+                const snapshot = await svt.request(`/api/collections/students/${encodeURIComponent(user.uid)}`);
+                activeStudent = snapshot.data;
+            }
+            document.getElementById('admin-practice-panel').classList.toggle('hidden', !isAdmin);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('portal-screen').classList.remove('hidden');
+            await loadTests();
+            await loadHistory();
+            if (isAdmin && location.hash === '#admin-practice') {
+                document.getElementById('admin-practice').scrollIntoView();
+            }
+        }
+
+        document.getElementById('performance-login-form').addEventListener('submit', async event => {
             event.preventDefault();
             const message = document.getElementById('login-message');
-            auth.signInWithEmailAndPassword(document.getElementById('performance-email').value, document.getElementById('performance-password').value)
-                .then(() => {
-                    isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
-                    if (isAdmin) return { id: auth.currentUser.uid, exists: true, data: () => ({ name: 'Administrator', email: auth.currentUser.email, testAttempts: [] }) };
-                    return db.collection('students').doc(auth.currentUser.uid).get();
-                })
-                .then(snapshot => snapshot.exists ? snapshot : db.collection('students').where('email', '==', auth.currentUser.email).limit(1).get().then(results => {
-                    if (results.empty) throw new Error('Student record not found.');
-                    return results.docs[0];
-                }))
-                .then(snapshot => {
-                    activeStudentId = snapshot.id;
-                    activeStudent = snapshot.data();
-                    renderPerformance(activeStudent);
-                    document.getElementById('admin-practice-panel').classList.toggle('hidden', !isAdmin);
-                    return loadPracticeQuestions();
-                })
-                .then(() => {
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('portal-screen').classList.remove('hidden');
-                })
-                .catch(error => showMessage(message, error.message, '#c62828'));
+            try {
+                await auth.signInWithEmailAndPassword(
+                    document.getElementById('performance-email').value,
+                    document.getElementById('performance-password').value
+                );
+                await openPerformancePortal(auth.currentUser);
+            } catch (error) {
+                showMessage(message, error.message, '#c62828');
+            }
         });
 
-        document.getElementById('practice-test-form').addEventListener('submit', function(event) {
+        document.getElementById('practice-test-form').addEventListener('submit', async event => {
             event.preventDefault();
-            const answers = Object.fromEntries(new FormData(event.target).entries());
-            const correct = practiceQuestions.filter(question => answers[question.id] === question.correct).length;
-            const attempt = { score: Math.round((correct / practiceQuestions.length) * 100), correct, total: practiceQuestions.length, date: new Date().toISOString() };
+            if (!currentTest) return;
+            const answers = Object.fromEntries(new FormData(event.currentTarget).entries());
             if (isAdmin) {
-                showMessage(document.getElementById('test-message'), 'Admin preview submitted. Student records were not changed.', '#2e7d32');
+                const correct = currentTest.data.questions.filter(question => answers[question.id] === question.correct).length;
+                const score = Math.round((correct / currentTest.data.questions.length) * 100);
+                showMessage(document.getElementById('test-message'), `Admin preview: ${score}% (${correct}/${currentTest.data.questions.length}). No student record was changed.`, '#2e7d32');
                 return;
             }
-            db.collection('students').doc(activeStudentId).update({ testAttempts: svt.store.FieldValue.arrayUnion(attempt) })
-                .then(() => {
-                    activeStudent.testAttempts = [...(activeStudent.testAttempts || []), attempt];
-                    renderPerformance(activeStudent);
-                    showMessage(document.getElementById('test-message'), `Test submitted: ${attempt.score}%. Your result is saved.`, '#2e7d32');
-                    event.target.reset();
-                })
-                .catch(error => showMessage(document.getElementById('test-message'), error.message, '#c62828'));
+            const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            try {
+                const result = await svt.request(`/api/practice-tests/${encodeURIComponent(currentTest.id)}/attempts`, {
+                    method: 'POST',
+                    body: JSON.stringify({ answers })
+                });
+                attempts.unshift(result.attempt);
+                activeStudent.testAttempts = [...(activeStudent.testAttempts || []), result.attempt];
+                renderPerformance();
+                showMessage(document.getElementById('test-message'), `Test submitted: ${result.attempt.score}%. Your result is saved in your history.`, '#2e7d32');
+                event.currentTarget.reset();
+            } catch (error) {
+                showMessage(document.getElementById('test-message'), error.message, '#c62828');
+            } finally {
+                submitButton.disabled = !currentTest;
+            }
         });
 
         document.getElementById('logout-button').addEventListener('click', () => auth.signOut().then(() => location.reload()));
+
+        auth.restoreSession().then(user => {
+            if (user) return openPerformancePortal(user);
+        }).catch(error => showMessage(document.getElementById('login-message'), error.message, '#c62828'));
     </script>
 </body>
 </html>
