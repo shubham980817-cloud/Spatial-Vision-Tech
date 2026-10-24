@@ -2127,6 +2127,32 @@ html body .service-card:hover {
   box-shadow: inset 0 3px #ef8b2c, 0 16px 30px rgba(16, 45, 70, 0.12);
 }
 
+html body .service-overview-grid,
+html body .service-catalog-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+html body .service-overview-grid .service-card,
+html body .service-catalog-grid .service-card {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 980px) {
+  html body .service-overview-grid,
+  html body .service-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  html body .service-overview-grid,
+  html body .service-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 html body .btn-primary,
 html body .btn:not(.btn-secondary) {
   background: #16496a;
