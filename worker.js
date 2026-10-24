@@ -521,6 +521,10 @@ async function handleAuth(request, env, pathname, url) {
     const phone = String(profile.phone || '').trim().slice(0, 50);
     const course = String(profile.course || '').trim().slice(0, 200);
     const allowedCourses = new Set([
+      'Pre-Course Orientation',
+      'Studio 01: Revit Fundamentals',
+      'Studio 02: Advanced Modelling',
+      'Studio 03: Delivery & Coordination',
       'Autodesk Revit: Structural Modeling Masterclass',
       'Advanced BIM: Coordination & Clash Detection'
     ]);
