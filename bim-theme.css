@@ -1477,7 +1477,7 @@ html body .hero-brand-wrap {
 }
 
 html body .hero-brand-logo {
-  display: none;
+  display: block;
 }
 
 html body .hero-brand-text {
