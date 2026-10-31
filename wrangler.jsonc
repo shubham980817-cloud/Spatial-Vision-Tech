@@ -28,12 +28,6 @@
       "bucket_name": "spatial-vision-tech-files"
     }
   ],
-  "send_email": [
-    {
-      "name": "EMAIL",
-      "allowed_sender_addresses": ["admin@spatialvisiontech.in"]
-    }
-  ],
   "vars": {
     "MAIL_FROM": "admin@spatialvisiontech.in",
     "SITE_URL": "https://spatialvisiontech.in"

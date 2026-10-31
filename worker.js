@@ -128,14 +128,26 @@ async function requireAdmin(request, env) {
 }
 
 async function sendEmail(env, to, subject, text) {
-  if (!env.EMAIL || !env.MAIL_FROM) throw new Error('Cloudflare Email Service is not configured.');
+  if (!env.RESEND_API_KEY || !env.MAIL_FROM) throw new Error("Email service is not configured.");
   if (typeof to !== 'string' || !to.trim()) throw new Error('Email recipient is missing.');
-  await env.EMAIL.send({
-    from: { email: env.MAIL_FROM, name: 'Spatial Vision Tech' },
-    to,
-    subject,
-    text
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + env.RESEND_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "Spatial Vision Tech <" + env.MAIL_FROM + ">",
+      to: to,
+      subject: subject,
+      text: text,
+    }),
   });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Resend error:", err);
+    throw new Error("Failed to send email: " + err);
+  }
 }
 
 function studentSummary(student) {
@@ -634,7 +646,7 @@ async function handleAuth(request, env, pathname, url) {
       ? typeof env.ADMIN_RESET_RECIPIENT === 'string' ? env.ADMIN_RESET_RECIPIENT.trim() : ''
       : email;
     if (isAdminAccount && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetRecipient)) {
-      return fail('Admin password reset is not configured. Set ADMIN_RESET_RECIPIENT to a verified Cloudflare Email Routing destination address.', 503);
+      return fail('Admin password reset is not configured. Set ADMIN_RESET_RECIPIENT to a valid email address.', 503);
     }
     if (user) {
       const token = randomToken();
@@ -651,7 +663,7 @@ async function handleAuth(request, env, pathname, url) {
       if (failures.length) {
         await env.DB.prepare('DELETE FROM password_resets WHERE token_hash = ?').bind(tokenHash).run();
         if (isAdminAccount) {
-          return fail('Cloudflare could not deliver the administrator reset email. Verify ADMIN_RESET_RECIPIENT is a verified Email Routing destination and check Email Service onboarding, the allowed sender, MAIL_FROM, and Worker logs.', 503);
+          return fail('Could not deliver the administrator reset email. Check RESEND_API_KEY, ADMIN_RESET_RECIPIENT, MAIL_FROM, and Worker logs.', 503);
         }
       }
     }

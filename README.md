@@ -1,6 +1,6 @@
 # Spatial Vision Tech
 
-The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Cloudflare Email Service for transactional email.
+The site uses Cloudflare Workers for its API, D1 for accounts and application data, R2 for student uploads, and Resend for transactional email.
 
 ## Cloudflare setup and Git deployment
 
@@ -13,29 +13,28 @@ The site uses Cloudflare Workers for its API, D1 for accounts and application da
    ```
 
 3. Copy the D1 database ID returned by Wrangler into `wrangler.jsonc`, replacing `REPLACE_WITH_D1_DATABASE_ID`.
-4. In the Cloudflare dashboard, onboard and verify `spatialvisiontech.in` with Email Service. The sender `admin@spatialvisiontech.in` must be allowed by the Worker binding. Configure the domain's required DNS records before expecting delivery.
-5. In the Cloudflare dashboard, open the Worker named `admin` and set the `PASSWORD_PEPPER` secret (at least 32 random characters) and the one-time `ADMIN_BOOTSTRAP_TOKEN` secret under **Settings > Variables and Secrets**. Keep `PASSWORD_PEPPER` configured; losing it prevents password verification.
+4. Configure and verify the sending domain in Resend. The `MAIL_FROM` address in `wrangler.jsonc` must be an authorized sender for that Resend account.
+5. In the Cloudflare dashboard, open the Worker named `admin` and set the `PASSWORD_PEPPER` secret (at least 32 random characters), `RESEND_API_KEY`, and the one-time `ADMIN_BOOTSTRAP_TOKEN` secret under **Settings > Variables and Secrets**. Keep `PASSWORD_PEPPER` configured; losing it prevents password verification.
 6. Apply the database schema when setting up a new database or when deploying new migrations:
 
    ```bash
    npm run db:migrate:remote
    ```
 
-7. Connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. Select the `main` production branch, set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`. Cloudflare Workers Builds then deploys commits from the selected branch; do not run a local deploy command.
+7. Deploy with `npx wrangler deploy`, or connect the existing `admin` Worker to this Git repository in the Cloudflare dashboard: **Workers & Pages > admin > Settings > Builds > Connect**. For Git deployment, select the `main` production branch, set the root directory to `.`, leave the build command empty, and use `npx wrangler deploy` as the deploy command. The Worker name must match the `name` in `wrangler.jsonc`.
 8. The Wrangler configuration routes `spatialvisiontech.in/*` to the Worker. Confirm the domain is active in this Cloudflare zone before enabling the Git build. Before enabling preview deployments, configure separate preview bindings and data so previews do not use production resources.
 9. Open `https://<your-site>/admin-setup.html` and create the first administrator using the setup token and a password that is 8–12 characters with at least one letter, one number, and one symbol. After successful setup, remove the `ADMIN_BOOTSTRAP_TOKEN` secret in **Settings > Variables and Secrets**.
 
-The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` and the Email Service sender allowlist together if the notification address changes.
+The Worker serves the static site and `/api/*` from the same origin. Update `SITE_URL` in `wrangler.jsonc` if the site will use a different public URL; it is used to build password reset links. Change `MAIL_FROM` if the notification sender address changes.
 
-### Email sending on Workers Free
+### Email sending
 
-Cloudflare Workers Free can send Email Service messages only to verified Email Routing destination addresses; arbitrary student email addresses require Workers Paid. To receive admin password-reset emails on the Free plan:
+Resend sends transactional email to student and customer addresses. To receive admin password-reset emails at a different address:
 
-1. In Cloudflare, open **Compute > Email Service > Email Routing > Destination Addresses**, add the inbox you want to receive admin resets at, and complete its email verification.
-2. In **Workers & Pages > admin > Settings > Variables and Secrets**, add an `ADMIN_RESET_RECIPIENT` secret with that exact verified destination address. Storing it as a secret keeps the setting intact when Git deployments update the Worker.
-3. Keep the admin login email as `admin@spatialvisiontech.in`. The reset token is still issued for the admin account; only its delivery address changes.
+1. In **Workers & Pages > admin > Settings > Variables and Secrets**, add an `ADMIN_RESET_RECIPIENT` secret with the desired address. Storing it as a secret keeps the setting intact when Git deployments update the Worker.
+2. Keep the admin login email as `admin@spatialvisiontech.in`. The reset token is still issued for the admin account; only its delivery address changes.
 
-On the Free plan, emails to students (including registration confirmations and password resets) require each student's email to be a verified Email Routing destination address. Use Workers Paid to send to arbitrary student addresses. Email delivery failures are reported in Worker logs and do not prevent account registration.
+Email delivery failures are reported in Worker logs and do not prevent account registration.
 
 ## Application notifications
 
@@ -46,7 +45,7 @@ On the Free plan, emails to students (including registration confirmations and p
 - Contact form submissions and student approval-review requests notify the admin.
 - Registration approval and Student Portal access grants notify the student.
 
-Email is sent through the Cloudflare Email Service binding. Delivery requires an onboarded sender domain; configuring the binding alone is not sufficient.
+Email is sent through the Resend API. Delivery requires a configured API key and a verified sender domain in Resend.
 
 Password verifiers are PBKDF2-derived in the browser before reaching the Worker so registration and sign-in can operate within Cloudflare Workers Free CPU limits. New-password input is also sent over same-origin HTTPS for Worker-side policy validation and is not stored. The Worker uses `PASSWORD_PEPPER` to protect stored verifiers.
 
